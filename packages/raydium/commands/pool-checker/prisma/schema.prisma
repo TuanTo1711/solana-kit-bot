@@ -1,0 +1,38 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client"
+    output   = "../src/database"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = "postgresql://solana_bot_user:solana_bot_password@localhost:5432/solana_bot_db"
+}
+
+model Pool {
+    id             String @id @default(cuid())
+    address        String @unique
+    token0Vault    String
+    token1Vault    String
+    token0Mint     String
+    token1Mint     String
+    lpMint         String
+    ammConfig      String
+    observationKey String
+}
+
+model Config {
+    id             String   @id @default(cuid())
+    target         String
+    mustBoost      Boolean  @default(false)
+    totalBoost     Int?
+    hasImage       Boolean  @default(false)
+    expiredTime    Int
+    amount         String
+    profitAutoSell Float
+    jitoTip        Float
+    createdAt      DateTime @default(now())
+    updatedAt      DateTime @updatedAt
+}

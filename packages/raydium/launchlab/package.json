@@ -1,0 +1,34 @@
+{
+  "name": "@solana-kit-bot/raydium-launchlab",
+  "version": "1.0.0",
+  "description": "Raydium Launchlab for Solana blockchain",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "update": "pnpm update",
+    "build": "tsup",
+    "check-types": "npx tsc --noEmit",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "raydium",
+    "launchlab",
+    "solana",
+    "program"
+  ],
+  "author": "Yuuta - To Hoang Tuan",
+  "license": "MIT",
+  "packageManager": "pnpm@10.13.1",
+  "dependencies": {
+    "@solana-program/compute-budget": "^0.8.0",
+    "@solana-program/system": "^0.7.0",
+    "@solana-program/token": "^0.5.1",
+    "@solana/addresses": "^2.3.0",
+    "@solana/codecs": "^2.3.0",
+    "@solana/kit": "^2.3.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.0"
+  }
+}

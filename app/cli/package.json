@@ -1,0 +1,55 @@
+{
+  "name": "@solana-kit-bot/cli",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Solana Bot for CLI using solana sdk v2 (@solana-kit)",
+  "type": "module",
+  "main": "./dist/index.js",
+  "bin": {
+    "solana-kit-bot": "./dist/index.js"
+  },
+  "scripts": {
+    "update": "pnpm update",
+    "build": "pnpm clean && tsup",
+    "dev": "tsx src/index.ts run",
+    "start": "node dist/index.js",
+    "clean": "rimraf dist",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@solana-kit-bot/core": "workspace:*",
+    "@solana-kit-bot/provider": "workspace:*",
+    "@solana-kit-bot/raydium-launchlab-pool-checker": "workspace:*",
+    "@solana-kit-bot/raydium-launchlab-virtual-trading": "workspace:*",
+    "@solana/kit": "^2.3.0",
+    "chalk": "^5.4.1",
+    "clipanion": "4.0.0-rc.4",
+    "conf": "^14.0.0",
+    "figlet": "^1.8.2",
+    "gradient-string": "^3.0.0",
+    "inquirer": "^12.9.0",
+    "rimraf": "^6.0.1",
+    "typanion": "^3.14.0"
+  },
+  "keywords": [
+    "solana",
+    "bot",
+    "cli",
+    "volume-bot",
+    "sniper-bot",
+    "limit-order-bot",
+    "pumpfun-bot",
+    "pumpswap-bot",
+    "raydium-bot",
+    "launchlab-bot"
+  ],
+  "author": "Yuuta - To Hoang Tuan",
+  "license": "MIT",
+  "packageManager": "pnpm@10.13.1",
+  "devDependencies": {
+    "@types/figlet": "^1.7.0",
+    "tsup": "^8.5.0"
+  }
+}

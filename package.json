@@ -1,0 +1,37 @@
+{
+  "name": "solana-kit-bot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Solana Bot - TypeScript CLI with Turborepo",
+  "scripts": {
+    "update": "turbo run update",
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "type-check": "turbo run type-check",
+    "clean": "turbo run clean",
+    "test": "turbo run test",
+    "cli:build": "pnpm --filter=@solana-kit-bot/cli build",
+    "cli:link": "cd app/cli && pnpm link",
+    "cli:unlink": "cd app/cli && pnpm unlink -g",
+    "cli:install": "pnpm cli:build && pnpm cli:link"
+  },
+  "devDependencies": {
+    "@types/node": "^22.16.5",
+    "prettier": "^3.6.2",
+    "turbo": "^2.5.5",
+    "typescript": "5.8.2"
+  },
+  "workspaces": [
+    "packages/*",
+    "app/*"
+  ],
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=10"
+  },
+  "license": "MIT",
+  "packageManager": "pnpm@10.14.0"
+}

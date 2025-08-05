@@ -1,0 +1,44 @@
+{
+  "name": "@solana-kit-bot/raydium-launchlab-virtual-trading",
+  "version": "1.0.0",
+  "description": "Virtual trading command for Raydium Launchlab",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "update": "pnpm update",
+    "build": "tsup",
+    "check-types": "npx tsc --noEmit",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "raydium",
+    "solana",
+    "bot"
+  ],
+  "author": "Yuuta - To Hoang Tuan",
+  "license": "ISC",
+  "packageManager": "pnpm@10.13.1",
+  "dependencies": {
+    "@solana-kit-bot/core": "workspace:*",
+    "@solana-kit-bot/raydium-cpmm": "workspace:*",
+    "@solana-program/compute-budget": "^0.8.0",
+    "@solana-program/system": "^0.7.0",
+    "@solana-program/token": "^0.5.1",
+    "@solana/addresses": "^2.3.0",
+    "@solana/codecs": "^2.3.0",
+    "@solana/kit": "^2.3.0",
+    "chalk": "^5.4.1",
+    "clipanion": "4.0.0-rc.4",
+    "figlet": "^1.8.2",
+    "gradient-string": "^3.0.0",
+    "inquirer": "^12.9.0",
+    "rxjs": "^7.8.2",
+    "typanion": "^3.14.0",
+    "zod": "^4.0.14"
+  },
+  "devDependencies": {
+    "@types/figlet": "^1.7.0",
+    "tsup": "^8.5.0"
+  }
+}

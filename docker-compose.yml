@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:latest
+    container_name: solana-bot-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: solana_bot_db
+      POSTGRES_USER: solana_bot_user
+      POSTGRES_PASSWORD: solana_bot_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
+    networks:
+      - solana-bot-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U solana_bot_user -d solana_bot_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # pgAdmin (Web-based PostgreSQL admin interface)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: solana-bot-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@solana-bot.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "8081:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - solana-bot-network
+
+volumes:
+
+  postgres_data:
+    driver: local
+
+networks:
+  solana-bot-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16 
