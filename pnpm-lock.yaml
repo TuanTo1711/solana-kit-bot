@@ -131,6 +131,9 @@ importers:
         specifier: ^7.8.2
         version: 7.8.2
     devDependencies:
+      rimraf:
+        specifier: ^6.0.1
+        version: 6.0.1
       tsup:
         specifier: ^8.5.0
         version: 8.5.0(jiti@2.5.1)(tsx@4.20.3)(typescript@5.8.2)
@@ -156,6 +159,9 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.2)(ws@8.18.3)
     devDependencies:
+      rimraf:
+        specifier: ^6.0.1
+        version: 6.0.1
       tsup:
         specifier: ^8.5.0
         version: 8.5.0(jiti@2.5.1)(tsx@4.20.3)(typescript@5.8.2)
@@ -232,6 +238,9 @@ importers:
       prisma:
         specifier: ^6.13.0
         version: 6.13.0(typescript@5.8.2)
+      rimraf:
+        specifier: ^6.0.1
+        version: 6.0.1
       tsup:
         specifier: ^8.5.0
         version: 8.5.0(jiti@2.5.1)(tsx@4.20.3)(typescript@5.8.2)
@@ -290,6 +299,9 @@ importers:
       '@types/figlet':
         specifier: ^1.7.0
         version: 1.7.0
+      rimraf:
+        specifier: ^6.0.1
+        version: 6.0.1
       tsup:
         specifier: ^8.5.0
         version: 8.5.0(jiti@2.5.1)(tsx@4.20.3)(typescript@5.8.2)
@@ -321,6 +333,9 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.2)(ws@8.18.3)
     devDependencies:
+      rimraf:
+        specifier: ^6.0.1
+        version: 6.0.1
       tsup:
         specifier: ^8.5.0
         version: 8.5.0(jiti@2.5.1)(tsx@4.20.3)(typescript@5.8.2)
@@ -346,6 +361,9 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.2)(ws@8.18.3)
     devDependencies:
+      rimraf:
+        specifier: ^6.0.1
+        version: 6.0.1
       tsup:
         specifier: ^8.5.0
         version: 8.5.0(jiti@2.5.1)(tsx@4.20.3)(typescript@5.8.2)

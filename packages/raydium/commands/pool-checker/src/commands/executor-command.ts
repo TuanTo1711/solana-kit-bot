@@ -1,6 +1,6 @@
 import { findAssociatedTokenPda, TOKEN_PROGRAM_ADDRESS } from '@solana-program/token'
 import type { Address } from '@solana/addresses'
-import type { Signature } from '@solana/kit'
+import { type Signature } from '@solana/kit'
 import { Command, type BaseContext } from 'clipanion'
 import { combineLatest, filter, map, withLatestFrom } from 'rxjs'
 import type { Telegraf } from 'telegraf'
@@ -245,7 +245,7 @@ export class ExecutorCommand extends Command<ExecutorContext> {
   async checkMetadata(poolKeys: PoolKeys, config: PoolCheckerConfig): Promise<boolean> {
     try {
       const { dexscreenerAPI } = this.context
-      
+
       // Get all token information in one API call
       const tokenInfo = await dexscreenerAPI.getTokenInfo(poolKeys.token1Mint)
 
@@ -268,7 +268,9 @@ export class ExecutorCommand extends Command<ExecutorContext> {
         // Check total boost amount if specified in config
         if (config.totalBoost) {
           if (tokenInfo.totalBoostAmount !== config.totalBoost) {
-            console.log(`❌ Total boost amount mismatch: expected ${config.totalBoost}, got ${tokenInfo.totalBoostAmount}`)
+            console.log(
+              `❌ Total boost amount mismatch: expected ${config.totalBoost}, got ${tokenInfo.totalBoostAmount}`
+            )
             return false
           }
           console.log(`✅ Total boost amount matches: ${tokenInfo.totalBoostAmount}`)

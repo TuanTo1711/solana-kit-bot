@@ -116,13 +116,15 @@ class TransactionManagerImpl implements TransactionManager {
   private createBaseMessage(
     blockhash: TransactionBlockhashLifetime,
     instructions: Instruction[],
-    feePayer: TransactionSigner
+    feePayer: TransactionSigner,
+    additionalSigners?: TransactionSigner[]
   ) {
     return pipe(
       createTransactionMessage({ version: 0 }),
       msg => setTransactionMessageLifetimeUsingBlockhash(blockhash, msg),
       msg => appendTransactionMessageInstructions(instructions, msg),
-      msg => setTransactionMessageFeePayer(feePayer.address, msg)
+      msg => setTransactionMessageFeePayer(feePayer.address, msg),
+      msg => (additionalSigners ? addSignersToTransactionMessage(additionalSigners, msg) : msg)
     )
   }
 
@@ -168,7 +170,12 @@ class TransactionManagerImpl implements TransactionManager {
   ): Promise<Base64EncodedWireTransaction> {
     let { unitLimit, unitPrice, senderTip } = options
     const blockhash = await this.getBlockhash()
-    let message = this.createBaseMessage(blockhash, instructions, feePayer)
+    let message = this.createBaseMessage(
+      blockhash,
+      instructions,
+      options.additionalSigners?.[0] ?? feePayer,
+      options.additionalSigners ? [feePayer, ...options.additionalSigners] : [feePayer]
+    )
 
     if (!senderTip) {
       try {

@@ -36,13 +36,10 @@ class Application {
     }).store
 
     this.cli.register(RunCommand)
-    this.cli.register(RaydiumLaunchlabCommand)
-    this.cli.register(VirtualTradingCommand)
-    this.cli.register(PoolCheckerCommand)
     this.cli.register(ConfigCommand)
     this.cli.register(Builtins.HelpCommand)
 
-    if (!config || config.rpc || config.wsUrl || config.privateKey) {
+    if (!config || !config.rpc || !config.wsUrl || !config.privateKey) {
       await this.cli.runExit(args)
       return
     }
@@ -63,6 +60,10 @@ class Application {
       transactionManager,
       payer,
     }
+
+    this.cli.register(RaydiumLaunchlabCommand)
+    this.cli.register(VirtualTradingCommand)
+    this.cli.register(PoolCheckerCommand)
 
     await this.cli.runExit(args, context)
   }

@@ -75,6 +75,9 @@ export interface BuildSenderOptions {
 
   /** Jito tip amount in lamports for MEV protection and faster inclusion */
   senderTip?: number
+
+  /** Additional signers to include in the transaction */
+  additionalSigners?: TransactionSigner[]
 }
 
 /**
