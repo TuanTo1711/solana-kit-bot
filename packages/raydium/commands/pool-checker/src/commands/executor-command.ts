@@ -73,7 +73,7 @@ export class ExecutorCommand extends Command<ExecutorContext> {
         map(([[base, quote], tip]) => ({
           baseAmount: base.amount,
           quoteAmount: quote.amount,
-          tip: Number(tip.landed_tips_95th_percentile.toFixed(4)),
+          tip: Number(tip.landed_tips_99th_percentile.toFixed(9)),
         })),
         filter(({ quoteAmount }) => quoteAmount > 0n && quoteAmount >= config.target)
       )
@@ -245,23 +245,33 @@ export class ExecutorCommand extends Command<ExecutorContext> {
   async checkMetadata(poolKeys: PoolKeys, config: PoolCheckerConfig): Promise<boolean> {
     try {
       const { dexscreenerAPI } = this.context
-      const metadata = await dexscreenerAPI.getTokenMetadata(poolKeys.token1Mint)
+      
+      // Get all token information in one API call
+      const tokenInfo = await dexscreenerAPI.getTokenInfo(poolKeys.token1Mint)
 
-      if (!metadata) {
+      if (!tokenInfo.metadata) {
         console.log('❌ No metadata found for token')
         return false
       }
 
       if (config.hasImage) {
-        if (!metadata.imageUrl) {
+        if (!tokenInfo.metadata.imageUrl) {
           return false
         }
       }
 
       if (config.mustBoost) {
-        const hasBoosts = await dexscreenerAPI.hasActiveBoosts(poolKeys.poolId)
-        if (!hasBoosts) {
+        if (!tokenInfo.hasActiveBoosts) {
           return false
+        }
+
+        // Check total boost amount if specified in config
+        if (config.totalBoost) {
+          if (tokenInfo.totalBoostAmount !== config.totalBoost) {
+            console.log(`❌ Total boost amount mismatch: expected ${config.totalBoost}, got ${tokenInfo.totalBoostAmount}`)
+            return false
+          }
+          console.log(`✅ Total boost amount matches: ${tokenInfo.totalBoostAmount}`)
         }
       }
 

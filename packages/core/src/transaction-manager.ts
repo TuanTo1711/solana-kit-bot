@@ -173,18 +173,19 @@ class TransactionManagerImpl implements TransactionManager {
     if (!senderTip) {
       try {
         const tipFloor = await this.provider.jito.getTipFloor()
-        const recommendedTip = Math.max(tipFloor.landed_tips_95th_percentile, 0.001)
+        const recommendedTip = Math.max(tipFloor.landed_tips_99th_percentile, 0.001)
         senderTip = Number(recommendedTip.toFixed(9))
       } catch (error) {
         senderTip = 0.001
       }
     }
 
+    const tipAmount = senderTip * 10 ** 9
     message = prependTransactionMessageInstruction(
       getTransferSolInstruction({
         source: feePayer,
         destination: address(randomSenderAccount()),
-        amount: senderTip * 10 ** 9,
+        amount: BigInt(tipAmount.toFixed(0)),
       }),
       message
     )

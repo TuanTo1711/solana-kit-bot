@@ -310,6 +310,88 @@ export class DexScreenerAPI {
   }
 
   /**
+   * Get total boost amount for a token
+   */
+  async getTotalBoostAmount(tokenAddress: string): Promise<number> {
+    try {
+      const pairs = await this.getSolanaTokenPairs(tokenAddress)
+      const totalBoost = pairs.reduce((sum, pair) => {
+        return sum + (pair.boosts?.active || 0)
+      }, 0)
+      return totalBoost
+    } catch (error) {
+      console.error(`❌ Failed to get total boost amount: ${tokenAddress}`, error)
+      return 0
+    }
+  }
+
+  /**
+   * Get comprehensive token information including metadata, boosts, and total boost amount
+   */
+  async getTokenInfo(tokenAddress: string): Promise<{
+    metadata: {
+      name: string
+      symbol: string
+      imageUrl?: string
+      websites?: string[]
+      socials?: Array<{ platform: string; handle: string }>
+    } | null
+    hasActiveBoosts: boolean
+    totalBoostAmount: number
+  }> {
+    try {
+      const pairs = await this.getSolanaTokenPairs(tokenAddress)
+
+      if (pairs.length === 0) {
+        return {
+          metadata: null,
+          hasActiveBoosts: false,
+          totalBoostAmount: 0,
+        }
+      }
+
+      const pair = pairs[0]!
+      const metadata: {
+        name: string
+        symbol: string
+        imageUrl?: string
+        websites?: string[]
+        socials?: Array<{ platform: string; handle: string }>
+      } = {
+        name: pair.baseToken.name,
+        symbol: pair.baseToken.symbol,
+      }
+
+      if (pair.info?.imageUrl) {
+        metadata.imageUrl = pair.info.imageUrl
+      }
+      if (pair.info?.websites) {
+        metadata.websites = pair.info.websites.map(w => w.url)
+      }
+      if (pair.info?.socials) {
+        metadata.socials = pair.info.socials
+      }
+
+      // Get boost information from first pair (all pairs have same boost amount)
+      const hasActiveBoosts = !!(pair.boosts?.active && pair.boosts.active > 0)
+      const totalBoostAmount = pair.boosts?.active || 0
+
+      return {
+        metadata,
+        hasActiveBoosts,
+        totalBoostAmount,
+      }
+    } catch (error) {
+      console.error(`❌ Failed to get token info: ${tokenAddress}`, error)
+      return {
+        metadata: null,
+        hasActiveBoosts: false,
+        totalBoostAmount: 0,
+      }
+    }
+  }
+
+  /**
    * Get token metadata (name, symbol, image, etc.)
    */
   async getTokenMetadata(tokenAddress: string): Promise<{
