@@ -7,13 +7,13 @@
  */
 
 import chalk from 'chalk'
-import { Command, type BaseContext } from 'clipanion'
+import { Command } from 'clipanion'
 import Conf from 'conf'
 import figlet from 'figlet'
 import gradient from 'gradient-string'
 import inquirer from 'inquirer'
 
-import type { SolanaBotConfig, SolanaBotContext } from '@solana-kit-bot/core'
+import type { SolanaBotConfig } from '@solana-kit-bot/core'
 
 /**
  * Configuration management command for Solana Bot CLI
@@ -21,7 +21,7 @@ import type { SolanaBotConfig, SolanaBotContext } from '@solana-kit-bot/core'
  * Provides interactive interface for managing bot configuration settings
  * including RPC endpoints, wallet keys, and database connections.
  */
-export class ConfigCommand extends Command<BaseContext & SolanaBotContext> {
+export class ConfigCommand extends Command {
   static override paths = [['config']]
 
   /** Configuration instance using 'conf' library */
