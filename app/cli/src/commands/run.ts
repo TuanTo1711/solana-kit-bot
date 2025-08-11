@@ -91,6 +91,11 @@ export class RunCommand extends Command<BaseContext & SolanaBotContext> {
     })
 
     choices.push({
+      name: `💊 ${gradient(['#FFFFFF', '#00FF88'])('Pumpswap')} ${chalk.gray('- Pumpswap Trading Bot')}`,
+      value: this.cli.run.bind(this.cli, ['pumpswap']),
+    })
+
+    choices.push({
       name: `📚 ${chalk.hex('#0984e3')('Trợ giúp')} ${chalk.gray('- Hướng dẫn sử dụng chi tiết')}`,
       value: this.showHelp.bind(this),
     })

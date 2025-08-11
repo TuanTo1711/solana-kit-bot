@@ -20,27 +20,27 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit'
+} from '@solana/kit';
 
 export type DisableEvent = {
-  timestamp: bigint
-  admin: Address
-  disableCreatePool: boolean
-  disableDeposit: boolean
-  disableWithdraw: boolean
-  disableBuy: boolean
-  disableSell: boolean
-}
+  timestamp: bigint;
+  admin: Address;
+  disableCreatePool: boolean;
+  disableDeposit: boolean;
+  disableWithdraw: boolean;
+  disableBuy: boolean;
+  disableSell: boolean;
+};
 
 export type DisableEventArgs = {
-  timestamp: number | bigint
-  admin: Address
-  disableCreatePool: boolean
-  disableDeposit: boolean
-  disableWithdraw: boolean
-  disableBuy: boolean
-  disableSell: boolean
-}
+  timestamp: number | bigint;
+  admin: Address;
+  disableCreatePool: boolean;
+  disableDeposit: boolean;
+  disableWithdraw: boolean;
+  disableBuy: boolean;
+  disableSell: boolean;
+};
 
 export function getDisableEventEncoder(): FixedSizeEncoder<DisableEventArgs> {
   return getStructEncoder([
@@ -51,7 +51,7 @@ export function getDisableEventEncoder(): FixedSizeEncoder<DisableEventArgs> {
     ['disableWithdraw', getBooleanEncoder()],
     ['disableBuy', getBooleanEncoder()],
     ['disableSell', getBooleanEncoder()],
-  ])
+  ]);
 }
 
 export function getDisableEventDecoder(): FixedSizeDecoder<DisableEvent> {
@@ -63,9 +63,12 @@ export function getDisableEventDecoder(): FixedSizeDecoder<DisableEvent> {
     ['disableWithdraw', getBooleanDecoder()],
     ['disableBuy', getBooleanDecoder()],
     ['disableSell', getBooleanDecoder()],
-  ])
+  ]);
 }
 
-export function getDisableEventCodec(): FixedSizeCodec<DisableEventArgs, DisableEvent> {
-  return combineCodec(getDisableEventEncoder(), getDisableEventDecoder())
+export function getDisableEventCodec(): FixedSizeCodec<
+  DisableEventArgs,
+  DisableEvent
+> {
+  return combineCodec(getDisableEventEncoder(), getDisableEventDecoder());
 }

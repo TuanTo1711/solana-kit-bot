@@ -20,59 +20,59 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit'
+} from '@solana/kit';
 
 export type BuyEvent = {
-  timestamp: bigint
-  baseAmountOut: bigint
-  maxQuoteAmountIn: bigint
-  userBaseTokenReserves: bigint
-  userQuoteTokenReserves: bigint
-  poolBaseTokenReserves: bigint
-  poolQuoteTokenReserves: bigint
-  quoteAmountIn: bigint
-  lpFeeBasisPoints: bigint
-  lpFee: bigint
-  protocolFeeBasisPoints: bigint
-  protocolFee: bigint
-  quoteAmountInWithLpFee: bigint
-  userQuoteAmountIn: bigint
-  pool: Address
-  user: Address
-  userBaseTokenAccount: Address
-  userQuoteTokenAccount: Address
-  protocolFeeRecipient: Address
-  protocolFeeRecipientTokenAccount: Address
-  coinCreator: Address
-  coinCreatorFeeBasisPoints: bigint
-  coinCreatorFee: bigint
-}
+  timestamp: bigint;
+  baseAmountOut: bigint;
+  maxQuoteAmountIn: bigint;
+  userBaseTokenReserves: bigint;
+  userQuoteTokenReserves: bigint;
+  poolBaseTokenReserves: bigint;
+  poolQuoteTokenReserves: bigint;
+  quoteAmountIn: bigint;
+  lpFeeBasisPoints: bigint;
+  lpFee: bigint;
+  protocolFeeBasisPoints: bigint;
+  protocolFee: bigint;
+  quoteAmountInWithLpFee: bigint;
+  userQuoteAmountIn: bigint;
+  pool: Address;
+  user: Address;
+  userBaseTokenAccount: Address;
+  userQuoteTokenAccount: Address;
+  protocolFeeRecipient: Address;
+  protocolFeeRecipientTokenAccount: Address;
+  coinCreator: Address;
+  coinCreatorFeeBasisPoints: bigint;
+  coinCreatorFee: bigint;
+};
 
 export type BuyEventArgs = {
-  timestamp: number | bigint
-  baseAmountOut: number | bigint
-  maxQuoteAmountIn: number | bigint
-  userBaseTokenReserves: number | bigint
-  userQuoteTokenReserves: number | bigint
-  poolBaseTokenReserves: number | bigint
-  poolQuoteTokenReserves: number | bigint
-  quoteAmountIn: number | bigint
-  lpFeeBasisPoints: number | bigint
-  lpFee: number | bigint
-  protocolFeeBasisPoints: number | bigint
-  protocolFee: number | bigint
-  quoteAmountInWithLpFee: number | bigint
-  userQuoteAmountIn: number | bigint
-  pool: Address
-  user: Address
-  userBaseTokenAccount: Address
-  userQuoteTokenAccount: Address
-  protocolFeeRecipient: Address
-  protocolFeeRecipientTokenAccount: Address
-  coinCreator: Address
-  coinCreatorFeeBasisPoints: number | bigint
-  coinCreatorFee: number | bigint
-}
+  timestamp: number | bigint;
+  baseAmountOut: number | bigint;
+  maxQuoteAmountIn: number | bigint;
+  userBaseTokenReserves: number | bigint;
+  userQuoteTokenReserves: number | bigint;
+  poolBaseTokenReserves: number | bigint;
+  poolQuoteTokenReserves: number | bigint;
+  quoteAmountIn: number | bigint;
+  lpFeeBasisPoints: number | bigint;
+  lpFee: number | bigint;
+  protocolFeeBasisPoints: number | bigint;
+  protocolFee: number | bigint;
+  quoteAmountInWithLpFee: number | bigint;
+  userQuoteAmountIn: number | bigint;
+  pool: Address;
+  user: Address;
+  userBaseTokenAccount: Address;
+  userQuoteTokenAccount: Address;
+  protocolFeeRecipient: Address;
+  protocolFeeRecipientTokenAccount: Address;
+  coinCreator: Address;
+  coinCreatorFeeBasisPoints: number | bigint;
+  coinCreatorFee: number | bigint;
+};
 
 export function getBuyEventEncoder(): FixedSizeEncoder<BuyEventArgs> {
   return getStructEncoder([
@@ -99,7 +99,7 @@ export function getBuyEventEncoder(): FixedSizeEncoder<BuyEventArgs> {
     ['coinCreator', getAddressEncoder()],
     ['coinCreatorFeeBasisPoints', getU64Encoder()],
     ['coinCreatorFee', getU64Encoder()],
-  ])
+  ]);
 }
 
 export function getBuyEventDecoder(): FixedSizeDecoder<BuyEvent> {
@@ -127,9 +127,9 @@ export function getBuyEventDecoder(): FixedSizeDecoder<BuyEvent> {
     ['coinCreator', getAddressDecoder()],
     ['coinCreatorFeeBasisPoints', getU64Decoder()],
     ['coinCreatorFee', getU64Decoder()],
-  ])
+  ]);
 }
 
 export function getBuyEventCodec(): FixedSizeCodec<BuyEventArgs, BuyEvent> {
-  return combineCodec(getBuyEventEncoder(), getBuyEventDecoder())
+  return combineCodec(getBuyEventEncoder(), getBuyEventDecoder());
 }

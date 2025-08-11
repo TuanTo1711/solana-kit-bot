@@ -18,23 +18,23 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit'
+} from '@solana/kit';
 
 export type SetMetaplexCoinCreatorEvent = {
-  timestamp: bigint
-  baseMint: Address
-  pool: Address
-  metadata: Address
-  coinCreator: Address
-}
+  timestamp: bigint;
+  baseMint: Address;
+  pool: Address;
+  metadata: Address;
+  coinCreator: Address;
+};
 
 export type SetMetaplexCoinCreatorEventArgs = {
-  timestamp: number | bigint
-  baseMint: Address
-  pool: Address
-  metadata: Address
-  coinCreator: Address
-}
+  timestamp: number | bigint;
+  baseMint: Address;
+  pool: Address;
+  metadata: Address;
+  coinCreator: Address;
+};
 
 export function getSetMetaplexCoinCreatorEventEncoder(): FixedSizeEncoder<SetMetaplexCoinCreatorEventArgs> {
   return getStructEncoder([
@@ -43,7 +43,7 @@ export function getSetMetaplexCoinCreatorEventEncoder(): FixedSizeEncoder<SetMet
     ['pool', getAddressEncoder()],
     ['metadata', getAddressEncoder()],
     ['coinCreator', getAddressEncoder()],
-  ])
+  ]);
 }
 
 export function getSetMetaplexCoinCreatorEventDecoder(): FixedSizeDecoder<SetMetaplexCoinCreatorEvent> {
@@ -53,7 +53,7 @@ export function getSetMetaplexCoinCreatorEventDecoder(): FixedSizeDecoder<SetMet
     ['pool', getAddressDecoder()],
     ['metadata', getAddressDecoder()],
     ['coinCreator', getAddressDecoder()],
-  ])
+  ]);
 }
 
 export function getSetMetaplexCoinCreatorEventCodec(): FixedSizeCodec<
@@ -63,5 +63,5 @@ export function getSetMetaplexCoinCreatorEventCodec(): FixedSizeCodec<
   return combineCodec(
     getSetMetaplexCoinCreatorEventEncoder(),
     getSetMetaplexCoinCreatorEventDecoder()
-  )
+  );
 }

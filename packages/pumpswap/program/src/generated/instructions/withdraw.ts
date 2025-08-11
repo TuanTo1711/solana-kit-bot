@@ -32,14 +32,16 @@ import {
   type ReadonlyUint8Array,
   type TransactionSigner,
   type WritableAccount,
-} from '@solana/kit'
-import { PUMP_AMM_PROGRAM_ADDRESS } from '../programs'
-import { getAccountMetaFactory, type ResolvedAccount } from '../shared'
+} from '@solana/kit';
+import { PUMP_AMM_PROGRAM_ADDRESS } from '../programs';
+import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const WITHDRAW_DISCRIMINATOR = new Uint8Array([183, 18, 70, 156, 148, 109, 161, 34])
+export const WITHDRAW_DISCRIMINATOR = new Uint8Array([
+  183, 18, 70, 156, 148, 109, 161, 34,
+]);
 
 export function getWithdrawDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(WITHDRAW_DISCRIMINATOR)
+  return fixEncoderSize(getBytesEncoder(), 8).encode(WITHDRAW_DISCRIMINATOR);
 }
 
 export type WithdrawInstruction<
@@ -68,16 +70,24 @@ export type WithdrawInstruction<
   InstructionWithData<ReadonlyUint8Array> &
   InstructionWithAccounts<
     [
-      TAccountPool extends string ? WritableAccount<TAccountPool> : TAccountPool,
+      TAccountPool extends string
+        ? WritableAccount<TAccountPool>
+        : TAccountPool,
       TAccountGlobalConfig extends string
         ? ReadonlyAccount<TAccountGlobalConfig>
         : TAccountGlobalConfig,
       TAccountUser extends string
         ? ReadonlySignerAccount<TAccountUser> & AccountSignerMeta<TAccountUser>
         : TAccountUser,
-      TAccountBaseMint extends string ? ReadonlyAccount<TAccountBaseMint> : TAccountBaseMint,
-      TAccountQuoteMint extends string ? ReadonlyAccount<TAccountQuoteMint> : TAccountQuoteMint,
-      TAccountLpMint extends string ? WritableAccount<TAccountLpMint> : TAccountLpMint,
+      TAccountBaseMint extends string
+        ? ReadonlyAccount<TAccountBaseMint>
+        : TAccountBaseMint,
+      TAccountQuoteMint extends string
+        ? ReadonlyAccount<TAccountQuoteMint>
+        : TAccountQuoteMint,
+      TAccountLpMint extends string
+        ? WritableAccount<TAccountLpMint>
+        : TAccountLpMint,
       TAccountUserBaseTokenAccount extends string
         ? WritableAccount<TAccountUserBaseTokenAccount>
         : TAccountUserBaseTokenAccount,
@@ -102,23 +112,25 @@ export type WithdrawInstruction<
       TAccountEventAuthority extends string
         ? ReadonlyAccount<TAccountEventAuthority>
         : TAccountEventAuthority,
-      TAccountProgram extends string ? ReadonlyAccount<TAccountProgram> : TAccountProgram,
+      TAccountProgram extends string
+        ? ReadonlyAccount<TAccountProgram>
+        : TAccountProgram,
       ...TRemainingAccounts,
     ]
-  >
+  >;
 
 export type WithdrawInstructionData = {
-  discriminator: ReadonlyUint8Array
-  lpTokenAmountIn: bigint
-  minBaseAmountOut: bigint
-  minQuoteAmountOut: bigint
-}
+  discriminator: ReadonlyUint8Array;
+  lpTokenAmountIn: bigint;
+  minBaseAmountOut: bigint;
+  minQuoteAmountOut: bigint;
+};
 
 export type WithdrawInstructionDataArgs = {
-  lpTokenAmountIn: number | bigint
-  minBaseAmountOut: number | bigint
-  minQuoteAmountOut: number | bigint
-}
+  lpTokenAmountIn: number | bigint;
+  minBaseAmountOut: number | bigint;
+  minQuoteAmountOut: number | bigint;
+};
 
 export function getWithdrawInstructionDataEncoder(): FixedSizeEncoder<WithdrawInstructionDataArgs> {
   return transformEncoder(
@@ -128,8 +140,8 @@ export function getWithdrawInstructionDataEncoder(): FixedSizeEncoder<WithdrawIn
       ['minBaseAmountOut', getU64Encoder()],
       ['minQuoteAmountOut', getU64Encoder()],
     ]),
-    value => ({ ...value, discriminator: WITHDRAW_DISCRIMINATOR })
-  )
+    (value) => ({ ...value, discriminator: WITHDRAW_DISCRIMINATOR })
+  );
 }
 
 export function getWithdrawInstructionDataDecoder(): FixedSizeDecoder<WithdrawInstructionData> {
@@ -138,14 +150,17 @@ export function getWithdrawInstructionDataDecoder(): FixedSizeDecoder<WithdrawIn
     ['lpTokenAmountIn', getU64Decoder()],
     ['minBaseAmountOut', getU64Decoder()],
     ['minQuoteAmountOut', getU64Decoder()],
-  ])
+  ]);
 }
 
 export function getWithdrawInstructionDataCodec(): FixedSizeCodec<
   WithdrawInstructionDataArgs,
   WithdrawInstructionData
 > {
-  return combineCodec(getWithdrawInstructionDataEncoder(), getWithdrawInstructionDataDecoder())
+  return combineCodec(
+    getWithdrawInstructionDataEncoder(),
+    getWithdrawInstructionDataDecoder()
+  );
 }
 
 export type WithdrawAsyncInput<
@@ -165,25 +180,25 @@ export type WithdrawAsyncInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  pool: Address<TAccountPool>
-  globalConfig: Address<TAccountGlobalConfig>
-  user: TransactionSigner<TAccountUser>
-  baseMint: Address<TAccountBaseMint>
-  quoteMint: Address<TAccountQuoteMint>
-  lpMint: Address<TAccountLpMint>
-  userBaseTokenAccount: Address<TAccountUserBaseTokenAccount>
-  userQuoteTokenAccount: Address<TAccountUserQuoteTokenAccount>
-  userPoolTokenAccount: Address<TAccountUserPoolTokenAccount>
-  poolBaseTokenAccount: Address<TAccountPoolBaseTokenAccount>
-  poolQuoteTokenAccount: Address<TAccountPoolQuoteTokenAccount>
-  tokenProgram?: Address<TAccountTokenProgram>
-  token2022Program?: Address<TAccountToken2022Program>
-  eventAuthority?: Address<TAccountEventAuthority>
-  program: Address<TAccountProgram>
-  lpTokenAmountIn: WithdrawInstructionDataArgs['lpTokenAmountIn']
-  minBaseAmountOut: WithdrawInstructionDataArgs['minBaseAmountOut']
-  minQuoteAmountOut: WithdrawInstructionDataArgs['minQuoteAmountOut']
-}
+  pool: Address<TAccountPool>;
+  globalConfig: Address<TAccountGlobalConfig>;
+  user: TransactionSigner<TAccountUser>;
+  baseMint: Address<TAccountBaseMint>;
+  quoteMint: Address<TAccountQuoteMint>;
+  lpMint: Address<TAccountLpMint>;
+  userBaseTokenAccount: Address<TAccountUserBaseTokenAccount>;
+  userQuoteTokenAccount: Address<TAccountUserQuoteTokenAccount>;
+  userPoolTokenAccount: Address<TAccountUserPoolTokenAccount>;
+  poolBaseTokenAccount: Address<TAccountPoolBaseTokenAccount>;
+  poolQuoteTokenAccount: Address<TAccountPoolQuoteTokenAccount>;
+  tokenProgram?: Address<TAccountTokenProgram>;
+  token2022Program?: Address<TAccountToken2022Program>;
+  eventAuthority?: Address<TAccountEventAuthority>;
+  program: Address<TAccountProgram>;
+  lpTokenAmountIn: WithdrawInstructionDataArgs['lpTokenAmountIn'];
+  minBaseAmountOut: WithdrawInstructionDataArgs['minBaseAmountOut'];
+  minQuoteAmountOut: WithdrawInstructionDataArgs['minQuoteAmountOut'];
+};
 
 export async function getWithdrawInstructionAsync<
   TAccountPool extends string,
@@ -242,7 +257,7 @@ export async function getWithdrawInstructionAsync<
   >
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS
+  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS;
 
   // Original accounts.
   const originalAccounts = {
@@ -279,20 +294,23 @@ export async function getWithdrawInstructionAsync<
     },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  }
-  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
+  };
+  const accounts = originalAccounts as Record<
+    keyof typeof originalAccounts,
+    ResolvedAccount
+  >;
 
   // Original args.
-  const args = { ...input }
+  const args = { ...input };
 
   // Resolve default values.
   if (!accounts.tokenProgram.value) {
     accounts.tokenProgram.value =
-      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>
+      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>;
   }
   if (!accounts.token2022Program.value) {
     accounts.token2022Program.value =
-      'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb' as Address<'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'>
+      'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb' as Address<'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'>;
   }
   if (!accounts.eventAuthority.value) {
     accounts.eventAuthority.value = await getProgramDerivedAddress({
@@ -300,14 +318,15 @@ export async function getWithdrawInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121,
+            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114,
+            105, 116, 121,
           ])
         ),
       ],
-    })
+    });
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   const instruction = {
     accounts: [
       getAccountMeta(accounts.pool),
@@ -327,7 +346,9 @@ export async function getWithdrawInstructionAsync<
       getAccountMeta(accounts.program),
     ],
     programAddress,
-    data: getWithdrawInstructionDataEncoder().encode(args as WithdrawInstructionDataArgs),
+    data: getWithdrawInstructionDataEncoder().encode(
+      args as WithdrawInstructionDataArgs
+    ),
   } as WithdrawInstruction<
     TProgramAddress,
     TAccountPool,
@@ -345,9 +366,9 @@ export async function getWithdrawInstructionAsync<
     TAccountToken2022Program,
     TAccountEventAuthority,
     TAccountProgram
-  >
+  >;
 
-  return instruction
+  return instruction;
 }
 
 export type WithdrawInput<
@@ -367,25 +388,25 @@ export type WithdrawInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  pool: Address<TAccountPool>
-  globalConfig: Address<TAccountGlobalConfig>
-  user: TransactionSigner<TAccountUser>
-  baseMint: Address<TAccountBaseMint>
-  quoteMint: Address<TAccountQuoteMint>
-  lpMint: Address<TAccountLpMint>
-  userBaseTokenAccount: Address<TAccountUserBaseTokenAccount>
-  userQuoteTokenAccount: Address<TAccountUserQuoteTokenAccount>
-  userPoolTokenAccount: Address<TAccountUserPoolTokenAccount>
-  poolBaseTokenAccount: Address<TAccountPoolBaseTokenAccount>
-  poolQuoteTokenAccount: Address<TAccountPoolQuoteTokenAccount>
-  tokenProgram?: Address<TAccountTokenProgram>
-  token2022Program?: Address<TAccountToken2022Program>
-  eventAuthority: Address<TAccountEventAuthority>
-  program: Address<TAccountProgram>
-  lpTokenAmountIn: WithdrawInstructionDataArgs['lpTokenAmountIn']
-  minBaseAmountOut: WithdrawInstructionDataArgs['minBaseAmountOut']
-  minQuoteAmountOut: WithdrawInstructionDataArgs['minQuoteAmountOut']
-}
+  pool: Address<TAccountPool>;
+  globalConfig: Address<TAccountGlobalConfig>;
+  user: TransactionSigner<TAccountUser>;
+  baseMint: Address<TAccountBaseMint>;
+  quoteMint: Address<TAccountQuoteMint>;
+  lpMint: Address<TAccountLpMint>;
+  userBaseTokenAccount: Address<TAccountUserBaseTokenAccount>;
+  userQuoteTokenAccount: Address<TAccountUserQuoteTokenAccount>;
+  userPoolTokenAccount: Address<TAccountUserPoolTokenAccount>;
+  poolBaseTokenAccount: Address<TAccountPoolBaseTokenAccount>;
+  poolQuoteTokenAccount: Address<TAccountPoolQuoteTokenAccount>;
+  tokenProgram?: Address<TAccountTokenProgram>;
+  token2022Program?: Address<TAccountToken2022Program>;
+  eventAuthority: Address<TAccountEventAuthority>;
+  program: Address<TAccountProgram>;
+  lpTokenAmountIn: WithdrawInstructionDataArgs['lpTokenAmountIn'];
+  minBaseAmountOut: WithdrawInstructionDataArgs['minBaseAmountOut'];
+  minQuoteAmountOut: WithdrawInstructionDataArgs['minQuoteAmountOut'];
+};
 
 export function getWithdrawInstruction<
   TAccountPool extends string,
@@ -442,7 +463,7 @@ export function getWithdrawInstruction<
   TAccountProgram
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS
+  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS;
 
   // Original accounts.
   const originalAccounts = {
@@ -479,23 +500,26 @@ export function getWithdrawInstruction<
     },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  }
-  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
+  };
+  const accounts = originalAccounts as Record<
+    keyof typeof originalAccounts,
+    ResolvedAccount
+  >;
 
   // Original args.
-  const args = { ...input }
+  const args = { ...input };
 
   // Resolve default values.
   if (!accounts.tokenProgram.value) {
     accounts.tokenProgram.value =
-      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>
+      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>;
   }
   if (!accounts.token2022Program.value) {
     accounts.token2022Program.value =
-      'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb' as Address<'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'>
+      'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb' as Address<'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'>;
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   const instruction = {
     accounts: [
       getAccountMeta(accounts.pool),
@@ -515,7 +539,9 @@ export function getWithdrawInstruction<
       getAccountMeta(accounts.program),
     ],
     programAddress,
-    data: getWithdrawInstructionDataEncoder().encode(args as WithdrawInstructionDataArgs),
+    data: getWithdrawInstructionDataEncoder().encode(
+      args as WithdrawInstructionDataArgs
+    ),
   } as WithdrawInstruction<
     TProgramAddress,
     TAccountPool,
@@ -533,35 +559,35 @@ export function getWithdrawInstruction<
     TAccountToken2022Program,
     TAccountEventAuthority,
     TAccountProgram
-  >
+  >;
 
-  return instruction
+  return instruction;
 }
 
 export type ParsedWithdrawInstruction<
   TProgram extends string = typeof PUMP_AMM_PROGRAM_ADDRESS,
   TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[],
 > = {
-  programAddress: Address<TProgram>
+  programAddress: Address<TProgram>;
   accounts: {
-    pool: TAccountMetas[0]
-    globalConfig: TAccountMetas[1]
-    user: TAccountMetas[2]
-    baseMint: TAccountMetas[3]
-    quoteMint: TAccountMetas[4]
-    lpMint: TAccountMetas[5]
-    userBaseTokenAccount: TAccountMetas[6]
-    userQuoteTokenAccount: TAccountMetas[7]
-    userPoolTokenAccount: TAccountMetas[8]
-    poolBaseTokenAccount: TAccountMetas[9]
-    poolQuoteTokenAccount: TAccountMetas[10]
-    tokenProgram: TAccountMetas[11]
-    token2022Program: TAccountMetas[12]
-    eventAuthority: TAccountMetas[13]
-    program: TAccountMetas[14]
-  }
-  data: WithdrawInstructionData
-}
+    pool: TAccountMetas[0];
+    globalConfig: TAccountMetas[1];
+    user: TAccountMetas[2];
+    baseMint: TAccountMetas[3];
+    quoteMint: TAccountMetas[4];
+    lpMint: TAccountMetas[5];
+    userBaseTokenAccount: TAccountMetas[6];
+    userQuoteTokenAccount: TAccountMetas[7];
+    userPoolTokenAccount: TAccountMetas[8];
+    poolBaseTokenAccount: TAccountMetas[9];
+    poolQuoteTokenAccount: TAccountMetas[10];
+    tokenProgram: TAccountMetas[11];
+    token2022Program: TAccountMetas[12];
+    eventAuthority: TAccountMetas[13];
+    program: TAccountMetas[14];
+  };
+  data: WithdrawInstructionData;
+};
 
 export function parseWithdrawInstruction<
   TProgram extends string,
@@ -573,14 +599,14 @@ export function parseWithdrawInstruction<
 ): ParsedWithdrawInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 15) {
     // TODO: Coded error.
-    throw new Error('Not enough accounts')
+    throw new Error('Not enough accounts');
   }
-  let accountIndex = 0
+  let accountIndex = 0;
   const getNextAccount = () => {
-    const accountMeta = instruction.accounts![accountIndex]!
-    accountIndex += 1
-    return accountMeta
-  }
+    const accountMeta = instruction.accounts![accountIndex]!;
+    accountIndex += 1;
+    return accountMeta;
+  };
   return {
     programAddress: instruction.programAddress,
     accounts: {
@@ -601,5 +627,5 @@ export function parseWithdrawInstruction<
       program: getNextAccount(),
     },
     data: getWithdrawInstructionDataDecoder().decode(instruction.data),
-  }
+  };
 }

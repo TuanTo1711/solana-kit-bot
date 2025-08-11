@@ -29,6 +29,9 @@ importers:
       '@solana-kit-bot/provider':
         specifier: workspace:*
         version: link:../../packages/provider
+      '@solana-kit-bot/pumpswap-virtual-trading':
+        specifier: workspace:*
+        version: link:../../packages/pumpswap/commands/virtual-trading
       '@solana-kit-bot/raydium-launchlab-pool-checker':
         specifier: workspace:*
         version: link:../../packages/raydium/commands/pool-checker
@@ -131,6 +134,67 @@ importers:
         specifier: ^7.8.2
         version: 7.8.2
     devDependencies:
+      rimraf:
+        specifier: ^6.0.1
+        version: 6.0.1
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.0(jiti@2.5.1)(tsx@4.20.3)(typescript@5.8.2)
+
+  packages/pumpswap/commands/virtual-trading:
+    dependencies:
+      '@solana-kit-bot/core':
+        specifier: workspace:*
+        version: link:../../../core
+      '@solana-kit-bot/pumpswap-program':
+        specifier: workspace:*
+        version: link:../../program
+      '@solana-program/compute-budget':
+        specifier: ^0.8.0
+        version: 0.8.0(@solana/kit@2.3.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.2)(ws@8.18.3))
+      '@solana-program/system':
+        specifier: ^0.7.0
+        version: 0.7.0(@solana/kit@2.3.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.2)(ws@8.18.3))
+      '@solana-program/token':
+        specifier: ^0.5.1
+        version: 0.5.1(@solana/kit@2.3.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.2)(ws@8.18.3))
+      '@solana/addresses':
+        specifier: ^2.3.0
+        version: 2.3.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.2)
+      '@solana/codecs':
+        specifier: ^2.3.0
+        version: 2.3.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.2)
+      '@solana/kit':
+        specifier: ^2.3.0
+        version: 2.3.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.2)(ws@8.18.3)
+      chalk:
+        specifier: ^5.4.1
+        version: 5.4.1
+      clipanion:
+        specifier: 4.0.0-rc.4
+        version: 4.0.0-rc.4(typanion@3.14.0)
+      figlet:
+        specifier: ^1.8.2
+        version: 1.8.2
+      gradient-string:
+        specifier: ^3.0.0
+        version: 3.0.0
+      inquirer:
+        specifier: ^12.9.0
+        version: 12.9.0(@types/node@24.1.0)
+      rxjs:
+        specifier: ^7.8.2
+        version: 7.8.2
+      typanion:
+        specifier: ^3.14.0
+        version: 3.14.0
+      zod:
+        specifier: ^4.0.14
+        version: 4.0.14
+    devDependencies:
+      '@types/figlet':
+        specifier: ^1.7.0
+        version: 1.7.0
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1

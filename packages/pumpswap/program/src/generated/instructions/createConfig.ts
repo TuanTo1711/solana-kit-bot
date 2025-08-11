@@ -36,14 +36,18 @@ import {
   type TransactionSigner,
   type WritableAccount,
   type WritableSignerAccount,
-} from '@solana/kit'
-import { PUMP_AMM_PROGRAM_ADDRESS } from '../programs'
-import { getAccountMetaFactory, type ResolvedAccount } from '../shared'
+} from '@solana/kit';
+import { PUMP_AMM_PROGRAM_ADDRESS } from '../programs';
+import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const CREATE_CONFIG_DISCRIMINATOR = new Uint8Array([201, 207, 243, 114, 75, 111, 47, 189])
+export const CREATE_CONFIG_DISCRIMINATOR = new Uint8Array([
+  201, 207, 243, 114, 75, 111, 47, 189,
+]);
 
 export function getCreateConfigDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(CREATE_CONFIG_DISCRIMINATOR)
+  return fixEncoderSize(getBytesEncoder(), 8).encode(
+    CREATE_CONFIG_DISCRIMINATOR
+  );
 }
 
 export type CreateConfigInstruction<
@@ -52,7 +56,9 @@ export type CreateConfigInstruction<
     | string
     | AccountMeta<string> = '8LWu7QM2dGR1G8nKDHthckea57bkCzXyBTAKPJUBDHo8',
   TAccountGlobalConfig extends string | AccountMeta<string> = string,
-  TAccountSystemProgram extends string | AccountMeta<string> = '11111111111111111111111111111111',
+  TAccountSystemProgram extends
+    | string
+    | AccountMeta<string> = '11111111111111111111111111111111',
   TAccountEventAuthority extends string | AccountMeta<string> = string,
   TAccountProgram extends string | AccountMeta<string> = string,
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
@@ -61,7 +67,8 @@ export type CreateConfigInstruction<
   InstructionWithAccounts<
     [
       TAccountAdmin extends string
-        ? WritableSignerAccount<TAccountAdmin> & AccountSignerMeta<TAccountAdmin>
+        ? WritableSignerAccount<TAccountAdmin> &
+            AccountSignerMeta<TAccountAdmin>
         : TAccountAdmin,
       TAccountGlobalConfig extends string
         ? WritableAccount<TAccountGlobalConfig>
@@ -72,25 +79,29 @@ export type CreateConfigInstruction<
       TAccountEventAuthority extends string
         ? ReadonlyAccount<TAccountEventAuthority>
         : TAccountEventAuthority,
-      TAccountProgram extends string ? ReadonlyAccount<TAccountProgram> : TAccountProgram,
+      TAccountProgram extends string
+        ? ReadonlyAccount<TAccountProgram>
+        : TAccountProgram,
       ...TRemainingAccounts,
     ]
-  >
+  >;
 
 export type CreateConfigInstructionData = {
-  discriminator: ReadonlyUint8Array
-  lpFeeBasisPoints: bigint
-  protocolFeeBasisPoints: bigint
-  protocolFeeRecipients: Array<Address>
-  coinCreatorFeeBasisPoints: bigint
-}
+  discriminator: ReadonlyUint8Array;
+  lpFeeBasisPoints: bigint;
+  protocolFeeBasisPoints: bigint;
+  protocolFeeRecipients: Array<Address>;
+  coinCreatorFeeBasisPoints: bigint;
+  adminSetCoinCreatorAuthority: Address;
+};
 
 export type CreateConfigInstructionDataArgs = {
-  lpFeeBasisPoints: number | bigint
-  protocolFeeBasisPoints: number | bigint
-  protocolFeeRecipients: Array<Address>
-  coinCreatorFeeBasisPoints: number | bigint
-}
+  lpFeeBasisPoints: number | bigint;
+  protocolFeeBasisPoints: number | bigint;
+  protocolFeeRecipients: Array<Address>;
+  coinCreatorFeeBasisPoints: number | bigint;
+  adminSetCoinCreatorAuthority: Address;
+};
 
 export function getCreateConfigInstructionDataEncoder(): FixedSizeEncoder<CreateConfigInstructionDataArgs> {
   return transformEncoder(
@@ -98,11 +109,15 @@ export function getCreateConfigInstructionDataEncoder(): FixedSizeEncoder<Create
       ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
       ['lpFeeBasisPoints', getU64Encoder()],
       ['protocolFeeBasisPoints', getU64Encoder()],
-      ['protocolFeeRecipients', getArrayEncoder(getAddressEncoder(), { size: 8 })],
+      [
+        'protocolFeeRecipients',
+        getArrayEncoder(getAddressEncoder(), { size: 8 }),
+      ],
       ['coinCreatorFeeBasisPoints', getU64Encoder()],
+      ['adminSetCoinCreatorAuthority', getAddressEncoder()],
     ]),
-    value => ({ ...value, discriminator: CREATE_CONFIG_DISCRIMINATOR })
-  )
+    (value) => ({ ...value, discriminator: CREATE_CONFIG_DISCRIMINATOR })
+  );
 }
 
 export function getCreateConfigInstructionDataDecoder(): FixedSizeDecoder<CreateConfigInstructionData> {
@@ -110,9 +125,13 @@ export function getCreateConfigInstructionDataDecoder(): FixedSizeDecoder<Create
     ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
     ['lpFeeBasisPoints', getU64Decoder()],
     ['protocolFeeBasisPoints', getU64Decoder()],
-    ['protocolFeeRecipients', getArrayDecoder(getAddressDecoder(), { size: 8 })],
+    [
+      'protocolFeeRecipients',
+      getArrayDecoder(getAddressDecoder(), { size: 8 }),
+    ],
     ['coinCreatorFeeBasisPoints', getU64Decoder()],
-  ])
+    ['adminSetCoinCreatorAuthority', getAddressDecoder()],
+  ]);
 }
 
 export function getCreateConfigInstructionDataCodec(): FixedSizeCodec<
@@ -122,7 +141,7 @@ export function getCreateConfigInstructionDataCodec(): FixedSizeCodec<
   return combineCodec(
     getCreateConfigInstructionDataEncoder(),
     getCreateConfigInstructionDataDecoder()
-  )
+  );
 }
 
 export type CreateConfigAsyncInput<
@@ -132,16 +151,17 @@ export type CreateConfigAsyncInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  admin?: TransactionSigner<TAccountAdmin>
-  globalConfig?: Address<TAccountGlobalConfig>
-  systemProgram?: Address<TAccountSystemProgram>
-  eventAuthority?: Address<TAccountEventAuthority>
-  program: Address<TAccountProgram>
-  lpFeeBasisPoints: CreateConfigInstructionDataArgs['lpFeeBasisPoints']
-  protocolFeeBasisPoints: CreateConfigInstructionDataArgs['protocolFeeBasisPoints']
-  protocolFeeRecipients: CreateConfigInstructionDataArgs['protocolFeeRecipients']
-  coinCreatorFeeBasisPoints: CreateConfigInstructionDataArgs['coinCreatorFeeBasisPoints']
-}
+  admin?: TransactionSigner<TAccountAdmin>;
+  globalConfig?: Address<TAccountGlobalConfig>;
+  systemProgram?: Address<TAccountSystemProgram>;
+  eventAuthority?: Address<TAccountEventAuthority>;
+  program: Address<TAccountProgram>;
+  lpFeeBasisPoints: CreateConfigInstructionDataArgs['lpFeeBasisPoints'];
+  protocolFeeBasisPoints: CreateConfigInstructionDataArgs['protocolFeeBasisPoints'];
+  protocolFeeRecipients: CreateConfigInstructionDataArgs['protocolFeeRecipients'];
+  coinCreatorFeeBasisPoints: CreateConfigInstructionDataArgs['coinCreatorFeeBasisPoints'];
+  adminSetCoinCreatorAuthority: CreateConfigInstructionDataArgs['adminSetCoinCreatorAuthority'];
+};
 
 export async function getCreateConfigInstructionAsync<
   TAccountAdmin extends string,
@@ -170,7 +190,7 @@ export async function getCreateConfigInstructionAsync<
   >
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS
+  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS;
 
   // Original accounts.
   const originalAccounts = {
@@ -179,30 +199,35 @@ export async function getCreateConfigInstructionAsync<
     systemProgram: { value: input.systemProgram ?? null, isWritable: false },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  }
-  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
+  };
+  const accounts = originalAccounts as Record<
+    keyof typeof originalAccounts,
+    ResolvedAccount
+  >;
 
   // Original args.
-  const args = { ...input }
+  const args = { ...input };
 
   // Resolve default values.
   if (!accounts.admin.value) {
     accounts.admin.value =
-      '8LWu7QM2dGR1G8nKDHthckea57bkCzXyBTAKPJUBDHo8' as Address<'8LWu7QM2dGR1G8nKDHthckea57bkCzXyBTAKPJUBDHo8'>
+      '8LWu7QM2dGR1G8nKDHthckea57bkCzXyBTAKPJUBDHo8' as Address<'8LWu7QM2dGR1G8nKDHthckea57bkCzXyBTAKPJUBDHo8'>;
   }
   if (!accounts.globalConfig.value) {
     accounts.globalConfig.value = await getProgramDerivedAddress({
       programAddress,
       seeds: [
         getBytesEncoder().encode(
-          new Uint8Array([103, 108, 111, 98, 97, 108, 95, 99, 111, 110, 102, 105, 103])
+          new Uint8Array([
+            103, 108, 111, 98, 97, 108, 95, 99, 111, 110, 102, 105, 103,
+          ])
         ),
       ],
-    })
+    });
   }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
-      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>
+      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
   }
   if (!accounts.eventAuthority.value) {
     accounts.eventAuthority.value = await getProgramDerivedAddress({
@@ -210,14 +235,15 @@ export async function getCreateConfigInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121,
+            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114,
+            105, 116, 121,
           ])
         ),
       ],
-    })
+    });
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   const instruction = {
     accounts: [
       getAccountMeta(accounts.admin),
@@ -227,7 +253,9 @@ export async function getCreateConfigInstructionAsync<
       getAccountMeta(accounts.program),
     ],
     programAddress,
-    data: getCreateConfigInstructionDataEncoder().encode(args as CreateConfigInstructionDataArgs),
+    data: getCreateConfigInstructionDataEncoder().encode(
+      args as CreateConfigInstructionDataArgs
+    ),
   } as CreateConfigInstruction<
     TProgramAddress,
     TAccountAdmin,
@@ -235,9 +263,9 @@ export async function getCreateConfigInstructionAsync<
     TAccountSystemProgram,
     TAccountEventAuthority,
     TAccountProgram
-  >
+  >;
 
-  return instruction
+  return instruction;
 }
 
 export type CreateConfigInput<
@@ -247,16 +275,17 @@ export type CreateConfigInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  admin?: TransactionSigner<TAccountAdmin>
-  globalConfig: Address<TAccountGlobalConfig>
-  systemProgram?: Address<TAccountSystemProgram>
-  eventAuthority: Address<TAccountEventAuthority>
-  program: Address<TAccountProgram>
-  lpFeeBasisPoints: CreateConfigInstructionDataArgs['lpFeeBasisPoints']
-  protocolFeeBasisPoints: CreateConfigInstructionDataArgs['protocolFeeBasisPoints']
-  protocolFeeRecipients: CreateConfigInstructionDataArgs['protocolFeeRecipients']
-  coinCreatorFeeBasisPoints: CreateConfigInstructionDataArgs['coinCreatorFeeBasisPoints']
-}
+  admin?: TransactionSigner<TAccountAdmin>;
+  globalConfig: Address<TAccountGlobalConfig>;
+  systemProgram?: Address<TAccountSystemProgram>;
+  eventAuthority: Address<TAccountEventAuthority>;
+  program: Address<TAccountProgram>;
+  lpFeeBasisPoints: CreateConfigInstructionDataArgs['lpFeeBasisPoints'];
+  protocolFeeBasisPoints: CreateConfigInstructionDataArgs['protocolFeeBasisPoints'];
+  protocolFeeRecipients: CreateConfigInstructionDataArgs['protocolFeeRecipients'];
+  coinCreatorFeeBasisPoints: CreateConfigInstructionDataArgs['coinCreatorFeeBasisPoints'];
+  adminSetCoinCreatorAuthority: CreateConfigInstructionDataArgs['adminSetCoinCreatorAuthority'];
+};
 
 export function getCreateConfigInstruction<
   TAccountAdmin extends string,
@@ -283,7 +312,7 @@ export function getCreateConfigInstruction<
   TAccountProgram
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS
+  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS;
 
   // Original accounts.
   const originalAccounts = {
@@ -292,23 +321,26 @@ export function getCreateConfigInstruction<
     systemProgram: { value: input.systemProgram ?? null, isWritable: false },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  }
-  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
+  };
+  const accounts = originalAccounts as Record<
+    keyof typeof originalAccounts,
+    ResolvedAccount
+  >;
 
   // Original args.
-  const args = { ...input }
+  const args = { ...input };
 
   // Resolve default values.
   if (!accounts.admin.value) {
     accounts.admin.value =
-      '8LWu7QM2dGR1G8nKDHthckea57bkCzXyBTAKPJUBDHo8' as Address<'8LWu7QM2dGR1G8nKDHthckea57bkCzXyBTAKPJUBDHo8'>
+      '8LWu7QM2dGR1G8nKDHthckea57bkCzXyBTAKPJUBDHo8' as Address<'8LWu7QM2dGR1G8nKDHthckea57bkCzXyBTAKPJUBDHo8'>;
   }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
-      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>
+      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   const instruction = {
     accounts: [
       getAccountMeta(accounts.admin),
@@ -318,7 +350,9 @@ export function getCreateConfigInstruction<
       getAccountMeta(accounts.program),
     ],
     programAddress,
-    data: getCreateConfigInstructionDataEncoder().encode(args as CreateConfigInstructionDataArgs),
+    data: getCreateConfigInstructionDataEncoder().encode(
+      args as CreateConfigInstructionDataArgs
+    ),
   } as CreateConfigInstruction<
     TProgramAddress,
     TAccountAdmin,
@@ -326,25 +360,25 @@ export function getCreateConfigInstruction<
     TAccountSystemProgram,
     TAccountEventAuthority,
     TAccountProgram
-  >
+  >;
 
-  return instruction
+  return instruction;
 }
 
 export type ParsedCreateConfigInstruction<
   TProgram extends string = typeof PUMP_AMM_PROGRAM_ADDRESS,
   TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[],
 > = {
-  programAddress: Address<TProgram>
+  programAddress: Address<TProgram>;
   accounts: {
-    admin: TAccountMetas[0]
-    globalConfig: TAccountMetas[1]
-    systemProgram: TAccountMetas[2]
-    eventAuthority: TAccountMetas[3]
-    program: TAccountMetas[4]
-  }
-  data: CreateConfigInstructionData
-}
+    admin: TAccountMetas[0];
+    globalConfig: TAccountMetas[1];
+    systemProgram: TAccountMetas[2];
+    eventAuthority: TAccountMetas[3];
+    program: TAccountMetas[4];
+  };
+  data: CreateConfigInstructionData;
+};
 
 export function parseCreateConfigInstruction<
   TProgram extends string,
@@ -356,14 +390,14 @@ export function parseCreateConfigInstruction<
 ): ParsedCreateConfigInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 5) {
     // TODO: Coded error.
-    throw new Error('Not enough accounts')
+    throw new Error('Not enough accounts');
   }
-  let accountIndex = 0
+  let accountIndex = 0;
   const getNextAccount = () => {
-    const accountMeta = instruction.accounts![accountIndex]!
-    accountIndex += 1
-    return accountMeta
-  }
+    const accountMeta = instruction.accounts![accountIndex]!;
+    accountIndex += 1;
+    return accountMeta;
+  };
   return {
     programAddress: instruction.programAddress,
     accounts: {
@@ -374,5 +408,5 @@ export function parseCreateConfigInstruction<
       program: getNextAccount(),
     },
     data: getCreateConfigInstructionDataDecoder().decode(instruction.data),
-  }
+  };
 }

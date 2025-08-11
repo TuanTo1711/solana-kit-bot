@@ -20,59 +20,59 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit'
+} from '@solana/kit';
 
 export type SellEvent = {
-  timestamp: bigint
-  baseAmountIn: bigint
-  minQuoteAmountOut: bigint
-  userBaseTokenReserves: bigint
-  userQuoteTokenReserves: bigint
-  poolBaseTokenReserves: bigint
-  poolQuoteTokenReserves: bigint
-  quoteAmountOut: bigint
-  lpFeeBasisPoints: bigint
-  lpFee: bigint
-  protocolFeeBasisPoints: bigint
-  protocolFee: bigint
-  quoteAmountOutWithoutLpFee: bigint
-  userQuoteAmountOut: bigint
-  pool: Address
-  user: Address
-  userBaseTokenAccount: Address
-  userQuoteTokenAccount: Address
-  protocolFeeRecipient: Address
-  protocolFeeRecipientTokenAccount: Address
-  coinCreator: Address
-  coinCreatorFeeBasisPoints: bigint
-  coinCreatorFee: bigint
-}
+  timestamp: bigint;
+  baseAmountIn: bigint;
+  minQuoteAmountOut: bigint;
+  userBaseTokenReserves: bigint;
+  userQuoteTokenReserves: bigint;
+  poolBaseTokenReserves: bigint;
+  poolQuoteTokenReserves: bigint;
+  quoteAmountOut: bigint;
+  lpFeeBasisPoints: bigint;
+  lpFee: bigint;
+  protocolFeeBasisPoints: bigint;
+  protocolFee: bigint;
+  quoteAmountOutWithoutLpFee: bigint;
+  userQuoteAmountOut: bigint;
+  pool: Address;
+  user: Address;
+  userBaseTokenAccount: Address;
+  userQuoteTokenAccount: Address;
+  protocolFeeRecipient: Address;
+  protocolFeeRecipientTokenAccount: Address;
+  coinCreator: Address;
+  coinCreatorFeeBasisPoints: bigint;
+  coinCreatorFee: bigint;
+};
 
 export type SellEventArgs = {
-  timestamp: number | bigint
-  baseAmountIn: number | bigint
-  minQuoteAmountOut: number | bigint
-  userBaseTokenReserves: number | bigint
-  userQuoteTokenReserves: number | bigint
-  poolBaseTokenReserves: number | bigint
-  poolQuoteTokenReserves: number | bigint
-  quoteAmountOut: number | bigint
-  lpFeeBasisPoints: number | bigint
-  lpFee: number | bigint
-  protocolFeeBasisPoints: number | bigint
-  protocolFee: number | bigint
-  quoteAmountOutWithoutLpFee: number | bigint
-  userQuoteAmountOut: number | bigint
-  pool: Address
-  user: Address
-  userBaseTokenAccount: Address
-  userQuoteTokenAccount: Address
-  protocolFeeRecipient: Address
-  protocolFeeRecipientTokenAccount: Address
-  coinCreator: Address
-  coinCreatorFeeBasisPoints: number | bigint
-  coinCreatorFee: number | bigint
-}
+  timestamp: number | bigint;
+  baseAmountIn: number | bigint;
+  minQuoteAmountOut: number | bigint;
+  userBaseTokenReserves: number | bigint;
+  userQuoteTokenReserves: number | bigint;
+  poolBaseTokenReserves: number | bigint;
+  poolQuoteTokenReserves: number | bigint;
+  quoteAmountOut: number | bigint;
+  lpFeeBasisPoints: number | bigint;
+  lpFee: number | bigint;
+  protocolFeeBasisPoints: number | bigint;
+  protocolFee: number | bigint;
+  quoteAmountOutWithoutLpFee: number | bigint;
+  userQuoteAmountOut: number | bigint;
+  pool: Address;
+  user: Address;
+  userBaseTokenAccount: Address;
+  userQuoteTokenAccount: Address;
+  protocolFeeRecipient: Address;
+  protocolFeeRecipientTokenAccount: Address;
+  coinCreator: Address;
+  coinCreatorFeeBasisPoints: number | bigint;
+  coinCreatorFee: number | bigint;
+};
 
 export function getSellEventEncoder(): FixedSizeEncoder<SellEventArgs> {
   return getStructEncoder([
@@ -99,7 +99,7 @@ export function getSellEventEncoder(): FixedSizeEncoder<SellEventArgs> {
     ['coinCreator', getAddressEncoder()],
     ['coinCreatorFeeBasisPoints', getU64Encoder()],
     ['coinCreatorFee', getU64Encoder()],
-  ])
+  ]);
 }
 
 export function getSellEventDecoder(): FixedSizeDecoder<SellEvent> {
@@ -127,9 +127,9 @@ export function getSellEventDecoder(): FixedSizeDecoder<SellEvent> {
     ['coinCreator', getAddressDecoder()],
     ['coinCreatorFeeBasisPoints', getU64Decoder()],
     ['coinCreatorFee', getU64Decoder()],
-  ])
+  ]);
 }
 
 export function getSellEventCodec(): FixedSizeCodec<SellEventArgs, SellEvent> {
-  return combineCodec(getSellEventEncoder(), getSellEventDecoder())
+  return combineCodec(getSellEventEncoder(), getSellEventDecoder());
 }

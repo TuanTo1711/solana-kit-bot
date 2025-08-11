@@ -18,7 +18,6 @@ import {
   getStructEncoder,
   transformEncoder,
   type AccountMeta,
-  type AccountSignerMeta,
   type Address,
   type FixedSizeCodec,
   type FixedSizeDecoder,
@@ -27,20 +26,24 @@ import {
   type InstructionWithAccounts,
   type InstructionWithData,
   type ReadonlyAccount,
-  type ReadonlySignerAccount,
   type ReadonlyUint8Array,
-  type TransactionSigner,
   type WritableAccount,
-} from '@solana/kit'
-import { PUMP_AMM_PROGRAM_ADDRESS } from '../programs'
-import { expectAddress, getAccountMetaFactory, type ResolvedAccount } from '../shared'
+} from '@solana/kit';
+import { PUMP_AMM_PROGRAM_ADDRESS } from '../programs';
+import {
+  expectAddress,
+  getAccountMetaFactory,
+  type ResolvedAccount,
+} from '../shared';
 
 export const COLLECT_COIN_CREATOR_FEE_DISCRIMINATOR = new Uint8Array([
   160, 57, 89, 42, 181, 139, 43, 66,
-])
+]);
 
 export function getCollectCoinCreatorFeeDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(COLLECT_COIN_CREATOR_FEE_DISCRIMINATOR)
+  return fixEncoderSize(getBytesEncoder(), 8).encode(
+    COLLECT_COIN_CREATOR_FEE_DISCRIMINATOR
+  );
 }
 
 export type CollectCoinCreatorFeeInstruction<
@@ -48,7 +51,9 @@ export type CollectCoinCreatorFeeInstruction<
   TAccountQuoteMint extends string | AccountMeta<string> = string,
   TAccountQuoteTokenProgram extends string | AccountMeta<string> = string,
   TAccountCoinCreator extends string | AccountMeta<string> = string,
-  TAccountCoinCreatorVaultAuthority extends string | AccountMeta<string> = string,
+  TAccountCoinCreatorVaultAuthority extends
+    | string
+    | AccountMeta<string> = string,
   TAccountCoinCreatorVaultAta extends string | AccountMeta<string> = string,
   TAccountCoinCreatorTokenAccount extends string | AccountMeta<string> = string,
   TAccountEventAuthority extends string | AccountMeta<string> = string,
@@ -58,12 +63,14 @@ export type CollectCoinCreatorFeeInstruction<
   InstructionWithData<ReadonlyUint8Array> &
   InstructionWithAccounts<
     [
-      TAccountQuoteMint extends string ? ReadonlyAccount<TAccountQuoteMint> : TAccountQuoteMint,
+      TAccountQuoteMint extends string
+        ? ReadonlyAccount<TAccountQuoteMint>
+        : TAccountQuoteMint,
       TAccountQuoteTokenProgram extends string
         ? ReadonlyAccount<TAccountQuoteTokenProgram>
         : TAccountQuoteTokenProgram,
       TAccountCoinCreator extends string
-        ? ReadonlySignerAccount<TAccountCoinCreator> & AccountSignerMeta<TAccountCoinCreator>
+        ? ReadonlyAccount<TAccountCoinCreator>
         : TAccountCoinCreator,
       TAccountCoinCreatorVaultAuthority extends string
         ? ReadonlyAccount<TAccountCoinCreatorVaultAuthority>
@@ -77,29 +84,33 @@ export type CollectCoinCreatorFeeInstruction<
       TAccountEventAuthority extends string
         ? ReadonlyAccount<TAccountEventAuthority>
         : TAccountEventAuthority,
-      TAccountProgram extends string ? ReadonlyAccount<TAccountProgram> : TAccountProgram,
+      TAccountProgram extends string
+        ? ReadonlyAccount<TAccountProgram>
+        : TAccountProgram,
       ...TRemainingAccounts,
     ]
-  >
+  >;
 
 export type CollectCoinCreatorFeeInstructionData = {
-  discriminator: ReadonlyUint8Array
-}
+  discriminator: ReadonlyUint8Array;
+};
 
-export type CollectCoinCreatorFeeInstructionDataArgs = {}
+export type CollectCoinCreatorFeeInstructionDataArgs = {};
 
 export function getCollectCoinCreatorFeeInstructionDataEncoder(): FixedSizeEncoder<CollectCoinCreatorFeeInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([['discriminator', fixEncoderSize(getBytesEncoder(), 8)]]),
-    value => ({
+    (value) => ({
       ...value,
       discriminator: COLLECT_COIN_CREATOR_FEE_DISCRIMINATOR,
     })
-  )
+  );
 }
 
 export function getCollectCoinCreatorFeeInstructionDataDecoder(): FixedSizeDecoder<CollectCoinCreatorFeeInstructionData> {
-  return getStructDecoder([['discriminator', fixDecoderSize(getBytesDecoder(), 8)]])
+  return getStructDecoder([
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+  ]);
 }
 
 export function getCollectCoinCreatorFeeInstructionDataCodec(): FixedSizeCodec<
@@ -109,7 +120,7 @@ export function getCollectCoinCreatorFeeInstructionDataCodec(): FixedSizeCodec<
   return combineCodec(
     getCollectCoinCreatorFeeInstructionDataEncoder(),
     getCollectCoinCreatorFeeInstructionDataDecoder()
-  )
+  );
 }
 
 export type CollectCoinCreatorFeeAsyncInput<
@@ -122,15 +133,15 @@ export type CollectCoinCreatorFeeAsyncInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  quoteMint: Address<TAccountQuoteMint>
-  quoteTokenProgram: Address<TAccountQuoteTokenProgram>
-  coinCreator: TransactionSigner<TAccountCoinCreator>
-  coinCreatorVaultAuthority?: Address<TAccountCoinCreatorVaultAuthority>
-  coinCreatorVaultAta?: Address<TAccountCoinCreatorVaultAta>
-  coinCreatorTokenAccount: Address<TAccountCoinCreatorTokenAccount>
-  eventAuthority?: Address<TAccountEventAuthority>
-  program: Address<TAccountProgram>
-}
+  quoteMint: Address<TAccountQuoteMint>;
+  quoteTokenProgram: Address<TAccountQuoteTokenProgram>;
+  coinCreator: Address<TAccountCoinCreator>;
+  coinCreatorVaultAuthority?: Address<TAccountCoinCreatorVaultAuthority>;
+  coinCreatorVaultAta?: Address<TAccountCoinCreatorVaultAta>;
+  coinCreatorTokenAccount: Address<TAccountCoinCreatorTokenAccount>;
+  eventAuthority?: Address<TAccountEventAuthority>;
+  program: Address<TAccountProgram>;
+};
 
 export async function getCollectCoinCreatorFeeInstructionAsync<
   TAccountQuoteMint extends string,
@@ -168,7 +179,7 @@ export async function getCollectCoinCreatorFeeInstructionAsync<
   >
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS
+  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS;
 
   // Original accounts.
   const originalAccounts = {
@@ -192,8 +203,11 @@ export async function getCollectCoinCreatorFeeInstructionAsync<
     },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  }
-  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
+  };
+  const accounts = originalAccounts as Record<
+    keyof typeof originalAccounts,
+    ResolvedAccount
+  >;
 
   // Resolve default values.
   if (!accounts.coinCreatorVaultAuthority.value) {
@@ -201,22 +215,28 @@ export async function getCollectCoinCreatorFeeInstructionAsync<
       programAddress,
       seeds: [
         getBytesEncoder().encode(
-          new Uint8Array([99, 114, 101, 97, 116, 111, 114, 95, 118, 97, 117, 108, 116])
+          new Uint8Array([
+            99, 114, 101, 97, 116, 111, 114, 95, 118, 97, 117, 108, 116,
+          ])
         ),
         getAddressEncoder().encode(expectAddress(accounts.coinCreator.value)),
       ],
-    })
+    });
   }
   if (!accounts.coinCreatorVaultAta.value) {
     accounts.coinCreatorVaultAta.value = await getProgramDerivedAddress({
       programAddress:
         'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL' as Address<'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'>,
       seeds: [
-        getAddressEncoder().encode(expectAddress(accounts.coinCreatorVaultAuthority.value)),
-        getAddressEncoder().encode(expectAddress(accounts.quoteTokenProgram.value)),
+        getAddressEncoder().encode(
+          expectAddress(accounts.coinCreatorVaultAuthority.value)
+        ),
+        getAddressEncoder().encode(
+          expectAddress(accounts.quoteTokenProgram.value)
+        ),
         getAddressEncoder().encode(expectAddress(accounts.quoteMint.value)),
       ],
-    })
+    });
   }
   if (!accounts.eventAuthority.value) {
     accounts.eventAuthority.value = await getProgramDerivedAddress({
@@ -224,14 +244,15 @@ export async function getCollectCoinCreatorFeeInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121,
+            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114,
+            105, 116, 121,
           ])
         ),
       ],
-    })
+    });
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   const instruction = {
     accounts: [
       getAccountMeta(accounts.quoteMint),
@@ -255,9 +276,9 @@ export async function getCollectCoinCreatorFeeInstructionAsync<
     TAccountCoinCreatorTokenAccount,
     TAccountEventAuthority,
     TAccountProgram
-  >
+  >;
 
-  return instruction
+  return instruction;
 }
 
 export type CollectCoinCreatorFeeInput<
@@ -270,15 +291,15 @@ export type CollectCoinCreatorFeeInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  quoteMint: Address<TAccountQuoteMint>
-  quoteTokenProgram: Address<TAccountQuoteTokenProgram>
-  coinCreator: TransactionSigner<TAccountCoinCreator>
-  coinCreatorVaultAuthority: Address<TAccountCoinCreatorVaultAuthority>
-  coinCreatorVaultAta: Address<TAccountCoinCreatorVaultAta>
-  coinCreatorTokenAccount: Address<TAccountCoinCreatorTokenAccount>
-  eventAuthority: Address<TAccountEventAuthority>
-  program: Address<TAccountProgram>
-}
+  quoteMint: Address<TAccountQuoteMint>;
+  quoteTokenProgram: Address<TAccountQuoteTokenProgram>;
+  coinCreator: Address<TAccountCoinCreator>;
+  coinCreatorVaultAuthority: Address<TAccountCoinCreatorVaultAuthority>;
+  coinCreatorVaultAta: Address<TAccountCoinCreatorVaultAta>;
+  coinCreatorTokenAccount: Address<TAccountCoinCreatorTokenAccount>;
+  eventAuthority: Address<TAccountEventAuthority>;
+  program: Address<TAccountProgram>;
+};
 
 export function getCollectCoinCreatorFeeInstruction<
   TAccountQuoteMint extends string,
@@ -314,7 +335,7 @@ export function getCollectCoinCreatorFeeInstruction<
   TAccountProgram
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS
+  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS;
 
   // Original accounts.
   const originalAccounts = {
@@ -338,10 +359,13 @@ export function getCollectCoinCreatorFeeInstruction<
     },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  }
-  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
+  };
+  const accounts = originalAccounts as Record<
+    keyof typeof originalAccounts,
+    ResolvedAccount
+  >;
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   const instruction = {
     accounts: [
       getAccountMeta(accounts.quoteMint),
@@ -365,28 +389,28 @@ export function getCollectCoinCreatorFeeInstruction<
     TAccountCoinCreatorTokenAccount,
     TAccountEventAuthority,
     TAccountProgram
-  >
+  >;
 
-  return instruction
+  return instruction;
 }
 
 export type ParsedCollectCoinCreatorFeeInstruction<
   TProgram extends string = typeof PUMP_AMM_PROGRAM_ADDRESS,
   TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[],
 > = {
-  programAddress: Address<TProgram>
+  programAddress: Address<TProgram>;
   accounts: {
-    quoteMint: TAccountMetas[0]
-    quoteTokenProgram: TAccountMetas[1]
-    coinCreator: TAccountMetas[2]
-    coinCreatorVaultAuthority: TAccountMetas[3]
-    coinCreatorVaultAta: TAccountMetas[4]
-    coinCreatorTokenAccount: TAccountMetas[5]
-    eventAuthority: TAccountMetas[6]
-    program: TAccountMetas[7]
-  }
-  data: CollectCoinCreatorFeeInstructionData
-}
+    quoteMint: TAccountMetas[0];
+    quoteTokenProgram: TAccountMetas[1];
+    coinCreator: TAccountMetas[2];
+    coinCreatorVaultAuthority: TAccountMetas[3];
+    coinCreatorVaultAta: TAccountMetas[4];
+    coinCreatorTokenAccount: TAccountMetas[5];
+    eventAuthority: TAccountMetas[6];
+    program: TAccountMetas[7];
+  };
+  data: CollectCoinCreatorFeeInstructionData;
+};
 
 export function parseCollectCoinCreatorFeeInstruction<
   TProgram extends string,
@@ -398,14 +422,14 @@ export function parseCollectCoinCreatorFeeInstruction<
 ): ParsedCollectCoinCreatorFeeInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 8) {
     // TODO: Coded error.
-    throw new Error('Not enough accounts')
+    throw new Error('Not enough accounts');
   }
-  let accountIndex = 0
+  let accountIndex = 0;
   const getNextAccount = () => {
-    const accountMeta = instruction.accounts![accountIndex]!
-    accountIndex += 1
-    return accountMeta
-  }
+    const accountMeta = instruction.accounts![accountIndex]!;
+    accountIndex += 1;
+    return accountMeta;
+  };
   return {
     programAddress: instruction.programAddress,
     accounts: {
@@ -418,6 +442,8 @@ export function parseCollectCoinCreatorFeeInstruction<
       eventAuthority: getNextAccount(),
       program: getNextAccount(),
     },
-    data: getCollectCoinCreatorFeeInstructionDataDecoder().decode(instruction.data),
-  }
+    data: getCollectCoinCreatorFeeInstructionDataDecoder().decode(
+      instruction.data
+    ),
+  };
 }

@@ -30,14 +30,18 @@ import {
   type ReadonlyUint8Array,
   type TransactionSigner,
   type WritableAccount,
-} from '@solana/kit'
-import { PUMP_AMM_PROGRAM_ADDRESS } from '../programs'
-import { getAccountMetaFactory, type ResolvedAccount } from '../shared'
+} from '@solana/kit';
+import { PUMP_AMM_PROGRAM_ADDRESS } from '../programs';
+import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const UPDATE_ADMIN_DISCRIMINATOR = new Uint8Array([161, 176, 40, 213, 60, 184, 179, 228])
+export const UPDATE_ADMIN_DISCRIMINATOR = new Uint8Array([
+  161, 176, 40, 213, 60, 184, 179, 228,
+]);
 
 export function getUpdateAdminDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(UPDATE_ADMIN_DISCRIMINATOR)
+  return fixEncoderSize(getBytesEncoder(), 8).encode(
+    UPDATE_ADMIN_DISCRIMINATOR
+  );
 }
 
 export type UpdateAdminInstruction<
@@ -53,33 +57,40 @@ export type UpdateAdminInstruction<
   InstructionWithAccounts<
     [
       TAccountAdmin extends string
-        ? ReadonlySignerAccount<TAccountAdmin> & AccountSignerMeta<TAccountAdmin>
+        ? ReadonlySignerAccount<TAccountAdmin> &
+            AccountSignerMeta<TAccountAdmin>
         : TAccountAdmin,
       TAccountGlobalConfig extends string
         ? WritableAccount<TAccountGlobalConfig>
         : TAccountGlobalConfig,
-      TAccountNewAdmin extends string ? ReadonlyAccount<TAccountNewAdmin> : TAccountNewAdmin,
+      TAccountNewAdmin extends string
+        ? ReadonlyAccount<TAccountNewAdmin>
+        : TAccountNewAdmin,
       TAccountEventAuthority extends string
         ? ReadonlyAccount<TAccountEventAuthority>
         : TAccountEventAuthority,
-      TAccountProgram extends string ? ReadonlyAccount<TAccountProgram> : TAccountProgram,
+      TAccountProgram extends string
+        ? ReadonlyAccount<TAccountProgram>
+        : TAccountProgram,
       ...TRemainingAccounts,
     ]
-  >
+  >;
 
-export type UpdateAdminInstructionData = { discriminator: ReadonlyUint8Array }
+export type UpdateAdminInstructionData = { discriminator: ReadonlyUint8Array };
 
-export type UpdateAdminInstructionDataArgs = {}
+export type UpdateAdminInstructionDataArgs = {};
 
 export function getUpdateAdminInstructionDataEncoder(): FixedSizeEncoder<UpdateAdminInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([['discriminator', fixEncoderSize(getBytesEncoder(), 8)]]),
-    value => ({ ...value, discriminator: UPDATE_ADMIN_DISCRIMINATOR })
-  )
+    (value) => ({ ...value, discriminator: UPDATE_ADMIN_DISCRIMINATOR })
+  );
 }
 
 export function getUpdateAdminInstructionDataDecoder(): FixedSizeDecoder<UpdateAdminInstructionData> {
-  return getStructDecoder([['discriminator', fixDecoderSize(getBytesDecoder(), 8)]])
+  return getStructDecoder([
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+  ]);
 }
 
 export function getUpdateAdminInstructionDataCodec(): FixedSizeCodec<
@@ -89,7 +100,7 @@ export function getUpdateAdminInstructionDataCodec(): FixedSizeCodec<
   return combineCodec(
     getUpdateAdminInstructionDataEncoder(),
     getUpdateAdminInstructionDataDecoder()
-  )
+  );
 }
 
 export type UpdateAdminAsyncInput<
@@ -99,12 +110,12 @@ export type UpdateAdminAsyncInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  admin: TransactionSigner<TAccountAdmin>
-  globalConfig: Address<TAccountGlobalConfig>
-  newAdmin: Address<TAccountNewAdmin>
-  eventAuthority?: Address<TAccountEventAuthority>
-  program: Address<TAccountProgram>
-}
+  admin: TransactionSigner<TAccountAdmin>;
+  globalConfig: Address<TAccountGlobalConfig>;
+  newAdmin: Address<TAccountNewAdmin>;
+  eventAuthority?: Address<TAccountEventAuthority>;
+  program: Address<TAccountProgram>;
+};
 
 export async function getUpdateAdminInstructionAsync<
   TAccountAdmin extends string,
@@ -133,7 +144,7 @@ export async function getUpdateAdminInstructionAsync<
   >
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS
+  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS;
 
   // Original accounts.
   const originalAccounts = {
@@ -142,8 +153,11 @@ export async function getUpdateAdminInstructionAsync<
     newAdmin: { value: input.newAdmin ?? null, isWritable: false },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  }
-  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
+  };
+  const accounts = originalAccounts as Record<
+    keyof typeof originalAccounts,
+    ResolvedAccount
+  >;
 
   // Resolve default values.
   if (!accounts.eventAuthority.value) {
@@ -152,14 +166,15 @@ export async function getUpdateAdminInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121,
+            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114,
+            105, 116, 121,
           ])
         ),
       ],
-    })
+    });
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   const instruction = {
     accounts: [
       getAccountMeta(accounts.admin),
@@ -177,9 +192,9 @@ export async function getUpdateAdminInstructionAsync<
     TAccountNewAdmin,
     TAccountEventAuthority,
     TAccountProgram
-  >
+  >;
 
-  return instruction
+  return instruction;
 }
 
 export type UpdateAdminInput<
@@ -189,12 +204,12 @@ export type UpdateAdminInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  admin: TransactionSigner<TAccountAdmin>
-  globalConfig: Address<TAccountGlobalConfig>
-  newAdmin: Address<TAccountNewAdmin>
-  eventAuthority: Address<TAccountEventAuthority>
-  program: Address<TAccountProgram>
-}
+  admin: TransactionSigner<TAccountAdmin>;
+  globalConfig: Address<TAccountGlobalConfig>;
+  newAdmin: Address<TAccountNewAdmin>;
+  eventAuthority: Address<TAccountEventAuthority>;
+  program: Address<TAccountProgram>;
+};
 
 export function getUpdateAdminInstruction<
   TAccountAdmin extends string,
@@ -221,7 +236,7 @@ export function getUpdateAdminInstruction<
   TAccountProgram
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS
+  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS;
 
   // Original accounts.
   const originalAccounts = {
@@ -230,10 +245,13 @@ export function getUpdateAdminInstruction<
     newAdmin: { value: input.newAdmin ?? null, isWritable: false },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  }
-  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
+  };
+  const accounts = originalAccounts as Record<
+    keyof typeof originalAccounts,
+    ResolvedAccount
+  >;
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   const instruction = {
     accounts: [
       getAccountMeta(accounts.admin),
@@ -251,25 +269,25 @@ export function getUpdateAdminInstruction<
     TAccountNewAdmin,
     TAccountEventAuthority,
     TAccountProgram
-  >
+  >;
 
-  return instruction
+  return instruction;
 }
 
 export type ParsedUpdateAdminInstruction<
   TProgram extends string = typeof PUMP_AMM_PROGRAM_ADDRESS,
   TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[],
 > = {
-  programAddress: Address<TProgram>
+  programAddress: Address<TProgram>;
   accounts: {
-    admin: TAccountMetas[0]
-    globalConfig: TAccountMetas[1]
-    newAdmin: TAccountMetas[2]
-    eventAuthority: TAccountMetas[3]
-    program: TAccountMetas[4]
-  }
-  data: UpdateAdminInstructionData
-}
+    admin: TAccountMetas[0];
+    globalConfig: TAccountMetas[1];
+    newAdmin: TAccountMetas[2];
+    eventAuthority: TAccountMetas[3];
+    program: TAccountMetas[4];
+  };
+  data: UpdateAdminInstructionData;
+};
 
 export function parseUpdateAdminInstruction<
   TProgram extends string,
@@ -281,14 +299,14 @@ export function parseUpdateAdminInstruction<
 ): ParsedUpdateAdminInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 5) {
     // TODO: Coded error.
-    throw new Error('Not enough accounts')
+    throw new Error('Not enough accounts');
   }
-  let accountIndex = 0
+  let accountIndex = 0;
   const getNextAccount = () => {
-    const accountMeta = instruction.accounts![accountIndex]!
-    accountIndex += 1
-    return accountMeta
-  }
+    const accountMeta = instruction.accounts![accountIndex]!;
+    accountIndex += 1;
+    return accountMeta;
+  };
   return {
     programAddress: instruction.programAddress,
     accounts: {
@@ -299,5 +317,5 @@ export function parseUpdateAdminInstruction<
       program: getNextAccount(),
     },
     data: getUpdateAdminInstructionDataDecoder().decode(instruction.data),
-  }
+  };
 }

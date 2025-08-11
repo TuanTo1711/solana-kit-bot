@@ -20,45 +20,45 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit'
+} from '@solana/kit';
 
 export type DepositEvent = {
-  timestamp: bigint
-  lpTokenAmountOut: bigint
-  maxBaseAmountIn: bigint
-  maxQuoteAmountIn: bigint
-  userBaseTokenReserves: bigint
-  userQuoteTokenReserves: bigint
-  poolBaseTokenReserves: bigint
-  poolQuoteTokenReserves: bigint
-  baseAmountIn: bigint
-  quoteAmountIn: bigint
-  lpMintSupply: bigint
-  pool: Address
-  user: Address
-  userBaseTokenAccount: Address
-  userQuoteTokenAccount: Address
-  userPoolTokenAccount: Address
-}
+  timestamp: bigint;
+  lpTokenAmountOut: bigint;
+  maxBaseAmountIn: bigint;
+  maxQuoteAmountIn: bigint;
+  userBaseTokenReserves: bigint;
+  userQuoteTokenReserves: bigint;
+  poolBaseTokenReserves: bigint;
+  poolQuoteTokenReserves: bigint;
+  baseAmountIn: bigint;
+  quoteAmountIn: bigint;
+  lpMintSupply: bigint;
+  pool: Address;
+  user: Address;
+  userBaseTokenAccount: Address;
+  userQuoteTokenAccount: Address;
+  userPoolTokenAccount: Address;
+};
 
 export type DepositEventArgs = {
-  timestamp: number | bigint
-  lpTokenAmountOut: number | bigint
-  maxBaseAmountIn: number | bigint
-  maxQuoteAmountIn: number | bigint
-  userBaseTokenReserves: number | bigint
-  userQuoteTokenReserves: number | bigint
-  poolBaseTokenReserves: number | bigint
-  poolQuoteTokenReserves: number | bigint
-  baseAmountIn: number | bigint
-  quoteAmountIn: number | bigint
-  lpMintSupply: number | bigint
-  pool: Address
-  user: Address
-  userBaseTokenAccount: Address
-  userQuoteTokenAccount: Address
-  userPoolTokenAccount: Address
-}
+  timestamp: number | bigint;
+  lpTokenAmountOut: number | bigint;
+  maxBaseAmountIn: number | bigint;
+  maxQuoteAmountIn: number | bigint;
+  userBaseTokenReserves: number | bigint;
+  userQuoteTokenReserves: number | bigint;
+  poolBaseTokenReserves: number | bigint;
+  poolQuoteTokenReserves: number | bigint;
+  baseAmountIn: number | bigint;
+  quoteAmountIn: number | bigint;
+  lpMintSupply: number | bigint;
+  pool: Address;
+  user: Address;
+  userBaseTokenAccount: Address;
+  userQuoteTokenAccount: Address;
+  userPoolTokenAccount: Address;
+};
 
 export function getDepositEventEncoder(): FixedSizeEncoder<DepositEventArgs> {
   return getStructEncoder([
@@ -78,7 +78,7 @@ export function getDepositEventEncoder(): FixedSizeEncoder<DepositEventArgs> {
     ['userBaseTokenAccount', getAddressEncoder()],
     ['userQuoteTokenAccount', getAddressEncoder()],
     ['userPoolTokenAccount', getAddressEncoder()],
-  ])
+  ]);
 }
 
 export function getDepositEventDecoder(): FixedSizeDecoder<DepositEvent> {
@@ -99,9 +99,12 @@ export function getDepositEventDecoder(): FixedSizeDecoder<DepositEvent> {
     ['userBaseTokenAccount', getAddressDecoder()],
     ['userQuoteTokenAccount', getAddressDecoder()],
     ['userPoolTokenAccount', getAddressDecoder()],
-  ])
+  ]);
 }
 
-export function getDepositEventCodec(): FixedSizeCodec<DepositEventArgs, DepositEvent> {
-  return combineCodec(getDepositEventEncoder(), getDepositEventDecoder())
+export function getDepositEventCodec(): FixedSizeCodec<
+  DepositEventArgs,
+  DepositEvent
+> {
+  return combineCodec(getDepositEventEncoder(), getDepositEventDecoder());
 }

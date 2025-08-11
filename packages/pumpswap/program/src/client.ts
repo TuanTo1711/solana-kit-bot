@@ -18,8 +18,9 @@ import {
 import { getSwapAddresses } from './constant'
 import {
   fetchPool,
-  getBuyInstruction,
+  getBuyInstructionAsync,
   getSellInstruction,
+  getSellInstructionAsync,
   PUMP_AMM_PROGRAM_ADDRESS,
 } from './generated'
 import type {
@@ -140,7 +141,7 @@ class PumpswapClientImpl implements PumpswapClient {
     instructions.push(transferInstruction, getSyncNativeInstruction({ account: quoteAta }))
 
     // Create the main buy instruction for the PumpSwap AMM
-    const buyInstruction = getBuyInstruction({
+    const buyInstruction = await getBuyInstructionAsync({
       ...poolKeys,
       ...defaultAddresses,
       user: buyer,
@@ -150,6 +151,7 @@ class PumpswapClientImpl implements PumpswapClient {
       userQuoteTokenAccount: quoteAta,
       coinCreatorVaultAta,
       coinCreatorVaultAuthority,
+      userAccTarget: buyer,
     })
 
     instructions.push(buyInstruction)
@@ -186,33 +188,24 @@ class PumpswapClientImpl implements PumpswapClient {
     const { baseMint, quoteMint, coinCreator } = poolKeys
 
     const defaultAddresses = getSwapAddresses()
+    const base58 = getBase58Codec()
 
-    const [[baseAta], [quoteAta], [coinCreatorVaultAuthority, [coinCreatorVaultAta]]] =
-      await Promise.all([
-        findAssociatedTokenPda({
-          mint: baseMint,
-          owner: seller.address,
-          tokenProgram: TOKEN_PROGRAM_ADDRESS,
-        }),
-        findAssociatedTokenPda({
-          mint: quoteMint,
-          owner: seller.address,
-          tokenProgram: TOKEN_PROGRAM_ADDRESS,
-        }),
-        getProgramDerivedAddress({
-          programAddress: PUMP_AMM_PROGRAM_ADDRESS,
-          seeds: ['creator_vault', coinCreator],
-        }).then(([coinCreatorVaultAuthority]) => {
-          return Promise.all([
-            coinCreatorVaultAuthority,
-            findAssociatedTokenPda({
-              mint: quoteMint,
-              owner: coinCreatorVaultAuthority,
-              tokenProgram: TOKEN_PROGRAM_ADDRESS,
-            }),
-          ])
-        }),
-      ])
+    const [[baseAta], [quoteAta], [coinCreatorVaultAuthority]] = await Promise.all([
+      findAssociatedTokenPda({
+        mint: baseMint,
+        owner: seller.address,
+        tokenProgram: TOKEN_PROGRAM_ADDRESS,
+      }),
+      findAssociatedTokenPda({
+        mint: quoteMint,
+        owner: seller.address,
+        tokenProgram: TOKEN_PROGRAM_ADDRESS,
+      }),
+      getProgramDerivedAddress({
+        programAddress: PUMP_AMM_PROGRAM_ADDRESS,
+        seeds: ['creator_vault', base58.encode(coinCreator)],
+      }),
+    ])
 
     // Create quote token (wSOL) ATA if it doesn't exist
     if (!hasQuoteAta) {
@@ -227,7 +220,7 @@ class PumpswapClientImpl implements PumpswapClient {
     }
 
     // Create the main sell instruction for the PumpSwap AMM
-    const sellInstruction = getSellInstruction({
+    const sellInstruction = await getSellInstructionAsync({
       ...poolKeys,
       ...defaultAddresses,
       user: seller,
@@ -235,7 +228,6 @@ class PumpswapClientImpl implements PumpswapClient {
       minQuoteAmountOut: minAmountOut,
       userBaseTokenAccount: baseAta,
       userQuoteTokenAccount: quoteAta,
-      coinCreatorVaultAta,
       coinCreatorVaultAuthority,
     })
 
@@ -287,6 +279,7 @@ class PumpswapClientImpl implements PumpswapClient {
     const { baseMint, quoteMint, coinCreator } = poolKeys
 
     const defaultAddresses = getSwapAddresses()
+    const base58 = getBase58Codec()
 
     const [[baseAta], [quoteAta], [coinCreatorVaultAuthority, [coinCreatorVaultAta]]] =
       await Promise.all([
@@ -302,7 +295,7 @@ class PumpswapClientImpl implements PumpswapClient {
         }),
         getProgramDerivedAddress({
           programAddress: PUMP_AMM_PROGRAM_ADDRESS,
-          seeds: ['creator_vault', coinCreator],
+          seeds: ['creator_vault', base58.encode(coinCreator)],
         }).then(([coinCreatorVaultAuthority]) => {
           return Promise.all([
             coinCreatorVaultAuthority,
@@ -340,7 +333,7 @@ class PumpswapClientImpl implements PumpswapClient {
     }
 
     // Create buy instruction - purchases base tokens with quote tokens
-    const buyInstruction = getBuyInstruction({
+    const buyInstruction = await getBuyInstructionAsync({
       ...poolKeys,
       ...defaultAddresses,
       user: payer,
@@ -350,6 +343,7 @@ class PumpswapClientImpl implements PumpswapClient {
       userQuoteTokenAccount: quoteAta,
       coinCreatorVaultAta,
       coinCreatorVaultAuthority,
+      userAccTarget: payer,
     })
 
     // Create sell instruction - sells base tokens for quote tokens

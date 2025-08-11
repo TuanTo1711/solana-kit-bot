@@ -12,35 +12,43 @@ import {
   getBytesEncoder,
   type Address,
   type ReadonlyUint8Array,
-} from '@solana/kit'
+} from '@solana/kit';
 import {
+  type ParsedAdminSetCoinCreatorInstruction,
+  type ParsedAdminUpdateTokenIncentivesInstruction,
   type ParsedBuyInstruction,
+  type ParsedClaimTokenIncentivesInstruction,
+  type ParsedCloseUserVolumeAccumulatorInstruction,
   type ParsedCollectCoinCreatorFeeInstruction,
   type ParsedCreateConfigInstruction,
   type ParsedCreatePoolInstruction,
   type ParsedDepositInstruction,
   type ParsedDisableInstruction,
   type ParsedExtendAccountInstruction,
+  type ParsedInitUserVolumeAccumulatorInstruction,
   type ParsedSellInstruction,
   type ParsedSetCoinCreatorInstruction,
+  type ParsedSyncUserVolumeAccumulatorInstruction,
   type ParsedUpdateAdminInstruction,
   type ParsedUpdateFeeConfigInstruction,
   type ParsedWithdrawInstruction,
-} from '../instructions'
+} from '../instructions';
 
 export const PUMP_AMM_PROGRAM_ADDRESS =
-  'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA' as Address<'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA'>
+  'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA' as Address<'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA'>;
 
 export enum PumpAmmAccount {
   BondingCurve,
   GlobalConfig,
+  GlobalVolumeAccumulator,
   Pool,
+  UserVolumeAccumulator,
 }
 
 export function identifyPumpAmmAccount(
   account: { data: ReadonlyUint8Array } | ReadonlyUint8Array
 ): PumpAmmAccount {
-  const data = 'data' in account ? account.data : account
+  const data = 'data' in account ? account.data : account;
   if (
     containsBytes(
       data,
@@ -50,7 +58,7 @@ export function identifyPumpAmmAccount(
       0
     )
   ) {
-    return PumpAmmAccount.BondingCurve
+    return PumpAmmAccount.BondingCurve;
   }
   if (
     containsBytes(
@@ -61,7 +69,18 @@ export function identifyPumpAmmAccount(
       0
     )
   ) {
-    return PumpAmmAccount.GlobalConfig
+    return PumpAmmAccount.GlobalConfig;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([202, 42, 246, 43, 142, 190, 30, 255])
+      ),
+      0
+    )
+  ) {
+    return PumpAmmAccount.GlobalVolumeAccumulator;
   }
   if (
     containsBytes(
@@ -72,21 +91,40 @@ export function identifyPumpAmmAccount(
       0
     )
   ) {
-    return PumpAmmAccount.Pool
+    return PumpAmmAccount.Pool;
   }
-  throw new Error('The provided account could not be identified as a pumpAmm account.')
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([86, 255, 112, 14, 102, 53, 154, 250])
+      ),
+      0
+    )
+  ) {
+    return PumpAmmAccount.UserVolumeAccumulator;
+  }
+  throw new Error(
+    'The provided account could not be identified as a pumpAmm account.'
+  );
 }
 
 export enum PumpAmmInstruction {
+  AdminSetCoinCreator,
+  AdminUpdateTokenIncentives,
   Buy,
+  ClaimTokenIncentives,
+  CloseUserVolumeAccumulator,
   CollectCoinCreatorFee,
   CreateConfig,
   CreatePool,
   Deposit,
   Disable,
   ExtendAccount,
+  InitUserVolumeAccumulator,
   Sell,
   SetCoinCreator,
+  SyncUserVolumeAccumulator,
   UpdateAdmin,
   UpdateFeeConfig,
   Withdraw,
@@ -95,7 +133,29 @@ export enum PumpAmmInstruction {
 export function identifyPumpAmmInstruction(
   instruction: { data: ReadonlyUint8Array } | ReadonlyUint8Array
 ): PumpAmmInstruction {
-  const data = 'data' in instruction ? instruction.data : instruction
+  const data = 'data' in instruction ? instruction.data : instruction;
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([242, 40, 117, 145, 73, 96, 105, 104])
+      ),
+      0
+    )
+  ) {
+    return PumpAmmInstruction.AdminSetCoinCreator;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([209, 11, 115, 87, 213, 23, 124, 204])
+      ),
+      0
+    )
+  ) {
+    return PumpAmmInstruction.AdminUpdateTokenIncentives;
+  }
   if (
     containsBytes(
       data,
@@ -105,7 +165,29 @@ export function identifyPumpAmmInstruction(
       0
     )
   ) {
-    return PumpAmmInstruction.Buy
+    return PumpAmmInstruction.Buy;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([16, 4, 71, 28, 204, 1, 40, 27])
+      ),
+      0
+    )
+  ) {
+    return PumpAmmInstruction.ClaimTokenIncentives;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([249, 69, 164, 218, 150, 103, 84, 138])
+      ),
+      0
+    )
+  ) {
+    return PumpAmmInstruction.CloseUserVolumeAccumulator;
   }
   if (
     containsBytes(
@@ -116,7 +198,7 @@ export function identifyPumpAmmInstruction(
       0
     )
   ) {
-    return PumpAmmInstruction.CollectCoinCreatorFee
+    return PumpAmmInstruction.CollectCoinCreatorFee;
   }
   if (
     containsBytes(
@@ -127,7 +209,7 @@ export function identifyPumpAmmInstruction(
       0
     )
   ) {
-    return PumpAmmInstruction.CreateConfig
+    return PumpAmmInstruction.CreateConfig;
   }
   if (
     containsBytes(
@@ -138,7 +220,7 @@ export function identifyPumpAmmInstruction(
       0
     )
   ) {
-    return PumpAmmInstruction.CreatePool
+    return PumpAmmInstruction.CreatePool;
   }
   if (
     containsBytes(
@@ -149,7 +231,7 @@ export function identifyPumpAmmInstruction(
       0
     )
   ) {
-    return PumpAmmInstruction.Deposit
+    return PumpAmmInstruction.Deposit;
   }
   if (
     containsBytes(
@@ -160,7 +242,7 @@ export function identifyPumpAmmInstruction(
       0
     )
   ) {
-    return PumpAmmInstruction.Disable
+    return PumpAmmInstruction.Disable;
   }
   if (
     containsBytes(
@@ -171,7 +253,18 @@ export function identifyPumpAmmInstruction(
       0
     )
   ) {
-    return PumpAmmInstruction.ExtendAccount
+    return PumpAmmInstruction.ExtendAccount;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([94, 6, 202, 115, 255, 96, 232, 183])
+      ),
+      0
+    )
+  ) {
+    return PumpAmmInstruction.InitUserVolumeAccumulator;
   }
   if (
     containsBytes(
@@ -182,7 +275,7 @@ export function identifyPumpAmmInstruction(
       0
     )
   ) {
-    return PumpAmmInstruction.Sell
+    return PumpAmmInstruction.Sell;
   }
   if (
     containsBytes(
@@ -193,7 +286,18 @@ export function identifyPumpAmmInstruction(
       0
     )
   ) {
-    return PumpAmmInstruction.SetCoinCreator
+    return PumpAmmInstruction.SetCoinCreator;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([86, 31, 192, 87, 163, 87, 79, 238])
+      ),
+      0
+    )
+  ) {
+    return PumpAmmInstruction.SyncUserVolumeAccumulator;
   }
   if (
     containsBytes(
@@ -204,7 +308,7 @@ export function identifyPumpAmmInstruction(
       0
     )
   ) {
-    return PumpAmmInstruction.UpdateAdmin
+    return PumpAmmInstruction.UpdateAdmin;
   }
   if (
     containsBytes(
@@ -215,7 +319,7 @@ export function identifyPumpAmmInstruction(
       0
     )
   ) {
-    return PumpAmmInstruction.UpdateFeeConfig
+    return PumpAmmInstruction.UpdateFeeConfig;
   }
   if (
     containsBytes(
@@ -226,47 +330,67 @@ export function identifyPumpAmmInstruction(
       0
     )
   ) {
-    return PumpAmmInstruction.Withdraw
+    return PumpAmmInstruction.Withdraw;
   }
-  throw new Error('The provided instruction could not be identified as a pumpAmm instruction.')
+  throw new Error(
+    'The provided instruction could not be identified as a pumpAmm instruction.'
+  );
 }
 
 export type ParsedPumpAmmInstruction<
   TProgram extends string = 'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA',
 > =
   | ({
-      instructionType: PumpAmmInstruction.Buy
+      instructionType: PumpAmmInstruction.AdminSetCoinCreator;
+    } & ParsedAdminSetCoinCreatorInstruction<TProgram>)
+  | ({
+      instructionType: PumpAmmInstruction.AdminUpdateTokenIncentives;
+    } & ParsedAdminUpdateTokenIncentivesInstruction<TProgram>)
+  | ({
+      instructionType: PumpAmmInstruction.Buy;
     } & ParsedBuyInstruction<TProgram>)
   | ({
-      instructionType: PumpAmmInstruction.CollectCoinCreatorFee
+      instructionType: PumpAmmInstruction.ClaimTokenIncentives;
+    } & ParsedClaimTokenIncentivesInstruction<TProgram>)
+  | ({
+      instructionType: PumpAmmInstruction.CloseUserVolumeAccumulator;
+    } & ParsedCloseUserVolumeAccumulatorInstruction<TProgram>)
+  | ({
+      instructionType: PumpAmmInstruction.CollectCoinCreatorFee;
     } & ParsedCollectCoinCreatorFeeInstruction<TProgram>)
   | ({
-      instructionType: PumpAmmInstruction.CreateConfig
+      instructionType: PumpAmmInstruction.CreateConfig;
     } & ParsedCreateConfigInstruction<TProgram>)
   | ({
-      instructionType: PumpAmmInstruction.CreatePool
+      instructionType: PumpAmmInstruction.CreatePool;
     } & ParsedCreatePoolInstruction<TProgram>)
   | ({
-      instructionType: PumpAmmInstruction.Deposit
+      instructionType: PumpAmmInstruction.Deposit;
     } & ParsedDepositInstruction<TProgram>)
   | ({
-      instructionType: PumpAmmInstruction.Disable
+      instructionType: PumpAmmInstruction.Disable;
     } & ParsedDisableInstruction<TProgram>)
   | ({
-      instructionType: PumpAmmInstruction.ExtendAccount
+      instructionType: PumpAmmInstruction.ExtendAccount;
     } & ParsedExtendAccountInstruction<TProgram>)
   | ({
-      instructionType: PumpAmmInstruction.Sell
+      instructionType: PumpAmmInstruction.InitUserVolumeAccumulator;
+    } & ParsedInitUserVolumeAccumulatorInstruction<TProgram>)
+  | ({
+      instructionType: PumpAmmInstruction.Sell;
     } & ParsedSellInstruction<TProgram>)
   | ({
-      instructionType: PumpAmmInstruction.SetCoinCreator
+      instructionType: PumpAmmInstruction.SetCoinCreator;
     } & ParsedSetCoinCreatorInstruction<TProgram>)
   | ({
-      instructionType: PumpAmmInstruction.UpdateAdmin
+      instructionType: PumpAmmInstruction.SyncUserVolumeAccumulator;
+    } & ParsedSyncUserVolumeAccumulatorInstruction<TProgram>)
+  | ({
+      instructionType: PumpAmmInstruction.UpdateAdmin;
     } & ParsedUpdateAdminInstruction<TProgram>)
   | ({
-      instructionType: PumpAmmInstruction.UpdateFeeConfig
+      instructionType: PumpAmmInstruction.UpdateFeeConfig;
     } & ParsedUpdateFeeConfigInstruction<TProgram>)
   | ({
-      instructionType: PumpAmmInstruction.Withdraw
-    } & ParsedWithdrawInstruction<TProgram>)
+      instructionType: PumpAmmInstruction.Withdraw;
+    } & ParsedWithdrawInstruction<TProgram>);

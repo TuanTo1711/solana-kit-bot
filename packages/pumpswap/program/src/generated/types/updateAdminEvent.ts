@@ -18,26 +18,26 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit'
+} from '@solana/kit';
 
 export type UpdateAdminEvent = {
-  timestamp: bigint
-  admin: Address
-  newAdmin: Address
-}
+  timestamp: bigint;
+  admin: Address;
+  newAdmin: Address;
+};
 
 export type UpdateAdminEventArgs = {
-  timestamp: number | bigint
-  admin: Address
-  newAdmin: Address
-}
+  timestamp: number | bigint;
+  admin: Address;
+  newAdmin: Address;
+};
 
 export function getUpdateAdminEventEncoder(): FixedSizeEncoder<UpdateAdminEventArgs> {
   return getStructEncoder([
     ['timestamp', getI64Encoder()],
     ['admin', getAddressEncoder()],
     ['newAdmin', getAddressEncoder()],
-  ])
+  ]);
 }
 
 export function getUpdateAdminEventDecoder(): FixedSizeDecoder<UpdateAdminEvent> {
@@ -45,9 +45,15 @@ export function getUpdateAdminEventDecoder(): FixedSizeDecoder<UpdateAdminEvent>
     ['timestamp', getI64Decoder()],
     ['admin', getAddressDecoder()],
     ['newAdmin', getAddressDecoder()],
-  ])
+  ]);
 }
 
-export function getUpdateAdminEventCodec(): FixedSizeCodec<UpdateAdminEventArgs, UpdateAdminEvent> {
-  return combineCodec(getUpdateAdminEventEncoder(), getUpdateAdminEventDecoder())
+export function getUpdateAdminEventCodec(): FixedSizeCodec<
+  UpdateAdminEventArgs,
+  UpdateAdminEvent
+> {
+  return combineCodec(
+    getUpdateAdminEventEncoder(),
+    getUpdateAdminEventDecoder()
+  );
 }
