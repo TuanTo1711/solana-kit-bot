@@ -207,3 +207,4 @@ export class DatabaseOptimizer {
     console.log('🧹 Database cache cleared')
   }
 }
+
