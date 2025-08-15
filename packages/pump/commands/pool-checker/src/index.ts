@@ -42,6 +42,8 @@ export class PumpswapPoolCheckerCommand extends Command<BaseContext & SolanaBotC
     const prompt = inquirer.default.prompt
     const controller = new AbortController()
 
+    this.init()
+
     while (!controller.signal.aborted) {
       const question = prompt<{ action: () => Promise<void> }>({
         type: 'select',
