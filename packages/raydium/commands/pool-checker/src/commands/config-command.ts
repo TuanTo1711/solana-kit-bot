@@ -79,12 +79,12 @@ export class PoolCheckerConfigCommand extends Command<PoolCheckerConfigContext> 
       cliTable.push([
         index + 1,
         formatUnits(Number(config.target) / 10 ** 6),
-        config.mustBoost ? '✅' : '❌',
+        config.hasBoost ? '✅' : '❌',
         config.totalBoost ?? 'N/A',
         config.hasImage ? '✅' : '❌',
-        (config.expiredTime / 3600).toFixed(0),
+        (config.expiresHour / 3600).toFixed(0),
         Number(config.amount) / 10 ** 9,
-        config.profitAutoSell.toFixed(1),
+        config.profitSell.toFixed(1),
         config.jitoTip.toFixed(3),
       ])
     })
@@ -112,7 +112,7 @@ export class PoolCheckerConfigCommand extends Command<PoolCheckerConfigContext> 
       },
       {
         type: 'confirm',
-        name: 'mustBoost',
+        name: 'hasBoost',
         message: 'Có cần kiểm tra boost không? ',
         default: false,
       },
@@ -121,7 +121,7 @@ export class PoolCheckerConfigCommand extends Command<PoolCheckerConfigContext> 
         name: 'totalBoost',
         message: 'Tổng boost muốn kiểm tra: ',
         required: true,
-        when: ({ mustBoost }) => mustBoost,
+        when: ({ hasBoost: hasBoost }) => hasBoost,
         transformer: (value: string) => value.trim(),
         validate: (value: string) =>
           isNaN(Number(value)) || Number(value) <= 0 ? 'Tổng boost phải là số lớn hơn 0' : true,
@@ -134,7 +134,7 @@ export class PoolCheckerConfigCommand extends Command<PoolCheckerConfigContext> 
       },
       {
         type: 'input',
-        name: 'expiredTime',
+        name: 'expiresHour',
         message: 'Thời gian hết hạn (giờ): ',
         default: '15',
         required: true,
@@ -157,7 +157,7 @@ export class PoolCheckerConfigCommand extends Command<PoolCheckerConfigContext> 
       },
       {
         type: 'input',
-        name: 'profitAutoSell',
+        name: 'profitSell',
         message: 'Lợi nhuận tự động bán (%): ',
         required: true,
         transformer: (value: string) => value.trim(),
@@ -272,16 +272,16 @@ export class PoolCheckerConfigCommand extends Command<PoolCheckerConfigContext> 
       },
       {
         type: 'confirm',
-        name: 'mustBoost',
-        message: `Có cần kiểm tra boost không? (hiện tại: ${config.mustBoost ? 'Có' : 'Không'}):`,
-        default: config.mustBoost,
+        name: 'hasBoost',
+        message: `Có cần kiểm tra boost không? (hiện tại: ${config.hasBoost ? 'Có' : 'Không'}):`,
+        default: config.hasBoost,
       },
       {
         type: 'input',
         name: 'totalBoost',
         message: 'Tổng boost muốn kiểm tra:',
         default: config.totalBoost?.toString() || '0',
-        when: ({ mustBoost }) => mustBoost,
+        when: ({ hasBoost }) => hasBoost,
         transformer: (value: string) => value.trim(),
         validate: (value: string) =>
           isNaN(Number(value)) || Number(value) <= 0 ? 'Tổng boost phải là số lớn hơn 0' : true,
@@ -294,9 +294,9 @@ export class PoolCheckerConfigCommand extends Command<PoolCheckerConfigContext> 
       },
       {
         type: 'input',
-        name: 'expiredTime',
-        message: `Thời gian hết hạn (giờ) (hiện tại: ${config.expiredTime / 3600}):`,
-        default: (config.expiredTime / 3600).toString(),
+        name: 'expiresHour',
+        message: `Thời gian hết hạn (giờ) (hiện tại: ${config.expiresHour / 3600}):`,
+        default: (config.expiresHour / 3600).toString(),
         transformer: (value: string) => value.trim(),
         validate: (value: string) =>
           isNaN(Number(value)) || Number(value) <= 0
@@ -316,9 +316,9 @@ export class PoolCheckerConfigCommand extends Command<PoolCheckerConfigContext> 
       },
       {
         type: 'input',
-        name: 'profitAutoSell',
-        message: `Lợi nhuận tự động bán (%) (hiện tại: ${config.profitAutoSell / 100}):`,
-        default: (config.profitAutoSell / 100).toString(),
+        name: 'profitSell',
+        message: `Lợi nhuận tự động bán (%) (hiện tại: ${config.profitSell / 100}):`,
+        default: (config.profitSell / 100).toString(),
         transformer: (value: string) => value.trim(),
         validate: (value: string) =>
           isNaN(Number(value)) || parseFloat(value) <= 0

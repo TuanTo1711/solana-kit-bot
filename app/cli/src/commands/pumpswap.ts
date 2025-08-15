@@ -102,8 +102,7 @@ export class PumpswapCommand extends Command<BaseContext & SolanaBotContext> {
       },
       {
         name: `🔍 Lọc và mua khi pool đạt yêu cầu ${chalk.gray('- Pool Checker')}`,
-        value: () => this.getCommand('pool-checker', 'run'),
-        disabled: `- Chưa phát triển xong`,
+        value: () => this.getCommand('pumpswap pool-checker', 'run'),
       },
       {
         name: `📈 Đặt lệnh mua tự động ${chalk.gray('- Limit Order Buy')}`,

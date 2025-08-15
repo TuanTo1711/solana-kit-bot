@@ -1,0 +1,55 @@
+{
+  "name": "@solana-kit-bot/pumpswap-pool-checker",
+  "version": "1.0.0",
+  "description": "Pool checker command for PumpSwap",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "update": "pnpm update",
+    "build": "tsup",
+    "check-types": "npx tsc --noEmit",
+    "clean": "rimraf dist",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "db:push": "prisma db push",
+    "db:reset": "prisma migrate reset"
+  },
+  "keywords": [
+    "pumpswap",
+    "solana",
+    "bot"
+  ],
+  "author": "Yuuta - To Hoang Tuan",
+  "license": "ISC",
+  "packageManager": "pnpm@10.13.1",
+  "dependencies": {
+    "@prisma/client": "6.14.0",
+    "@solana-kit-bot/core": "workspace:*",
+    "@solana-kit-bot/pumpfun": "workspace:*",
+    "@solana-kit-bot/pumpswap": "workspace:*",
+    "@solana-program/compute-budget": "^0.8.0",
+    "@solana-program/system": "^0.7.0",
+    "@solana-program/token": "^0.5.1",
+    "@solana/addresses": "^2.3.0",
+    "@solana/codecs": "^2.3.0",
+    "@solana/kit": "^2.3.0",
+    "chalk": "^5.5.0",
+    "cli-table3": "^0.6.5",
+    "clipanion": "4.0.0-rc.4",
+    "figlet": "^1.8.2",
+    "gradient-string": "^3.0.0",
+    "inquirer": "^12.9.2",
+    "rxjs": "^7.8.2",
+    "telegraf": "^4.16.3",
+    "typanion": "^3.14.0",
+    "zod": "^4.0.17"
+  },
+  "devDependencies": {
+    "@types/figlet": "^1.7.0",
+    "prisma": "^6.14.0",
+    "rimraf": "^6.0.1",
+    "tsup": "^8.5.0"
+  }
+}

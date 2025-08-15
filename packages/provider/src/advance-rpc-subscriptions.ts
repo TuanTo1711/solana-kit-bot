@@ -190,7 +190,12 @@ export const createAdvanceRpcSubscriptions = (
     )
   }
 
-  const eventNotifications = <T>(address: Address, discriminator: Uint8Array, codec: Codec<T>) => {
+  const eventNotifications = <T>(
+    address: Address,
+    discriminator: Uint8Array,
+    codec: Codec<T>,
+    config?: Omit<AdvanceNotificationsConfig, 'initial'>
+  ) => {
     return new Observable<T>(subscriber => {
       let abortController = new AbortController()
 
@@ -227,7 +232,13 @@ export const createAdvanceRpcSubscriptions = (
         abortController.abort()
         subscription = null
       }
-    })
+    }).pipe(
+      retry({
+        count: config?.retry ?? 100,
+        delay: config?.delay ?? 5000,
+        resetOnSuccess: true,
+      })
+    )
   }
 
   const programNotifications = <T>(

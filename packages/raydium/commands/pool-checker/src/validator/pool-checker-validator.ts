@@ -27,7 +27,7 @@ export const poolCheckerSchema = z
      * Whether boost checking is required
      * @default false
      */
-    mustBoost: z.boolean().default(false).describe('Có cần kiểm tra boost không?'),
+    hasBoost: z.boolean().default(false).describe('Có cần kiểm tra boost không?'),
 
     /**
      * Total boost amount to verify (only validated when mustBoost is true)
@@ -50,7 +50,7 @@ export const poolCheckerSchema = z
      * Expiration time in hours (converted to seconds)
      * @example 24 // 24 hours = 86400 seconds
      */
-    expiredTime: z
+    expiresHour: z
       .union([z.string(), z.number()])
       .transform((val: string | number) => (typeof val === 'string' ? parseInt(val, 10) : val))
       .transform(val => val * 3600)
@@ -72,7 +72,7 @@ export const poolCheckerSchema = z
      * Auto-sell profit threshold in percentage (converted to basis points)
      * @example 50 // 50% = 5000 basis points
      */
-    profitAutoSell: z
+    profitSell: z
       .union([z.string(), z.number()])
       .transform((val: string | number) => (typeof val === 'string' ? parseFloat(val) : val))
       .pipe(z.number().positive('Lợi nhuận tự động bán phải lớn hơn 0'))
@@ -90,7 +90,7 @@ export const poolCheckerSchema = z
   })
   .refine(
     data => {
-      if (data.mustBoost && !data.totalBoost) {
+      if (data.hasBoost && !data.totalBoost) {
         return false
       }
       return true

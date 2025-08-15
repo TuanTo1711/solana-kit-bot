@@ -1,0 +1,51 @@
+generator client {
+    provider = "prisma-client"
+    output   = "../src/database"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = "postgresql://solana_bot_user:solana_bot_password@localhost:5432/solana_bot_db"
+}
+
+model PumpSwapPool {
+    pool                  String @id
+    poolBump              Int
+    index                 Int
+    creator               String
+    baseMint              String
+    quoteMint             String
+    lpMint                String
+    poolBaseTokenAccount  String
+    poolQuoteTokenAccount String
+    lpSupply              BigInt
+    coinCreator           String
+    timestamp             BigInt
+
+    @@index([baseMint])
+    @@index([pool])
+}
+
+model Pool {
+    id             String @id @default(cuid())
+    address        String @unique
+    token0Vault    String
+    token1Vault    String
+    token0Mint     String
+    token1Mint     String
+    lpMint         String
+    ammConfig      String
+    observationKey String
+}
+
+model Config {
+    id          String  @id @default(cuid())
+    target      BigInt
+    hasBoost    Boolean @default(false)
+    totalBoost  Int?
+    hasImage    Boolean @default(false)
+    expiresHour Int
+    amount      BigInt
+    profitSell  Int
+    jitoTip     BigInt
+}

@@ -25,14 +25,14 @@
     "@solana-program/compute-budget": "^0.8.0",
     "@solana-program/system": "^0.7.0",
     "@solana/kit": "^2.3.0",
-    "chalk": "^5.4.1",
+    "chalk": "^5.5.0",
     "clipanion": "4.0.0-rc.4",
     "dayjs": "^1.11.13",
-    "inquirer": "^12.9.0",
+    "inquirer": "^12.9.2",
     "rimraf": "^6.0.1"
   },
   "devDependencies": {
     "tsup": "^8.5.0",
-    "tsx": "^4.20.3"
+    "tsx": "^4.20.4"
   }
 }

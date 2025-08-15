@@ -42,7 +42,7 @@ export class ExecutorCommand extends Command<ExecutorContext> {
     poolMonitor.stream$.subscribe({
       next: ({ poolKeys, type }) => {
         if (type === 'add') {
-          this.doExecute(poolKeys, config)
+          this.doExecute(poolKeys, config, BigInt(new Date().getTime()))
         }
       },
     })
@@ -60,7 +60,8 @@ export class ExecutorCommand extends Command<ExecutorContext> {
       jitoTip: number
       id?: string | undefined
       totalBoost?: number | undefined
-    }
+    },
+    timestamp: bigint
   ): Promise<void> {
     const { jito } = this.context.provider
     const { token0Vault, token1Vault } = poolKeys
@@ -88,6 +89,10 @@ export class ExecutorCommand extends Command<ExecutorContext> {
               return
             }
 
+            if (!this.isExpired(timestamp, config.expiredTime)) {
+              return
+            }
+
             await this.doBuy(
               poolKeys,
               config.amount,
@@ -104,6 +109,14 @@ export class ExecutorCommand extends Command<ExecutorContext> {
           console.error(error)
         },
       })
+  }
+
+  private isExpired(poolTimestamp: bigint, expiresHour: number): boolean {
+    const poolTime = Number(poolTimestamp)
+    const currentTime = Date.now()
+    const expirationTime = poolTime + expiresHour * 1000
+
+    return currentTime > expirationTime
   }
 
   async doBuy(
@@ -153,7 +166,7 @@ export class ExecutorCommand extends Command<ExecutorContext> {
       const tipStream = await jito.tipStream()
       const subscribers = combineLatest([this.watchPool(token0Vault), this.watchPool(token1Vault)])
 
-      const profitPercentage = config.profitAutoSell / 100
+      const profitPercentage = config.profitSell / 100
       const targetSellPrice = buyPrice * (1 + profitPercentage)
 
       const subscription = subscribers
@@ -260,7 +273,7 @@ export class ExecutorCommand extends Command<ExecutorContext> {
         }
       }
 
-      if (config.mustBoost) {
+      if (config.hasBoost) {
         if (!tokenInfo.hasActiveBoosts) {
           return false
         }

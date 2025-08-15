@@ -11,6 +11,24 @@ datasource db {
     url      = "postgresql://solana_bot_user:solana_bot_password@localhost:5432/solana_bot_db"
 }
 
+model PumpSwapPool {
+    pool                  String @id
+    poolBump              Int
+    index                 Int
+    creator               String
+    baseMint              String
+    quoteMint             String
+    lpMint                String
+    poolBaseTokenAccount  String
+    poolQuoteTokenAccount String
+    lpSupply              BigInt
+    coinCreator           String
+    timestamp             BigInt
+
+    @@index([baseMint])
+    @@index([pool])
+}
+
 model Pool {
     id             String @id @default(cuid())
     address        String @unique
@@ -24,15 +42,13 @@ model Pool {
 }
 
 model Config {
-    id             String   @id @default(cuid())
-    target         String
-    mustBoost      Boolean  @default(false)
-    totalBoost     Int?
-    hasImage       Boolean  @default(false)
-    expiredTime    Int
-    amount         String
-    profitAutoSell Float
-    jitoTip        Float
-    createdAt      DateTime @default(now())
-    updatedAt      DateTime @updatedAt
+    id          String  @id @default(cuid())
+    target      BigInt
+    hasBoost    Boolean @default(false)
+    totalBoost  Int?
+    hasImage    Boolean @default(false)
+    expiresHour Int
+    amount      BigInt
+    profitSell  Int
+    jitoTip     BigInt
 }

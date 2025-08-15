@@ -4,14 +4,14 @@ import type { PoolCheckerConfig } from '~/validator/pool-checker-validator'
 export class PoolCheckerMapper {
   toEntity(config: PoolCheckerConfig) {
     return {
-      target: config.target.toString(),
-      mustBoost: config.mustBoost,
+      target: config.target,
+      hasBoost: config.hasBoost,
       hasImage: config.hasImage,
-      expiredTime: Number(config.expiredTime),
-      amount: config.amount.toString(),
-      profitAutoSell: config.profitAutoSell,
+      expiresHour: config.expiresHour,
+      amount: config.amount,
+      profitSell: config.profitSell,
       totalBoost: config.totalBoost ?? null,
-      jitoTip: config.jitoTip,
+      jitoTip: BigInt(config.jitoTip * 10 ** 9),
     }
   }
 
@@ -19,12 +19,12 @@ export class PoolCheckerMapper {
     return {
       id: entity.id,
       target: BigInt(entity.target),
-      mustBoost: entity.mustBoost,
+      hasBoost: entity.hasBoost,
       hasImage: entity.hasImage,
-      expiredTime: entity.expiredTime,
+      expiresHour: entity.expiresHour,
       amount: BigInt(entity.amount),
-      profitAutoSell: entity.profitAutoSell,
-      jitoTip: entity.jitoTip,
+      profitSell: entity.profitSell,
+      jitoTip: Number(entity.jitoTip) / 10 ** 9,
     }
   }
 }

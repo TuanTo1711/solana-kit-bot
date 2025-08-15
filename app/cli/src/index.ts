@@ -8,10 +8,11 @@ import {
   type SolanaBotContext,
 } from '@solana-kit-bot/core'
 import { createProvider, SENDER_ENPOINTS, type Provider } from '@solana-kit-bot/provider'
+import { VirtualTradingCommand as PumpswapVirtualTradingCommand } from '@solana-kit-bot/pumpswap-virtual-trading'
 import { PoolCheckerCommand } from '@solana-kit-bot/raydium-launchlab-pool-checker'
 import { VirtualTradingCommand } from '@solana-kit-bot/raydium-launchlab-virtual-trading'
-import { VirtualTradingCommand as PumpswapVirtualTradingCommand } from '@solana-kit-bot/pumpswap-virtual-trading'
 
+import { PumpswapPoolCheckerCommand } from '@solana-kit-bot/pumpswap-pool-checker'
 import { ConfigCommand } from './commands/config'
 import { PumpswapCommand } from './commands/pumpswap'
 import { RaydiumLaunchlabCommand } from './commands/raydium-launchlab'
@@ -68,6 +69,7 @@ class Application {
     this.cli.register(PumpswapCommand)
     this.cli.register(VirtualTradingCommand)
     this.cli.register(PoolCheckerCommand)
+    this.cli.register(PumpswapPoolCheckerCommand)
 
     await this.cli.runExit(args, context)
   }
