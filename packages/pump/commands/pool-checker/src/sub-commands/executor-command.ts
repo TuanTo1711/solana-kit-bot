@@ -284,3 +284,5 @@ export class ExecutorCommand extends Command<BaseContext & ExecutorContext> {
     }
   }
 }
+
+ExecutorCommand.paths = [['executor']]
