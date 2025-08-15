@@ -119,6 +119,7 @@ export class PoolCheckerConfigCommand extends Command<BaseContext & PoolCheckerC
           isNaN(Number(value)) || parseFloat(value) <= 0
             ? 'Mức pool mục tiêu phải là số lớn hơn 0'
             : true,
+        filter: (value: string) => BigInt(Number(value) * 10 ** 6),
       },
       {
         type: 'confirm',
@@ -135,6 +136,7 @@ export class PoolCheckerConfigCommand extends Command<BaseContext & PoolCheckerC
         transformer: (value: string) => value.trim(),
         validate: (value: string) =>
           isNaN(Number(value)) || Number(value) <= 0 ? 'Tổng boost phải là số lớn hơn 0' : true,
+        filter: value => Number(value),
       },
       {
         type: 'confirm',
@@ -153,6 +155,7 @@ export class PoolCheckerConfigCommand extends Command<BaseContext & PoolCheckerC
           isNaN(Number(value)) || Number(value) <= 0
             ? 'Thời gian hết hạn phải là số lớn hơn 0'
             : true,
+        filter: (value: string) => Number(value),
       },
       {
         type: 'input',
@@ -164,6 +167,7 @@ export class PoolCheckerConfigCommand extends Command<BaseContext & PoolCheckerC
           isNaN(Number(value)) || parseFloat(value) <= 0
             ? 'Số tiền mua phải là số lớn hơn 0'
             : true,
+        filter: value => BigInt(Number(value) * 10 ** 9),
       },
       {
         type: 'input',
@@ -176,6 +180,7 @@ export class PoolCheckerConfigCommand extends Command<BaseContext & PoolCheckerC
             ? 'Lợi nhuận tự động bán phải là số lớn hơn 0'
             : true,
         default: '80',
+        filter: value => Number(value),
       },
       {
         type: 'input',
@@ -188,6 +193,7 @@ export class PoolCheckerConfigCommand extends Command<BaseContext & PoolCheckerC
             ? 'Tip cho Jito phải là số lớn hơn 0'
             : true,
         default: '0.001',
+        filter: value => BigInt(Number(value) * 10 ** 9),
       },
     ])
 
@@ -249,6 +255,7 @@ export class PoolCheckerConfigCommand extends Command<BaseContext & PoolCheckerC
             isNaN(Number(value)) || parseFloat(value) <= 0
               ? 'Mức pool mục tiêu phải là số lớn hơn 0'
               : true,
+          filter: (value: string) => BigInt(Number(value) * 10 ** 6),
         },
         {
           type: 'confirm',
@@ -263,6 +270,7 @@ export class PoolCheckerConfigCommand extends Command<BaseContext & PoolCheckerC
           transformer: (value: string) => value.trim(),
           validate: (value: string) =>
             isNaN(Number(value)) || Number(value) <= 0 ? 'Tổng boost phải là số lớn hơn 0' : true,
+          filter: value => Number(value),
         },
         {
           type: 'confirm',
@@ -279,6 +287,7 @@ export class PoolCheckerConfigCommand extends Command<BaseContext & PoolCheckerC
             isNaN(Number(value)) || Number(value) <= 0
               ? 'Thời gian hết hạn phải là số lớn hơn 0'
               : true,
+          filter: (value: string) => Number(value),
         },
         {
           type: 'input',
@@ -289,6 +298,7 @@ export class PoolCheckerConfigCommand extends Command<BaseContext & PoolCheckerC
             isNaN(Number(value)) || parseFloat(value) <= 0
               ? 'Số tiền mua phải là số lớn hơn 0'
               : true,
+          filter: value => BigInt(Number(value) * 10 ** 9),
         },
         {
           type: 'input',
@@ -299,6 +309,7 @@ export class PoolCheckerConfigCommand extends Command<BaseContext & PoolCheckerC
             isNaN(Number(value)) || parseFloat(value) <= 0
               ? 'Lợi nhuận tự động bán phải là số lớn hơn 0'
               : true,
+          filter: value => Number(value),
         },
         {
           type: 'input',
@@ -309,6 +320,7 @@ export class PoolCheckerConfigCommand extends Command<BaseContext & PoolCheckerC
             isNaN(Number(value)) || parseFloat(value) <= 0
               ? 'Tip cho Jito phải là số lớn hơn 0'
               : true,
+          filter: value => BigInt(Number(value) * 10 ** 9),
         },
       ],
       config
