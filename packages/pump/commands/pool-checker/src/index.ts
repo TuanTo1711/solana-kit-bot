@@ -5,13 +5,10 @@ import { wrapEscHandler, type SolanaBotContext } from '@solana-kit-bot/core'
 import { createPumpswapClient } from '@solana-kit-bot/pumpswap'
 
 import { PrismaClient } from './database/client'
-import { DexScreenerAPI } from './dexscreener-api'
-import { PoolMonitor } from './pool-monitor'
-import { ConfigService } from './services/ConfigService'
-import { PoolService } from './services/PoolService'
-import { TelegramService, type TelegramConfig } from './services/TelegramService'
-import { PoolCheckerConfigCommand } from './sub-commands/config-command'
-import { ExecutorCommand } from './sub-commands/executor-command'
+import { DexScreenerAPI } from './external/dexscreener-api'
+import { PoolMonitor } from './monitor/pool-monitor'
+import { ConfigService, PoolService, TelegramService, type TelegramConfig } from './services'
+import { ConfigCommand, ExecutorCommand } from './sub-commands'
 
 export class PumpswapPoolCheckerCommand extends Command<BaseContext & SolanaBotContext> {
   private db!: PrismaClient
@@ -55,8 +52,12 @@ export class PumpswapPoolCheckerCommand extends Command<BaseContext & SolanaBotC
             value: this.runExecutor.bind(this),
           },
           {
-            name: '⚙️  Quản lý cấu hình',
+            name: '⚙️ Quản lý cấu hình',
             value: this.runConfigManager.bind(this),
+          },
+          {
+            name: 'Quản lý CSDL',
+            value: this.runDatabaseManager.bind(this),
           },
           new inquirer.default.Separator(chalk.hex('#00FF88')('─'.repeat(100))),
           {
@@ -84,10 +85,10 @@ export class PumpswapPoolCheckerCommand extends Command<BaseContext & SolanaBotC
   }
 
   private async runConfigManager() {
-    const cli = Cli.from(PoolCheckerConfigCommand)
+    const cli = Cli.from(ConfigCommand)
     await cli.run(['config'], {
       ...this.context,
-      db: this.db,
+      configService: this.configService,
     })
   }
 
@@ -102,6 +103,8 @@ export class PumpswapPoolCheckerCommand extends Command<BaseContext & SolanaBotC
       telegramService: this.telegramService,
     })
   }
+
+  private async runDatabaseManager() {}
 }
 
 PumpswapPoolCheckerCommand.paths = [['pumpswap pool-checker run']]

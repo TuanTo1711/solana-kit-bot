@@ -10,7 +10,7 @@ export class ConfigService {
     this.configRepository = new ConfigRepository(prisma, new PoolCheckerMapper())
   }
 
-  async getAllConfig() {
+  async getAllConfig(): Promise<PoolCheckerConfig[]> {
     return this.configRepository.findAll()
   }
 

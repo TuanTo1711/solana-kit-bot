@@ -8,8 +8,8 @@ import { formatUnits, wrapEscHandler, type SolanaBotContext } from '@solana-kit-
 import { computeBuyQuoteIn, type PoolKeys, type PumpswapClient } from '@solana-kit-bot/pumpswap'
 
 import type { Config } from '~/database/client'
-import { DexScreenerAPI } from '~/dexscreener-api'
-import type { PoolMonitor } from '~/pool-monitor'
+import { DexScreenerAPI } from '~/external/dexscreener-api'
+import type { PoolMonitor } from '~/monitor/pool-monitor'
 import type { ConfigService } from '~/services/ConfigService'
 import type { TelegramService } from '~/services/TelegramService'
 
@@ -37,7 +37,7 @@ export class ExecutorCommand extends Command<BaseContext & ExecutorContext> {
         message: 'Chọn hành động: ',
         choices: [
           {
-            name: '🚀 Chạy lệnh với cấu hình',
+            name: '🚀 Chọn cấu hình chạy',
             value: this.run.bind(this),
           },
           {
@@ -54,6 +54,18 @@ export class ExecutorCommand extends Command<BaseContext & ExecutorContext> {
             value: controller.abort.bind(controller),
           },
         ],
+        theme: {
+          style: {
+            answer: (text: string) => chalk.hex('#00FF88')(text),
+            message: (text: string, status: string) =>
+              status === 'done' ? chalk.hex('#00FF88')(text) : chalk.hex('#FFFFFF')(text),
+            error: (text: string) => chalk.red(text),
+            defaultAnswer: (text: string) => chalk.dim(text),
+            help: (text: string) => chalk.dim(text),
+            highlight: (text: string) => chalk.hex('#00FF88').bold(text),
+            key: (text: string) => chalk.hex('#FFFFFF').bold(text),
+          },
+        },
       })
 
       const answer = await wrapEscHandler<typeof question>(question)
@@ -74,32 +86,85 @@ export class ExecutorCommand extends Command<BaseContext & ExecutorContext> {
 
     const inquirer = await import('inquirer')
     const prompt = inquirer.default.prompt
+    const choices = configs.map((c, index) => {
+      const formattedTarget = formatUnits(Number(c.target) / 10 ** 6)
+      const boosted = c.hasBoost ? '- Có boost' : '- Không boost'
+      const imaged = c.hasImage ? '- Có ảnh' : '- Không ảnh'
+      const totalBoosted = c.hasBoost && c.totalBoost ? `- Tổng boost: ${c.totalBoost}` : ''
+      return {
+        name: `#${index + 1}. ${formattedTarget} ${boosted} ${imaged}${totalBoosted}`,
+        value: c,
+        disabled: this.configCache.has(c.id) ? '- Cấu hình đang chạy' : false,
+      }
+    })
 
-    const question = prompt<{ config: (typeof configs)[number] }>({
+    const question = prompt<{ config: (typeof configs)[number] | 'back' }>({
       type: 'select',
       name: 'config',
       message: 'Chọn cấu hình muốn chạy: ',
-      choices: configs.map((c, index) => {
-        const formattedTarget = formatUnits(Number(c.target) / 10 ** 6)
-        const boosted = c.hasBoost ? '- Có boost' : '- Không boost'
-        const imaged = c.hasImage ? '- Có ảnh' : '- Không ảnh'
-        const totalBoosted = c.hasBoost && c.totalBoost ? `- Tổng boost: ${c.totalBoost}` : ''
-        return {
-          name: `#${index + 1}. ${formattedTarget} ${boosted} ${imaged}${totalBoosted}`,
-          value: c,
-          disabled: this.configCache.has(c.id) ? 'Cấu hình đang chạy' : false,
-        }
-      }),
+      choices: [
+        ...choices,
+        new inquirer.default.Separator(chalk.hex('#00FF88')('─'.repeat(100))),
+        {
+          name: `🔙 ${chalk.gray('Hủy chạy lệnh')}`,
+          value: 'back',
+        },
+      ],
+      theme: {
+        style: {
+          answer: (text: string) => chalk.hex('#00FF88')(text),
+          message: (text: string, status: string) =>
+            status === 'done' ? chalk.hex('#00FF88')(text) : chalk.hex('#FFFFFF')(text),
+          error: (text: string) => chalk.red(text),
+          defaultAnswer: (text: string) => chalk.dim(text),
+          help: (text: string) => chalk.dim(text),
+          highlight: (text: string) => chalk.hex('#00FF88').bold(text),
+          key: (text: string) => chalk.hex('#FFFFFF').bold(text),
+        },
+      },
     })
 
-    const answer = await wrapEscHandler<typeof question>(question)
+    const { config } = await wrapEscHandler<typeof question>(question)
+
+    if (config === 'back') {
+      return
+    }
+
+    // Prompt xác nhận chạy cấu hình
+    const confirmQuestion = prompt<{ confirm: boolean }>({
+      type: 'confirm',
+      name: 'confirm',
+      message: 'Bạn có chắc chắn muốn chạy cấu hình này không?',
+      default: false,
+    })
+
+    const { confirm } = await wrapEscHandler<typeof confirmQuestion>(confirmQuestion)
+
+    if (!confirm) {
+      console.log('❌ Đã hủy chạy cấu hình')
+      return
+    }
+
+    // Log cấu hình sau khi xác nhận
+    console.log('🚀 Bắt đầu chạy với cấu hình:')
+    console.log(`   📊 Mục tiêu: ${formatUnits(Number(config.target) / 10 ** 6)}`)
+    console.log(`   💰 Số tiền: ${Number(config.amount) / 10 ** 9} SOL`)
+    console.log(`   📈 Lợi nhuận: ${config.profitSell}%`)
+    console.log(`   💡 Tip: ${Number(config.jitoTip) / 10 ** 9} SOL`)
+    console.log(`   ⏰ Hết hạn: ${config.expiresHour} giờ`)
+    console.log(`   🚀 Boost: ${config.hasBoost ? 'Có' : 'Không'}`)
+    if (config.hasBoost && config.totalBoost) {
+      console.log(`   🚀 Tổng boost: ${config.totalBoost}`)
+    }
+    console.log(`   🖼️ Hình ảnh: ${config.hasImage ? 'Có' : 'Không'}`)
+    console.log('')
 
     poolMonitor.start()
     const sub = poolMonitor.asObservable().subscribe({
-      next: poolKeys => this.doBuy(poolKeys, answer.config),
+      next: poolKeys => this.doBuy(poolKeys, config),
     })
 
-    this.configCache.set(answer.config.id, sub)
+    this.configCache.set(config.id, sub)
   }
 
   async doBuy(poolKeys: PoolKeys & { timestamp: bigint }, config: Config) {
@@ -128,10 +193,12 @@ export class ExecutorCommand extends Command<BaseContext & ExecutorContext> {
           const metadataCheck = await this.checkMetadata(poolKeys, config)
 
           if (!metadataCheck) {
+            console.log(`Pool ${pool} không đáp ứng điều kiện`)
             return
           }
 
           if (this.isExpired(poolKeys.timestamp, config.expiresHour)) {
+            console.log(`Pool ${pool} đã hết hạn`)
             return
           }
 
@@ -140,6 +207,7 @@ export class ExecutorCommand extends Command<BaseContext & ExecutorContext> {
       })
 
     this.poolStreamCache.set(pool, subscriber)
+    console.log('Đã lắng nghe pool: ' + pool)
   }
 
   async checkMetadata(poolKeys: PoolKeys, config: Config): Promise<boolean> {
@@ -206,7 +274,7 @@ export class ExecutorCommand extends Command<BaseContext & ExecutorContext> {
         maxAmountIn: maxQuote,
         poolKeys: poolKeys,
       },
-      { hasBaseAta: false, hasQuoteAta: false }
+      { hasBaseAta: true, hasQuoteAta: true }
     )
 
     for (let i = 0; i < 10; i++) {
@@ -239,6 +307,8 @@ export class ExecutorCommand extends Command<BaseContext & ExecutorContext> {
     const poolTime = Number(poolTimestamp)
     const currentTime = Date.now()
     const expirationTime = poolTime + expiresHour * 60 * 60 * 1000
+
+    console.log({ currentTime, expirationTime })
 
     return currentTime > expirationTime
   }

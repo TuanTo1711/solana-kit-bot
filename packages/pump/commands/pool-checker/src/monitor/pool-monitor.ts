@@ -97,4 +97,8 @@ export class PoolMonitor {
   asObservable() {
     return this.createPoolEvents$.asObservable()
   }
+
+  get createPoolEvents() {
+    return this.createPoolEvents$
+  }
 }

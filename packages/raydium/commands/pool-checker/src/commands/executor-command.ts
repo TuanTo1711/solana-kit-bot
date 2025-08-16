@@ -48,21 +48,7 @@ export class ExecutorCommand extends Command<ExecutorContext> {
     })
   }
 
-  async doExecute(
-    poolKeys: PoolKeys,
-    config: {
-      target: bigint
-      mustBoost: boolean
-      hasImage: boolean
-      expiredTime: number
-      amount: bigint
-      profitAutoSell: number
-      jitoTip: number
-      id?: string | undefined
-      totalBoost?: number | undefined
-    },
-    timestamp: bigint
-  ): Promise<void> {
+  async doExecute(poolKeys: PoolKeys, config: PoolCheckerConfig, timestamp: bigint): Promise<void> {
     const { jito } = this.context.provider
     const { token0Vault, token1Vault } = poolKeys
     const tipStream = await jito.tipStream()
@@ -89,7 +75,7 @@ export class ExecutorCommand extends Command<ExecutorContext> {
               return
             }
 
-            if (!this.isExpired(timestamp, config.expiredTime)) {
+            if (!this.isExpired(timestamp, config.expiresHour)) {
               return
             }
 
@@ -309,22 +295,10 @@ export class ExecutorCommand extends Command<ExecutorContext> {
     return subscriber
   }
 
-  private createChoices(
-    configs: {
-      target: bigint
-      mustBoost: boolean
-      hasImage: boolean
-      expiredTime: number
-      amount: bigint
-      profitAutoSell: number
-      jitoTip: number
-      id?: string | undefined
-      totalBoost?: number | undefined
-    }[]
-  ) {
+  private createChoices(configs: PoolCheckerConfig[]) {
     return configs.map(config => {
       const image = config.hasImage ? 'Có hình' : 'Không hình'
-      const boost = config.mustBoost ? 'Có boost' : 'Không có boost'
+      const boost = config.hasBoost ? 'Có boost' : 'Không có boost'
       const totalBoost = config.totalBoost ?? ''
       const target = formatUnits(Number(config.target) / 10 ** 6)
       return {
