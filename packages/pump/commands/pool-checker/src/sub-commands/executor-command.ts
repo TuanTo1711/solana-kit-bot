@@ -274,7 +274,7 @@ export class ExecutorCommand extends Command<BaseContext & ExecutorContext> {
         maxAmountIn: maxQuote,
         poolKeys: poolKeys,
       },
-      { hasBaseAta: true, hasQuoteAta: true }
+      { hasBaseAta: false, hasQuoteAta: false }
     )
 
     for (let i = 0; i < 10; i++) {
