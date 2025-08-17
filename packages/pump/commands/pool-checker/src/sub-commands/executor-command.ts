@@ -234,7 +234,7 @@ export class ExecutorCommand extends Command<BaseContext & ExecutorContext> {
         }
 
         if (config.totalBoost) {
-          if (tokenInfo.totalBoostAmount !== config.totalBoost) {
+          if (tokenInfo.totalBoostAmount <= config.totalBoost) {
             console.log(
               `❌ Total boost amount mismatch: expected ${config.totalBoost}, got ${tokenInfo.totalBoostAmount}`
             )
@@ -304,11 +304,10 @@ export class ExecutorCommand extends Command<BaseContext & ExecutorContext> {
   }
 
   private isExpired(poolTimestamp: bigint, expiresHour: number): boolean {
-    const poolTime = Number(poolTimestamp)
-    const currentTime = Date.now()
-    const expirationTime = poolTime + expiresHour * 60 * 60 * 1000
+    const poolTime = Number(poolTimestamp) * 1000
 
-    console.log({ currentTime, expirationTime })
+    const currentTime = Date.now() // ms
+    const expirationTime = poolTime + expiresHour * 60 * 60 * 1000 // ms
 
     return currentTime > expirationTime
   }

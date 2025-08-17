@@ -1,6 +1,16 @@
 import { SYSTEM_PROGRAM_ADDRESS } from '@solana-program/system'
 import { address } from '@solana/addresses'
-import { filter, map, mergeAll, ReplaySubject, Subject, takeUntil } from 'rxjs'
+import {
+  catchError,
+  EMPTY,
+  filter,
+  from,
+  map,
+  mergeMap,
+  ReplaySubject,
+  Subject,
+  takeUntil,
+} from 'rxjs'
 
 import { type SolanaBotContext } from '@solana-kit-bot/core'
 import {
@@ -46,37 +56,41 @@ export class PoolMonitor {
             e.coinCreator !== SYSTEM_PROGRAM_ADDRESS &&
             e.baseMint !== address('So11111111111111111111111111111111111111112')
         ),
-        map(async event => {
-          const { baseMint, quoteMint, pool } = event
-          const [[poolBaseTokenAccount], [poolQuoteTokenAccount]] = await Promise.all([
-            findAssociatedTokenPda({
-              mint: baseMint,
-              owner: pool,
-              tokenProgram: TOKEN_PROGRAM_ADDRESS,
-            }),
-            findAssociatedTokenPda({
-              mint: quoteMint,
-              owner: pool,
-              tokenProgram: TOKEN_PROGRAM_ADDRESS,
-            }),
-          ])
-
-          return {
-            baseMint: event.baseMint,
-            coinCreator: event.coinCreator,
-            creator: event.creator,
-            index: event.index,
-            lpMint: event.lpMint,
-            lpSupply: event.initialLiquidity,
-            pool: event.pool,
-            poolBump: event.poolBump,
-            quoteMint: event.quoteMint,
-            poolBaseTokenAccount,
-            poolQuoteTokenAccount,
-            timestamp: event.timestamp,
-          }
-        }),
-        mergeAll()
+        mergeMap(event =>
+          from(
+            Promise.all([
+              findAssociatedTokenPda({
+                mint: event.baseMint,
+                owner: event.pool,
+                tokenProgram: TOKEN_PROGRAM_ADDRESS,
+              }),
+              findAssociatedTokenPda({
+                mint: event.quoteMint,
+                owner: event.pool,
+                tokenProgram: TOKEN_PROGRAM_ADDRESS,
+              }),
+            ])
+          ).pipe(
+            map(([[poolBaseTokenAccount], [poolQuoteTokenAccount]]) => ({
+              baseMint: event.baseMint,
+              coinCreator: event.coinCreator,
+              creator: event.creator,
+              index: event.index,
+              lpMint: event.lpMint,
+              lpSupply: event.initialLiquidity,
+              pool: event.pool,
+              poolBump: event.poolBump,
+              quoteMint: event.quoteMint,
+              poolBaseTokenAccount,
+              poolQuoteTokenAccount,
+              timestamp: event.timestamp,
+            })),
+            catchError(err => {
+              console.error('Error processing pool event:', err)
+              return EMPTY
+            })
+          )
+        )
       )
       .subscribe({
         next: poolEvent => {

@@ -1,9 +1,9 @@
-import chalk from 'chalk'
 import { Cli, Command, type BaseContext } from 'clipanion'
 
 import { wrapEscHandler, type SolanaBotContext } from '@solana-kit-bot/core'
 import { createPumpswapClient } from '@solana-kit-bot/pumpswap'
 
+import chalk from 'chalk'
 import { PrismaClient } from './database/client'
 import { DexScreenerAPI } from './external/dexscreener-api'
 import { PoolMonitor } from './monitor/pool-monitor'
@@ -57,7 +57,8 @@ export class PumpswapPoolCheckerCommand extends Command<BaseContext & SolanaBotC
           },
           {
             name: 'Quản lý CSDL',
-            value: this.runDatabaseManager.bind(this),
+            value: () => {},
+            disabled: 'Chưa phát triển xong',
           },
           new inquirer.default.Separator(chalk.hex('#00FF88')('─'.repeat(100))),
           {
@@ -84,7 +85,7 @@ export class PumpswapPoolCheckerCommand extends Command<BaseContext & SolanaBotC
     }
   }
 
-  private async runConfigManager() {
+  async runConfigManager() {
     const cli = Cli.from(ConfigCommand)
     await cli.run(['config'], {
       ...this.context,
@@ -92,7 +93,7 @@ export class PumpswapPoolCheckerCommand extends Command<BaseContext & SolanaBotC
     })
   }
 
-  private async runExecutor() {
+  async runExecutor() {
     const cli = Cli.from(ExecutorCommand)
     await cli.run(['executor'], {
       ...this.context,
@@ -103,8 +104,6 @@ export class PumpswapPoolCheckerCommand extends Command<BaseContext & SolanaBotC
       telegramService: this.telegramService,
     })
   }
-
-  private async runDatabaseManager() {}
 }
 
 PumpswapPoolCheckerCommand.paths = [['pumpswap pool-checker run']]
