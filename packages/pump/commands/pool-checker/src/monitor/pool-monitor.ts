@@ -9,13 +9,14 @@ import {
   type PoolKeys,
 } from '@solana-kit-bot/pumpswap'
 import { findAssociatedTokenPda, TOKEN_PROGRAM_ADDRESS } from '@solana-program/token'
-import type { PoolService } from './services/PoolService'
+import type { PoolService } from '~/services'
 
 type PoolEvent = PoolKeys & { timestamp: bigint }
 
 export class PoolMonitor {
   private createPoolEvents$: ReplaySubject<PoolEvent> = new ReplaySubject(Infinity)
   private createPoolEventStop$ = new Subject<void>()
+  private isRunning = false
 
   constructor(
     private readonly context: SolanaBotContext,
@@ -23,12 +24,13 @@ export class PoolMonitor {
   ) {}
 
   start() {
-    if (this.createPoolEvents$ !== null) {
+    if (this.isRunning) {
       return
     }
 
     const { advanceSubscriptions } = this.context.provider
 
+    this.isRunning = true
     advanceSubscriptions
       .eventNotifications(
         PUMP_AMM_PROGRAM_ADDRESS,
@@ -79,7 +81,7 @@ export class PoolMonitor {
       .subscribe({
         next: poolEvent => {
           this.createPoolEvents$.next(poolEvent)
-          void this.poolService.addPoolKeys(poolEvent)
+          this.poolService.addPoolKeys(poolEvent)
         },
       })
   }
@@ -92,6 +94,7 @@ export class PoolMonitor {
     this.createPoolEventStop$.next()
     this.createPoolEventStop$.complete()
     this.createPoolEvents$.complete()
+    this.isRunning = false
   }
 
   asObservable() {
