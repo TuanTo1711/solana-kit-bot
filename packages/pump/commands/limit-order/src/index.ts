@@ -472,3 +472,5 @@ export class PumpswapLimitOrderCommand extends Command<BaseContext & SolanaBotCo
     })
   }
 }
+
+PumpswapLimitOrderCommand.paths = [['pumpswap limit-order']]
