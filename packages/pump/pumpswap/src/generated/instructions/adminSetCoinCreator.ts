@@ -32,25 +32,21 @@ import {
   type ReadonlyUint8Array,
   type TransactionSigner,
   type WritableAccount,
-} from '@solana/kit';
-import { PUMP_AMM_PROGRAM_ADDRESS } from '../programs';
-import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
+} from '@solana/kit'
+import { PUMP_AMM_PROGRAM_ADDRESS } from '../programs'
+import { getAccountMetaFactory, type ResolvedAccount } from '../shared'
 
 export const ADMIN_SET_COIN_CREATOR_DISCRIMINATOR = new Uint8Array([
   242, 40, 117, 145, 73, 96, 105, 104,
-]);
+])
 
 export function getAdminSetCoinCreatorDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
-    ADMIN_SET_COIN_CREATOR_DISCRIMINATOR
-  );
+  return fixEncoderSize(getBytesEncoder(), 8).encode(ADMIN_SET_COIN_CREATOR_DISCRIMINATOR)
 }
 
 export type AdminSetCoinCreatorInstruction<
   TProgram extends string = typeof PUMP_AMM_PROGRAM_ADDRESS,
-  TAccountAdminSetCoinCreatorAuthority extends
-    | string
-    | AccountMeta<string> = string,
+  TAccountAdminSetCoinCreatorAuthority extends string | AccountMeta<string> = string,
   TAccountGlobalConfig extends string | AccountMeta<string> = string,
   TAccountPool extends string | AccountMeta<string> = string,
   TAccountEventAuthority extends string | AccountMeta<string> = string,
@@ -67,25 +63,21 @@ export type AdminSetCoinCreatorInstruction<
       TAccountGlobalConfig extends string
         ? ReadonlyAccount<TAccountGlobalConfig>
         : TAccountGlobalConfig,
-      TAccountPool extends string
-        ? WritableAccount<TAccountPool>
-        : TAccountPool,
+      TAccountPool extends string ? WritableAccount<TAccountPool> : TAccountPool,
       TAccountEventAuthority extends string
         ? ReadonlyAccount<TAccountEventAuthority>
         : TAccountEventAuthority,
-      TAccountProgram extends string
-        ? ReadonlyAccount<TAccountProgram>
-        : TAccountProgram,
+      TAccountProgram extends string ? ReadonlyAccount<TAccountProgram> : TAccountProgram,
       ...TRemainingAccounts,
     ]
-  >;
+  >
 
 export type AdminSetCoinCreatorInstructionData = {
-  discriminator: ReadonlyUint8Array;
-  coinCreator: Address;
-};
+  discriminator: ReadonlyUint8Array
+  coinCreator: Address
+}
 
-export type AdminSetCoinCreatorInstructionDataArgs = { coinCreator: Address };
+export type AdminSetCoinCreatorInstructionDataArgs = { coinCreator: Address }
 
 export function getAdminSetCoinCreatorInstructionDataEncoder(): FixedSizeEncoder<AdminSetCoinCreatorInstructionDataArgs> {
   return transformEncoder(
@@ -93,18 +85,18 @@ export function getAdminSetCoinCreatorInstructionDataEncoder(): FixedSizeEncoder
       ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
       ['coinCreator', getAddressEncoder()],
     ]),
-    (value) => ({
+    value => ({
       ...value,
       discriminator: ADMIN_SET_COIN_CREATOR_DISCRIMINATOR,
     })
-  );
+  )
 }
 
 export function getAdminSetCoinCreatorInstructionDataDecoder(): FixedSizeDecoder<AdminSetCoinCreatorInstructionData> {
   return getStructDecoder([
     ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
     ['coinCreator', getAddressDecoder()],
-  ]);
+  ])
 }
 
 export function getAdminSetCoinCreatorInstructionDataCodec(): FixedSizeCodec<
@@ -114,7 +106,7 @@ export function getAdminSetCoinCreatorInstructionDataCodec(): FixedSizeCodec<
   return combineCodec(
     getAdminSetCoinCreatorInstructionDataEncoder(),
     getAdminSetCoinCreatorInstructionDataDecoder()
-  );
+  )
 }
 
 export type AdminSetCoinCreatorAsyncInput<
@@ -124,13 +116,13 @@ export type AdminSetCoinCreatorAsyncInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  adminSetCoinCreatorAuthority: TransactionSigner<TAccountAdminSetCoinCreatorAuthority>;
-  globalConfig: Address<TAccountGlobalConfig>;
-  pool: Address<TAccountPool>;
-  eventAuthority?: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-  coinCreator: AdminSetCoinCreatorInstructionDataArgs['coinCreator'];
-};
+  adminSetCoinCreatorAuthority: TransactionSigner<TAccountAdminSetCoinCreatorAuthority>
+  globalConfig: Address<TAccountGlobalConfig>
+  pool: Address<TAccountPool>
+  eventAuthority?: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+  coinCreator: AdminSetCoinCreatorInstructionDataArgs['coinCreator']
+}
 
 export async function getAdminSetCoinCreatorInstructionAsync<
   TAccountAdminSetCoinCreatorAuthority extends string,
@@ -159,7 +151,7 @@ export async function getAdminSetCoinCreatorInstructionAsync<
   >
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -171,14 +163,11 @@ export async function getAdminSetCoinCreatorInstructionAsync<
     pool: { value: input.pool ?? null, isWritable: true },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Original args.
-  const args = { ...input };
+  const args = { ...input }
 
   // Resolve default values.
   if (!accounts.eventAuthority.value) {
@@ -187,15 +176,14 @@ export async function getAdminSetCoinCreatorInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114,
-            105, 116, 121,
+            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121,
           ])
         ),
       ],
-    });
+    })
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.adminSetCoinCreatorAuthority),
@@ -215,9 +203,9 @@ export async function getAdminSetCoinCreatorInstructionAsync<
     TAccountPool,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type AdminSetCoinCreatorInput<
@@ -227,13 +215,13 @@ export type AdminSetCoinCreatorInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  adminSetCoinCreatorAuthority: TransactionSigner<TAccountAdminSetCoinCreatorAuthority>;
-  globalConfig: Address<TAccountGlobalConfig>;
-  pool: Address<TAccountPool>;
-  eventAuthority: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-  coinCreator: AdminSetCoinCreatorInstructionDataArgs['coinCreator'];
-};
+  adminSetCoinCreatorAuthority: TransactionSigner<TAccountAdminSetCoinCreatorAuthority>
+  globalConfig: Address<TAccountGlobalConfig>
+  pool: Address<TAccountPool>
+  eventAuthority: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+  coinCreator: AdminSetCoinCreatorInstructionDataArgs['coinCreator']
+}
 
 export function getAdminSetCoinCreatorInstruction<
   TAccountAdminSetCoinCreatorAuthority extends string,
@@ -260,7 +248,7 @@ export function getAdminSetCoinCreatorInstruction<
   TAccountProgram
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -272,16 +260,13 @@ export function getAdminSetCoinCreatorInstruction<
     pool: { value: input.pool ?? null, isWritable: true },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Original args.
-  const args = { ...input };
+  const args = { ...input }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.adminSetCoinCreatorAuthority),
@@ -301,25 +286,25 @@ export function getAdminSetCoinCreatorInstruction<
     TAccountPool,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type ParsedAdminSetCoinCreatorInstruction<
   TProgram extends string = typeof PUMP_AMM_PROGRAM_ADDRESS,
   TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[],
 > = {
-  programAddress: Address<TProgram>;
+  programAddress: Address<TProgram>
   accounts: {
-    adminSetCoinCreatorAuthority: TAccountMetas[0];
-    globalConfig: TAccountMetas[1];
-    pool: TAccountMetas[2];
-    eventAuthority: TAccountMetas[3];
-    program: TAccountMetas[4];
-  };
-  data: AdminSetCoinCreatorInstructionData;
-};
+    adminSetCoinCreatorAuthority: TAccountMetas[0]
+    globalConfig: TAccountMetas[1]
+    pool: TAccountMetas[2]
+    eventAuthority: TAccountMetas[3]
+    program: TAccountMetas[4]
+  }
+  data: AdminSetCoinCreatorInstructionData
+}
 
 export function parseAdminSetCoinCreatorInstruction<
   TProgram extends string,
@@ -331,14 +316,14 @@ export function parseAdminSetCoinCreatorInstruction<
 ): ParsedAdminSetCoinCreatorInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 5) {
     // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new Error('Not enough accounts')
   }
-  let accountIndex = 0;
+  let accountIndex = 0
   const getNextAccount = () => {
-    const accountMeta = instruction.accounts![accountIndex]!;
-    accountIndex += 1;
-    return accountMeta;
-  };
+    const accountMeta = instruction.accounts![accountIndex]!
+    accountIndex += 1
+    return accountMeta
+  }
   return {
     programAddress: instruction.programAddress,
     accounts: {
@@ -348,8 +333,6 @@ export function parseAdminSetCoinCreatorInstruction<
       eventAuthority: getNextAccount(),
       program: getNextAccount(),
     },
-    data: getAdminSetCoinCreatorInstructionDataDecoder().decode(
-      instruction.data
-    ),
-  };
+    data: getAdminSetCoinCreatorInstructionDataDecoder().decode(instruction.data),
+  }
 }

@@ -235,7 +235,7 @@ export abstract class BaseRunner implements CommandRunner<SolanaBotContext> {
     timeout = this.getTimeout()
   ): Promise<T> {
     let timeoutId: NodeJS.Timeout
-    
+
     const timeoutPromise = new Promise<never>((_, reject) => {
       timeoutId = setTimeout(() => {
         reject(new Error(`Operation timed out after ${timeout}ms`))

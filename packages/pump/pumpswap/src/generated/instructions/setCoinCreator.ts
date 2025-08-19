@@ -27,18 +27,14 @@ import {
   type ReadonlyAccount,
   type ReadonlyUint8Array,
   type WritableAccount,
-} from '@solana/kit';
-import { PUMP_AMM_PROGRAM_ADDRESS } from '../programs';
-import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
+} from '@solana/kit'
+import { PUMP_AMM_PROGRAM_ADDRESS } from '../programs'
+import { getAccountMetaFactory, type ResolvedAccount } from '../shared'
 
-export const SET_COIN_CREATOR_DISCRIMINATOR = new Uint8Array([
-  210, 149, 128, 45, 188, 58, 78, 175,
-]);
+export const SET_COIN_CREATOR_DISCRIMINATOR = new Uint8Array([210, 149, 128, 45, 188, 58, 78, 175])
 
 export function getSetCoinCreatorDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
-    SET_COIN_CREATOR_DISCRIMINATOR
-  );
+  return fixEncoderSize(getBytesEncoder(), 8).encode(SET_COIN_CREATOR_DISCRIMINATOR)
 }
 
 export type SetCoinCreatorInstruction<
@@ -53,42 +49,34 @@ export type SetCoinCreatorInstruction<
   InstructionWithData<ReadonlyUint8Array> &
   InstructionWithAccounts<
     [
-      TAccountPool extends string
-        ? WritableAccount<TAccountPool>
-        : TAccountPool,
-      TAccountMetadata extends string
-        ? ReadonlyAccount<TAccountMetadata>
-        : TAccountMetadata,
+      TAccountPool extends string ? WritableAccount<TAccountPool> : TAccountPool,
+      TAccountMetadata extends string ? ReadonlyAccount<TAccountMetadata> : TAccountMetadata,
       TAccountBondingCurve extends string
         ? ReadonlyAccount<TAccountBondingCurve>
         : TAccountBondingCurve,
       TAccountEventAuthority extends string
         ? ReadonlyAccount<TAccountEventAuthority>
         : TAccountEventAuthority,
-      TAccountProgram extends string
-        ? ReadonlyAccount<TAccountProgram>
-        : TAccountProgram,
+      TAccountProgram extends string ? ReadonlyAccount<TAccountProgram> : TAccountProgram,
       ...TRemainingAccounts,
     ]
-  >;
+  >
 
 export type SetCoinCreatorInstructionData = {
-  discriminator: ReadonlyUint8Array;
-};
+  discriminator: ReadonlyUint8Array
+}
 
-export type SetCoinCreatorInstructionDataArgs = {};
+export type SetCoinCreatorInstructionDataArgs = {}
 
 export function getSetCoinCreatorInstructionDataEncoder(): FixedSizeEncoder<SetCoinCreatorInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([['discriminator', fixEncoderSize(getBytesEncoder(), 8)]]),
-    (value) => ({ ...value, discriminator: SET_COIN_CREATOR_DISCRIMINATOR })
-  );
+    value => ({ ...value, discriminator: SET_COIN_CREATOR_DISCRIMINATOR })
+  )
 }
 
 export function getSetCoinCreatorInstructionDataDecoder(): FixedSizeDecoder<SetCoinCreatorInstructionData> {
-  return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
-  ]);
+  return getStructDecoder([['discriminator', fixDecoderSize(getBytesDecoder(), 8)]])
 }
 
 export function getSetCoinCreatorInstructionDataCodec(): FixedSizeCodec<
@@ -98,7 +86,7 @@ export function getSetCoinCreatorInstructionDataCodec(): FixedSizeCodec<
   return combineCodec(
     getSetCoinCreatorInstructionDataEncoder(),
     getSetCoinCreatorInstructionDataDecoder()
-  );
+  )
 }
 
 export type SetCoinCreatorAsyncInput<
@@ -108,12 +96,12 @@ export type SetCoinCreatorAsyncInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  pool: Address<TAccountPool>;
-  metadata: Address<TAccountMetadata>;
-  bondingCurve: Address<TAccountBondingCurve>;
-  eventAuthority?: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-};
+  pool: Address<TAccountPool>
+  metadata: Address<TAccountMetadata>
+  bondingCurve: Address<TAccountBondingCurve>
+  eventAuthority?: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+}
 
 export async function getSetCoinCreatorInstructionAsync<
   TAccountPool extends string,
@@ -142,7 +130,7 @@ export async function getSetCoinCreatorInstructionAsync<
   >
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -151,11 +139,8 @@ export async function getSetCoinCreatorInstructionAsync<
     bondingCurve: { value: input.bondingCurve ?? null, isWritable: false },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Resolve default values.
   if (!accounts.eventAuthority.value) {
@@ -164,15 +149,14 @@ export async function getSetCoinCreatorInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114,
-            105, 116, 121,
+            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121,
           ])
         ),
       ],
-    });
+    })
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.pool),
@@ -190,9 +174,9 @@ export async function getSetCoinCreatorInstructionAsync<
     TAccountBondingCurve,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type SetCoinCreatorInput<
@@ -202,12 +186,12 @@ export type SetCoinCreatorInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  pool: Address<TAccountPool>;
-  metadata: Address<TAccountMetadata>;
-  bondingCurve: Address<TAccountBondingCurve>;
-  eventAuthority: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-};
+  pool: Address<TAccountPool>
+  metadata: Address<TAccountMetadata>
+  bondingCurve: Address<TAccountBondingCurve>
+  eventAuthority: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+}
 
 export function getSetCoinCreatorInstruction<
   TAccountPool extends string,
@@ -234,7 +218,7 @@ export function getSetCoinCreatorInstruction<
   TAccountProgram
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -243,13 +227,10 @@ export function getSetCoinCreatorInstruction<
     bondingCurve: { value: input.bondingCurve ?? null, isWritable: false },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.pool),
@@ -267,25 +248,25 @@ export function getSetCoinCreatorInstruction<
     TAccountBondingCurve,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type ParsedSetCoinCreatorInstruction<
   TProgram extends string = typeof PUMP_AMM_PROGRAM_ADDRESS,
   TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[],
 > = {
-  programAddress: Address<TProgram>;
+  programAddress: Address<TProgram>
   accounts: {
-    pool: TAccountMetas[0];
-    metadata: TAccountMetas[1];
-    bondingCurve: TAccountMetas[2];
-    eventAuthority: TAccountMetas[3];
-    program: TAccountMetas[4];
-  };
-  data: SetCoinCreatorInstructionData;
-};
+    pool: TAccountMetas[0]
+    metadata: TAccountMetas[1]
+    bondingCurve: TAccountMetas[2]
+    eventAuthority: TAccountMetas[3]
+    program: TAccountMetas[4]
+  }
+  data: SetCoinCreatorInstructionData
+}
 
 export function parseSetCoinCreatorInstruction<
   TProgram extends string,
@@ -297,14 +278,14 @@ export function parseSetCoinCreatorInstruction<
 ): ParsedSetCoinCreatorInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 5) {
     // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new Error('Not enough accounts')
   }
-  let accountIndex = 0;
+  let accountIndex = 0
   const getNextAccount = () => {
-    const accountMeta = instruction.accounts![accountIndex]!;
-    accountIndex += 1;
-    return accountMeta;
-  };
+    const accountMeta = instruction.accounts![accountIndex]!
+    accountIndex += 1
+    return accountMeta
+  }
   return {
     programAddress: instruction.programAddress,
     accounts: {
@@ -315,5 +296,5 @@ export function parseSetCoinCreatorInstruction<
       program: getNextAccount(),
     },
     data: getSetCoinCreatorInstructionDataDecoder().decode(instruction.data),
-  };
+  }
 }

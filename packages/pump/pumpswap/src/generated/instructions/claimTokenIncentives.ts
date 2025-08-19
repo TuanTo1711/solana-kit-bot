@@ -31,22 +31,14 @@ import {
   type TransactionSigner,
   type WritableAccount,
   type WritableSignerAccount,
-} from '@solana/kit';
-import { PUMP_AMM_PROGRAM_ADDRESS } from '../programs';
-import {
-  expectAddress,
-  getAccountMetaFactory,
-  type ResolvedAccount,
-} from '../shared';
+} from '@solana/kit'
+import { PUMP_AMM_PROGRAM_ADDRESS } from '../programs'
+import { expectAddress, getAccountMetaFactory, type ResolvedAccount } from '../shared'
 
-export const CLAIM_TOKEN_INCENTIVES_DISCRIMINATOR = new Uint8Array([
-  16, 4, 71, 28, 204, 1, 40, 27,
-]);
+export const CLAIM_TOKEN_INCENTIVES_DISCRIMINATOR = new Uint8Array([16, 4, 71, 28, 204, 1, 40, 27])
 
 export function getClaimTokenIncentivesDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
-    CLAIM_TOKEN_INCENTIVES_DISCRIMINATOR
-  );
+  return fixEncoderSize(getBytesEncoder(), 8).encode(CLAIM_TOKEN_INCENTIVES_DISCRIMINATOR)
 }
 
 export type ClaimTokenIncentivesInstruction<
@@ -54,17 +46,13 @@ export type ClaimTokenIncentivesInstruction<
   TAccountUser extends string | AccountMeta<string> = string,
   TAccountUserAta extends string | AccountMeta<string> = string,
   TAccountGlobalVolumeAccumulator extends string | AccountMeta<string> = string,
-  TAccountGlobalIncentiveTokenAccount extends
-    | string
-    | AccountMeta<string> = string,
+  TAccountGlobalIncentiveTokenAccount extends string | AccountMeta<string> = string,
   TAccountUserVolumeAccumulator extends string | AccountMeta<string> = string,
   TAccountMint extends string | AccountMeta<string> = string,
   TAccountTokenProgram extends
     | string
     | AccountMeta<string> = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
-  TAccountSystemProgram extends
-    | string
-    | AccountMeta<string> = '11111111111111111111111111111111',
+  TAccountSystemProgram extends string | AccountMeta<string> = '11111111111111111111111111111111',
   TAccountAssociatedTokenProgram extends
     | string
     | AccountMeta<string> = 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
@@ -76,12 +64,8 @@ export type ClaimTokenIncentivesInstruction<
   InstructionWithData<ReadonlyUint8Array> &
   InstructionWithAccounts<
     [
-      TAccountUser extends string
-        ? ReadonlyAccount<TAccountUser>
-        : TAccountUser,
-      TAccountUserAta extends string
-        ? WritableAccount<TAccountUserAta>
-        : TAccountUserAta,
+      TAccountUser extends string ? ReadonlyAccount<TAccountUser> : TAccountUser,
+      TAccountUserAta extends string ? WritableAccount<TAccountUserAta> : TAccountUserAta,
       TAccountGlobalVolumeAccumulator extends string
         ? ReadonlyAccount<TAccountGlobalVolumeAccumulator>
         : TAccountGlobalVolumeAccumulator,
@@ -91,9 +75,7 @@ export type ClaimTokenIncentivesInstruction<
       TAccountUserVolumeAccumulator extends string
         ? WritableAccount<TAccountUserVolumeAccumulator>
         : TAccountUserVolumeAccumulator,
-      TAccountMint extends string
-        ? ReadonlyAccount<TAccountMint>
-        : TAccountMint,
+      TAccountMint extends string ? ReadonlyAccount<TAccountMint> : TAccountMint,
       TAccountTokenProgram extends string
         ? ReadonlyAccount<TAccountTokenProgram>
         : TAccountTokenProgram,
@@ -106,37 +88,32 @@ export type ClaimTokenIncentivesInstruction<
       TAccountEventAuthority extends string
         ? ReadonlyAccount<TAccountEventAuthority>
         : TAccountEventAuthority,
-      TAccountProgram extends string
-        ? ReadonlyAccount<TAccountProgram>
-        : TAccountProgram,
+      TAccountProgram extends string ? ReadonlyAccount<TAccountProgram> : TAccountProgram,
       TAccountPayer extends string
-        ? WritableSignerAccount<TAccountPayer> &
-            AccountSignerMeta<TAccountPayer>
+        ? WritableSignerAccount<TAccountPayer> & AccountSignerMeta<TAccountPayer>
         : TAccountPayer,
       ...TRemainingAccounts,
     ]
-  >;
+  >
 
 export type ClaimTokenIncentivesInstructionData = {
-  discriminator: ReadonlyUint8Array;
-};
+  discriminator: ReadonlyUint8Array
+}
 
-export type ClaimTokenIncentivesInstructionDataArgs = {};
+export type ClaimTokenIncentivesInstructionDataArgs = {}
 
 export function getClaimTokenIncentivesInstructionDataEncoder(): FixedSizeEncoder<ClaimTokenIncentivesInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([['discriminator', fixEncoderSize(getBytesEncoder(), 8)]]),
-    (value) => ({
+    value => ({
       ...value,
       discriminator: CLAIM_TOKEN_INCENTIVES_DISCRIMINATOR,
     })
-  );
+  )
 }
 
 export function getClaimTokenIncentivesInstructionDataDecoder(): FixedSizeDecoder<ClaimTokenIncentivesInstructionData> {
-  return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
-  ]);
+  return getStructDecoder([['discriminator', fixDecoderSize(getBytesDecoder(), 8)]])
 }
 
 export function getClaimTokenIncentivesInstructionDataCodec(): FixedSizeCodec<
@@ -146,7 +123,7 @@ export function getClaimTokenIncentivesInstructionDataCodec(): FixedSizeCodec<
   return combineCodec(
     getClaimTokenIncentivesInstructionDataEncoder(),
     getClaimTokenIncentivesInstructionDataDecoder()
-  );
+  )
 }
 
 export type ClaimTokenIncentivesAsyncInput<
@@ -163,19 +140,19 @@ export type ClaimTokenIncentivesAsyncInput<
   TAccountProgram extends string = string,
   TAccountPayer extends string = string,
 > = {
-  user: Address<TAccountUser>;
-  userAta?: Address<TAccountUserAta>;
-  globalVolumeAccumulator?: Address<TAccountGlobalVolumeAccumulator>;
-  globalIncentiveTokenAccount?: Address<TAccountGlobalIncentiveTokenAccount>;
-  userVolumeAccumulator?: Address<TAccountUserVolumeAccumulator>;
-  mint: Address<TAccountMint>;
-  tokenProgram?: Address<TAccountTokenProgram>;
-  systemProgram?: Address<TAccountSystemProgram>;
-  associatedTokenProgram?: Address<TAccountAssociatedTokenProgram>;
-  eventAuthority?: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-  payer: TransactionSigner<TAccountPayer>;
-};
+  user: Address<TAccountUser>
+  userAta?: Address<TAccountUserAta>
+  globalVolumeAccumulator?: Address<TAccountGlobalVolumeAccumulator>
+  globalIncentiveTokenAccount?: Address<TAccountGlobalIncentiveTokenAccount>
+  userVolumeAccumulator?: Address<TAccountUserVolumeAccumulator>
+  mint: Address<TAccountMint>
+  tokenProgram?: Address<TAccountTokenProgram>
+  systemProgram?: Address<TAccountSystemProgram>
+  associatedTokenProgram?: Address<TAccountAssociatedTokenProgram>
+  eventAuthority?: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+  payer: TransactionSigner<TAccountPayer>
+}
 
 export async function getClaimTokenIncentivesInstructionAsync<
   TAccountUser extends string,
@@ -225,7 +202,7 @@ export async function getClaimTokenIncentivesInstructionAsync<
   >
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -253,16 +230,13 @@ export async function getClaimTokenIncentivesInstructionAsync<
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
     payer: { value: input.payer ?? null, isWritable: true },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Resolve default values.
   if (!accounts.tokenProgram.value) {
     accounts.tokenProgram.value =
-      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>;
+      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>
   }
   if (!accounts.userAta.value) {
     accounts.userAta.value = await getProgramDerivedAddress({
@@ -273,7 +247,7 @@ export async function getClaimTokenIncentivesInstructionAsync<
         getAddressEncoder().encode(expectAddress(accounts.tokenProgram.value)),
         getAddressEncoder().encode(expectAddress(accounts.mint.value)),
       ],
-    });
+    })
   }
   if (!accounts.globalVolumeAccumulator.value) {
     accounts.globalVolumeAccumulator.value = await getProgramDerivedAddress({
@@ -281,29 +255,23 @@ export async function getClaimTokenIncentivesInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            103, 108, 111, 98, 97, 108, 95, 118, 111, 108, 117, 109, 101, 95,
-            97, 99, 99, 117, 109, 117, 108, 97, 116, 111, 114,
+            103, 108, 111, 98, 97, 108, 95, 118, 111, 108, 117, 109, 101, 95, 97, 99, 99, 117, 109,
+            117, 108, 97, 116, 111, 114,
           ])
         ),
       ],
-    });
+    })
   }
   if (!accounts.globalIncentiveTokenAccount.value) {
-    accounts.globalIncentiveTokenAccount.value = await getProgramDerivedAddress(
-      {
-        programAddress:
-          'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL' as Address<'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'>,
-        seeds: [
-          getAddressEncoder().encode(
-            expectAddress(accounts.globalVolumeAccumulator.value)
-          ),
-          getAddressEncoder().encode(
-            expectAddress(accounts.tokenProgram.value)
-          ),
-          getAddressEncoder().encode(expectAddress(accounts.mint.value)),
-        ],
-      }
-    );
+    accounts.globalIncentiveTokenAccount.value = await getProgramDerivedAddress({
+      programAddress:
+        'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL' as Address<'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'>,
+      seeds: [
+        getAddressEncoder().encode(expectAddress(accounts.globalVolumeAccumulator.value)),
+        getAddressEncoder().encode(expectAddress(accounts.tokenProgram.value)),
+        getAddressEncoder().encode(expectAddress(accounts.mint.value)),
+      ],
+    })
   }
   if (!accounts.userVolumeAccumulator.value) {
     accounts.userVolumeAccumulator.value = await getProgramDerivedAddress({
@@ -311,21 +279,21 @@ export async function getClaimTokenIncentivesInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            117, 115, 101, 114, 95, 118, 111, 108, 117, 109, 101, 95, 97, 99,
-            99, 117, 109, 117, 108, 97, 116, 111, 114,
+            117, 115, 101, 114, 95, 118, 111, 108, 117, 109, 101, 95, 97, 99, 99, 117, 109, 117,
+            108, 97, 116, 111, 114,
           ])
         ),
         getAddressEncoder().encode(expectAddress(accounts.user.value)),
       ],
-    });
+    })
   }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
-      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
+      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>
   }
   if (!accounts.associatedTokenProgram.value) {
     accounts.associatedTokenProgram.value =
-      'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL' as Address<'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'>;
+      'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL' as Address<'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'>
   }
   if (!accounts.eventAuthority.value) {
     accounts.eventAuthority.value = await getProgramDerivedAddress({
@@ -333,15 +301,14 @@ export async function getClaimTokenIncentivesInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114,
-            105, 116, 121,
+            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121,
           ])
         ),
       ],
-    });
+    })
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.user),
@@ -373,9 +340,9 @@ export async function getClaimTokenIncentivesInstructionAsync<
     TAccountEventAuthority,
     TAccountProgram,
     TAccountPayer
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type ClaimTokenIncentivesInput<
@@ -392,19 +359,19 @@ export type ClaimTokenIncentivesInput<
   TAccountProgram extends string = string,
   TAccountPayer extends string = string,
 > = {
-  user: Address<TAccountUser>;
-  userAta: Address<TAccountUserAta>;
-  globalVolumeAccumulator: Address<TAccountGlobalVolumeAccumulator>;
-  globalIncentiveTokenAccount: Address<TAccountGlobalIncentiveTokenAccount>;
-  userVolumeAccumulator: Address<TAccountUserVolumeAccumulator>;
-  mint: Address<TAccountMint>;
-  tokenProgram?: Address<TAccountTokenProgram>;
-  systemProgram?: Address<TAccountSystemProgram>;
-  associatedTokenProgram?: Address<TAccountAssociatedTokenProgram>;
-  eventAuthority: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-  payer: TransactionSigner<TAccountPayer>;
-};
+  user: Address<TAccountUser>
+  userAta: Address<TAccountUserAta>
+  globalVolumeAccumulator: Address<TAccountGlobalVolumeAccumulator>
+  globalIncentiveTokenAccount: Address<TAccountGlobalIncentiveTokenAccount>
+  userVolumeAccumulator: Address<TAccountUserVolumeAccumulator>
+  mint: Address<TAccountMint>
+  tokenProgram?: Address<TAccountTokenProgram>
+  systemProgram?: Address<TAccountSystemProgram>
+  associatedTokenProgram?: Address<TAccountAssociatedTokenProgram>
+  eventAuthority: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+  payer: TransactionSigner<TAccountPayer>
+}
 
 export function getClaimTokenIncentivesInstruction<
   TAccountUser extends string,
@@ -452,7 +419,7 @@ export function getClaimTokenIncentivesInstruction<
   TAccountPayer
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -480,27 +447,24 @@ export function getClaimTokenIncentivesInstruction<
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
     payer: { value: input.payer ?? null, isWritable: true },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Resolve default values.
   if (!accounts.tokenProgram.value) {
     accounts.tokenProgram.value =
-      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>;
+      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>
   }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
-      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
+      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>
   }
   if (!accounts.associatedTokenProgram.value) {
     accounts.associatedTokenProgram.value =
-      'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL' as Address<'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'>;
+      'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL' as Address<'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'>
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.user),
@@ -532,32 +496,32 @@ export function getClaimTokenIncentivesInstruction<
     TAccountEventAuthority,
     TAccountProgram,
     TAccountPayer
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type ParsedClaimTokenIncentivesInstruction<
   TProgram extends string = typeof PUMP_AMM_PROGRAM_ADDRESS,
   TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[],
 > = {
-  programAddress: Address<TProgram>;
+  programAddress: Address<TProgram>
   accounts: {
-    user: TAccountMetas[0];
-    userAta: TAccountMetas[1];
-    globalVolumeAccumulator: TAccountMetas[2];
-    globalIncentiveTokenAccount: TAccountMetas[3];
-    userVolumeAccumulator: TAccountMetas[4];
-    mint: TAccountMetas[5];
-    tokenProgram: TAccountMetas[6];
-    systemProgram: TAccountMetas[7];
-    associatedTokenProgram: TAccountMetas[8];
-    eventAuthority: TAccountMetas[9];
-    program: TAccountMetas[10];
-    payer: TAccountMetas[11];
-  };
-  data: ClaimTokenIncentivesInstructionData;
-};
+    user: TAccountMetas[0]
+    userAta: TAccountMetas[1]
+    globalVolumeAccumulator: TAccountMetas[2]
+    globalIncentiveTokenAccount: TAccountMetas[3]
+    userVolumeAccumulator: TAccountMetas[4]
+    mint: TAccountMetas[5]
+    tokenProgram: TAccountMetas[6]
+    systemProgram: TAccountMetas[7]
+    associatedTokenProgram: TAccountMetas[8]
+    eventAuthority: TAccountMetas[9]
+    program: TAccountMetas[10]
+    payer: TAccountMetas[11]
+  }
+  data: ClaimTokenIncentivesInstructionData
+}
 
 export function parseClaimTokenIncentivesInstruction<
   TProgram extends string,
@@ -569,14 +533,14 @@ export function parseClaimTokenIncentivesInstruction<
 ): ParsedClaimTokenIncentivesInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 12) {
     // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new Error('Not enough accounts')
   }
-  let accountIndex = 0;
+  let accountIndex = 0
   const getNextAccount = () => {
-    const accountMeta = instruction.accounts![accountIndex]!;
-    accountIndex += 1;
-    return accountMeta;
-  };
+    const accountMeta = instruction.accounts![accountIndex]!
+    accountIndex += 1
+    return accountMeta
+  }
   return {
     programAddress: instruction.programAddress,
     accounts: {
@@ -593,8 +557,6 @@ export function parseClaimTokenIncentivesInstruction<
       program: getNextAccount(),
       payer: getNextAccount(),
     },
-    data: getClaimTokenIncentivesInstructionDataDecoder().decode(
-      instruction.data
-    ),
-  };
+    data: getClaimTokenIncentivesInstructionDataDecoder().decode(instruction.data),
+  }
 }

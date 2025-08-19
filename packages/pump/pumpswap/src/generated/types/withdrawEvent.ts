@@ -20,45 +20,45 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit';
+} from '@solana/kit'
 
 export type WithdrawEvent = {
-  timestamp: bigint;
-  lpTokenAmountIn: bigint;
-  minBaseAmountOut: bigint;
-  minQuoteAmountOut: bigint;
-  userBaseTokenReserves: bigint;
-  userQuoteTokenReserves: bigint;
-  poolBaseTokenReserves: bigint;
-  poolQuoteTokenReserves: bigint;
-  baseAmountOut: bigint;
-  quoteAmountOut: bigint;
-  lpMintSupply: bigint;
-  pool: Address;
-  user: Address;
-  userBaseTokenAccount: Address;
-  userQuoteTokenAccount: Address;
-  userPoolTokenAccount: Address;
-};
+  timestamp: bigint
+  lpTokenAmountIn: bigint
+  minBaseAmountOut: bigint
+  minQuoteAmountOut: bigint
+  userBaseTokenReserves: bigint
+  userQuoteTokenReserves: bigint
+  poolBaseTokenReserves: bigint
+  poolQuoteTokenReserves: bigint
+  baseAmountOut: bigint
+  quoteAmountOut: bigint
+  lpMintSupply: bigint
+  pool: Address
+  user: Address
+  userBaseTokenAccount: Address
+  userQuoteTokenAccount: Address
+  userPoolTokenAccount: Address
+}
 
 export type WithdrawEventArgs = {
-  timestamp: number | bigint;
-  lpTokenAmountIn: number | bigint;
-  minBaseAmountOut: number | bigint;
-  minQuoteAmountOut: number | bigint;
-  userBaseTokenReserves: number | bigint;
-  userQuoteTokenReserves: number | bigint;
-  poolBaseTokenReserves: number | bigint;
-  poolQuoteTokenReserves: number | bigint;
-  baseAmountOut: number | bigint;
-  quoteAmountOut: number | bigint;
-  lpMintSupply: number | bigint;
-  pool: Address;
-  user: Address;
-  userBaseTokenAccount: Address;
-  userQuoteTokenAccount: Address;
-  userPoolTokenAccount: Address;
-};
+  timestamp: number | bigint
+  lpTokenAmountIn: number | bigint
+  minBaseAmountOut: number | bigint
+  minQuoteAmountOut: number | bigint
+  userBaseTokenReserves: number | bigint
+  userQuoteTokenReserves: number | bigint
+  poolBaseTokenReserves: number | bigint
+  poolQuoteTokenReserves: number | bigint
+  baseAmountOut: number | bigint
+  quoteAmountOut: number | bigint
+  lpMintSupply: number | bigint
+  pool: Address
+  user: Address
+  userBaseTokenAccount: Address
+  userQuoteTokenAccount: Address
+  userPoolTokenAccount: Address
+}
 
 export function getWithdrawEventEncoder(): FixedSizeEncoder<WithdrawEventArgs> {
   return getStructEncoder([
@@ -78,7 +78,7 @@ export function getWithdrawEventEncoder(): FixedSizeEncoder<WithdrawEventArgs> {
     ['userBaseTokenAccount', getAddressEncoder()],
     ['userQuoteTokenAccount', getAddressEncoder()],
     ['userPoolTokenAccount', getAddressEncoder()],
-  ]);
+  ])
 }
 
 export function getWithdrawEventDecoder(): FixedSizeDecoder<WithdrawEvent> {
@@ -99,12 +99,9 @@ export function getWithdrawEventDecoder(): FixedSizeDecoder<WithdrawEvent> {
     ['userBaseTokenAccount', getAddressDecoder()],
     ['userQuoteTokenAccount', getAddressDecoder()],
     ['userPoolTokenAccount', getAddressDecoder()],
-  ]);
+  ])
 }
 
-export function getWithdrawEventCodec(): FixedSizeCodec<
-  WithdrawEventArgs,
-  WithdrawEvent
-> {
-  return combineCodec(getWithdrawEventEncoder(), getWithdrawEventDecoder());
+export function getWithdrawEventCodec(): FixedSizeCodec<WithdrawEventArgs, WithdrawEvent> {
+  return combineCodec(getWithdrawEventEncoder(), getWithdrawEventDecoder())
 }

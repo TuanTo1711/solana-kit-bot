@@ -20,29 +20,29 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit';
+} from '@solana/kit'
 
 export type CompletePumpAmmMigrationEvent = {
-  user: Address;
-  mint: Address;
-  mintAmount: bigint;
-  solAmount: bigint;
-  poolMigrationFee: bigint;
-  bondingCurve: Address;
-  timestamp: bigint;
-  pool: Address;
-};
+  user: Address
+  mint: Address
+  mintAmount: bigint
+  solAmount: bigint
+  poolMigrationFee: bigint
+  bondingCurve: Address
+  timestamp: bigint
+  pool: Address
+}
 
 export type CompletePumpAmmMigrationEventArgs = {
-  user: Address;
-  mint: Address;
-  mintAmount: number | bigint;
-  solAmount: number | bigint;
-  poolMigrationFee: number | bigint;
-  bondingCurve: Address;
-  timestamp: number | bigint;
-  pool: Address;
-};
+  user: Address
+  mint: Address
+  mintAmount: number | bigint
+  solAmount: number | bigint
+  poolMigrationFee: number | bigint
+  bondingCurve: Address
+  timestamp: number | bigint
+  pool: Address
+}
 
 export function getCompletePumpAmmMigrationEventEncoder(): FixedSizeEncoder<CompletePumpAmmMigrationEventArgs> {
   return getStructEncoder([
@@ -54,7 +54,7 @@ export function getCompletePumpAmmMigrationEventEncoder(): FixedSizeEncoder<Comp
     ['bondingCurve', getAddressEncoder()],
     ['timestamp', getI64Encoder()],
     ['pool', getAddressEncoder()],
-  ]);
+  ])
 }
 
 export function getCompletePumpAmmMigrationEventDecoder(): FixedSizeDecoder<CompletePumpAmmMigrationEvent> {
@@ -67,7 +67,7 @@ export function getCompletePumpAmmMigrationEventDecoder(): FixedSizeDecoder<Comp
     ['bondingCurve', getAddressDecoder()],
     ['timestamp', getI64Decoder()],
     ['pool', getAddressDecoder()],
-  ]);
+  ])
 }
 
 export function getCompletePumpAmmMigrationEventCodec(): FixedSizeCodec<
@@ -77,5 +77,5 @@ export function getCompletePumpAmmMigrationEventCodec(): FixedSizeCodec<
   return combineCodec(
     getCompletePumpAmmMigrationEventEncoder(),
     getCompletePumpAmmMigrationEventDecoder()
-  );
+  )
 }

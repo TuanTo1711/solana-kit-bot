@@ -20,21 +20,21 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit';
+} from '@solana/kit'
 
 export type SyncUserVolumeAccumulatorEvent = {
-  user: Address;
-  totalClaimedTokensBefore: bigint;
-  totalClaimedTokensAfter: bigint;
-  timestamp: bigint;
-};
+  user: Address
+  totalClaimedTokensBefore: bigint
+  totalClaimedTokensAfter: bigint
+  timestamp: bigint
+}
 
 export type SyncUserVolumeAccumulatorEventArgs = {
-  user: Address;
-  totalClaimedTokensBefore: number | bigint;
-  totalClaimedTokensAfter: number | bigint;
-  timestamp: number | bigint;
-};
+  user: Address
+  totalClaimedTokensBefore: number | bigint
+  totalClaimedTokensAfter: number | bigint
+  timestamp: number | bigint
+}
 
 export function getSyncUserVolumeAccumulatorEventEncoder(): FixedSizeEncoder<SyncUserVolumeAccumulatorEventArgs> {
   return getStructEncoder([
@@ -42,7 +42,7 @@ export function getSyncUserVolumeAccumulatorEventEncoder(): FixedSizeEncoder<Syn
     ['totalClaimedTokensBefore', getU64Encoder()],
     ['totalClaimedTokensAfter', getU64Encoder()],
     ['timestamp', getI64Encoder()],
-  ]);
+  ])
 }
 
 export function getSyncUserVolumeAccumulatorEventDecoder(): FixedSizeDecoder<SyncUserVolumeAccumulatorEvent> {
@@ -51,7 +51,7 @@ export function getSyncUserVolumeAccumulatorEventDecoder(): FixedSizeDecoder<Syn
     ['totalClaimedTokensBefore', getU64Decoder()],
     ['totalClaimedTokensAfter', getU64Decoder()],
     ['timestamp', getI64Decoder()],
-  ]);
+  ])
 }
 
 export function getSyncUserVolumeAccumulatorEventCodec(): FixedSizeCodec<
@@ -61,5 +61,5 @@ export function getSyncUserVolumeAccumulatorEventCodec(): FixedSizeCodec<
   return combineCodec(
     getSyncUserVolumeAccumulatorEventEncoder(),
     getSyncUserVolumeAccumulatorEventDecoder()
-  );
+  )
 }

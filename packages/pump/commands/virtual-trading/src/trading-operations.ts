@@ -3,11 +3,7 @@
  */
 
 import type { Bundle, PriceStrategy, SolanaBotContext } from '@solana-kit-bot/core'
-import {
-  computeBuyQuoteIn,
-  type PoolKeys,
-  type PumpswapClient,
-} from '@solana-kit-bot/pumpswap'
+import { computeBuyQuoteIn, type PoolKeys, type PumpswapClient } from '@solana-kit-bot/pumpswap'
 
 import {
   BUNDLE_TIMEOUT_MS,

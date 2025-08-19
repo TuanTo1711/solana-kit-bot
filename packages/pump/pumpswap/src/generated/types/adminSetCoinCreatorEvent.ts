@@ -18,25 +18,25 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit';
+} from '@solana/kit'
 
 export type AdminSetCoinCreatorEvent = {
-  timestamp: bigint;
-  adminSetCoinCreatorAuthority: Address;
-  baseMint: Address;
-  pool: Address;
-  oldCoinCreator: Address;
-  newCoinCreator: Address;
-};
+  timestamp: bigint
+  adminSetCoinCreatorAuthority: Address
+  baseMint: Address
+  pool: Address
+  oldCoinCreator: Address
+  newCoinCreator: Address
+}
 
 export type AdminSetCoinCreatorEventArgs = {
-  timestamp: number | bigint;
-  adminSetCoinCreatorAuthority: Address;
-  baseMint: Address;
-  pool: Address;
-  oldCoinCreator: Address;
-  newCoinCreator: Address;
-};
+  timestamp: number | bigint
+  adminSetCoinCreatorAuthority: Address
+  baseMint: Address
+  pool: Address
+  oldCoinCreator: Address
+  newCoinCreator: Address
+}
 
 export function getAdminSetCoinCreatorEventEncoder(): FixedSizeEncoder<AdminSetCoinCreatorEventArgs> {
   return getStructEncoder([
@@ -46,7 +46,7 @@ export function getAdminSetCoinCreatorEventEncoder(): FixedSizeEncoder<AdminSetC
     ['pool', getAddressEncoder()],
     ['oldCoinCreator', getAddressEncoder()],
     ['newCoinCreator', getAddressEncoder()],
-  ]);
+  ])
 }
 
 export function getAdminSetCoinCreatorEventDecoder(): FixedSizeDecoder<AdminSetCoinCreatorEvent> {
@@ -57,15 +57,12 @@ export function getAdminSetCoinCreatorEventDecoder(): FixedSizeDecoder<AdminSetC
     ['pool', getAddressDecoder()],
     ['oldCoinCreator', getAddressDecoder()],
     ['newCoinCreator', getAddressDecoder()],
-  ]);
+  ])
 }
 
 export function getAdminSetCoinCreatorEventCodec(): FixedSizeCodec<
   AdminSetCoinCreatorEventArgs,
   AdminSetCoinCreatorEvent
 > {
-  return combineCodec(
-    getAdminSetCoinCreatorEventEncoder(),
-    getAdminSetCoinCreatorEventDecoder()
-  );
+  return combineCodec(getAdminSetCoinCreatorEventEncoder(), getAdminSetCoinCreatorEventDecoder())
 }

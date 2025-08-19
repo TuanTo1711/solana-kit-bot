@@ -24,41 +24,41 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit';
+} from '@solana/kit'
 
 export type SetParamsEvent = {
-  initialVirtualTokenReserves: bigint;
-  initialVirtualSolReserves: bigint;
-  initialRealTokenReserves: bigint;
-  finalRealSolReserves: bigint;
-  tokenTotalSupply: bigint;
-  feeBasisPoints: bigint;
-  withdrawAuthority: Address;
-  enableMigrate: boolean;
-  poolMigrationFee: bigint;
-  creatorFeeBasisPoints: bigint;
-  feeRecipients: Array<Address>;
-  timestamp: bigint;
-  setCreatorAuthority: Address;
-  adminSetCreatorAuthority: Address;
-};
+  initialVirtualTokenReserves: bigint
+  initialVirtualSolReserves: bigint
+  initialRealTokenReserves: bigint
+  finalRealSolReserves: bigint
+  tokenTotalSupply: bigint
+  feeBasisPoints: bigint
+  withdrawAuthority: Address
+  enableMigrate: boolean
+  poolMigrationFee: bigint
+  creatorFeeBasisPoints: bigint
+  feeRecipients: Array<Address>
+  timestamp: bigint
+  setCreatorAuthority: Address
+  adminSetCreatorAuthority: Address
+}
 
 export type SetParamsEventArgs = {
-  initialVirtualTokenReserves: number | bigint;
-  initialVirtualSolReserves: number | bigint;
-  initialRealTokenReserves: number | bigint;
-  finalRealSolReserves: number | bigint;
-  tokenTotalSupply: number | bigint;
-  feeBasisPoints: number | bigint;
-  withdrawAuthority: Address;
-  enableMigrate: boolean;
-  poolMigrationFee: number | bigint;
-  creatorFeeBasisPoints: number | bigint;
-  feeRecipients: Array<Address>;
-  timestamp: number | bigint;
-  setCreatorAuthority: Address;
-  adminSetCreatorAuthority: Address;
-};
+  initialVirtualTokenReserves: number | bigint
+  initialVirtualSolReserves: number | bigint
+  initialRealTokenReserves: number | bigint
+  finalRealSolReserves: number | bigint
+  tokenTotalSupply: number | bigint
+  feeBasisPoints: number | bigint
+  withdrawAuthority: Address
+  enableMigrate: boolean
+  poolMigrationFee: number | bigint
+  creatorFeeBasisPoints: number | bigint
+  feeRecipients: Array<Address>
+  timestamp: number | bigint
+  setCreatorAuthority: Address
+  adminSetCreatorAuthority: Address
+}
 
 export function getSetParamsEventEncoder(): FixedSizeEncoder<SetParamsEventArgs> {
   return getStructEncoder([
@@ -76,7 +76,7 @@ export function getSetParamsEventEncoder(): FixedSizeEncoder<SetParamsEventArgs>
     ['timestamp', getI64Encoder()],
     ['setCreatorAuthority', getAddressEncoder()],
     ['adminSetCreatorAuthority', getAddressEncoder()],
-  ]);
+  ])
 }
 
 export function getSetParamsEventDecoder(): FixedSizeDecoder<SetParamsEvent> {
@@ -95,12 +95,9 @@ export function getSetParamsEventDecoder(): FixedSizeDecoder<SetParamsEvent> {
     ['timestamp', getI64Decoder()],
     ['setCreatorAuthority', getAddressDecoder()],
     ['adminSetCreatorAuthority', getAddressDecoder()],
-  ]);
+  ])
 }
 
-export function getSetParamsEventCodec(): FixedSizeCodec<
-  SetParamsEventArgs,
-  SetParamsEvent
-> {
-  return combineCodec(getSetParamsEventEncoder(), getSetParamsEventDecoder());
+export function getSetParamsEventCodec(): FixedSizeCodec<SetParamsEventArgs, SetParamsEvent> {
+  return combineCodec(getSetParamsEventEncoder(), getSetParamsEventDecoder())
 }

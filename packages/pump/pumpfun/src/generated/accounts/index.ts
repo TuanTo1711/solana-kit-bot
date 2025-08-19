@@ -6,7 +6,7 @@
  * @see https://github.com/codama-idl/codama
  */
 
-export * from './bondingCurve';
-export * from './global';
-export * from './globalVolumeAccumulator';
-export * from './userVolumeAccumulator';
+export * from './bondingCurve'
+export * from './global'
+export * from './globalVolumeAccumulator'
+export * from './userVolumeAccumulator'

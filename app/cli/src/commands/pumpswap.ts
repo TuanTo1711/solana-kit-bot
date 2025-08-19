@@ -106,8 +106,7 @@ export class PumpswapCommand extends Command<BaseContext & SolanaBotContext> {
       },
       {
         name: `📈 Đặt lệnh mua tự động ${chalk.gray('- Limit Order Buy')}`,
-        value: () => this.getCommand('limit-order'),
-        disabled: `- Chưa phát triển xong`,
+        value: () => this.getCommand('pumpswap limit-order'),
       },
     ]
   }
@@ -118,7 +117,7 @@ export class PumpswapCommand extends Command<BaseContext & SolanaBotContext> {
     const figlet = (await import('figlet')).default
     const gradient = (await import('gradient-string')).default
 
-    const banner = figlet.textSync(name.replace(/-/g, ' '), {
+    const banner = figlet.textSync(name.substring(8).replace(/-/g, ' '), {
       font: 'ANSI Shadow',
       horizontalLayout: 'default',
       verticalLayout: 'default',

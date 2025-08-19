@@ -1,6 +1,7 @@
 # Solana Kit Bot
 
-A comprehensive Solana trading bot framework with advanced features for automated trading, pool monitoring, and strategy execution.
+A comprehensive Solana trading bot framework with advanced features for
+automated trading, pool monitoring, and strategy execution.
 
 ## 🚀 Features
 
@@ -46,22 +47,26 @@ solana-kit-bot/
 ### Setup
 
 1. **Clone the repository**
+
 ```bash
 git clone <repository-url>
 cd solana-kit-bot
 ```
 
 2. **Install dependencies**
+
 ```bash
 pnpm install
 ```
 
 3. **Start development environment**
+
 ```bash
 docker-compose up -d
 ```
 
 4. **Run database migrations**
+
 ```bash
 cd packages/raydium/commands/pool-checker
 pnpm prisma migrate dev
@@ -158,11 +163,14 @@ pnpm prisma migrate reset
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
+for details.
 
 ## ⚠️ Disclaimer
 
-This software is for educational and research purposes. Use at your own risk. The authors are not responsible for any financial losses incurred through the use of this software.
+This software is for educational and research purposes. Use at your own risk.
+The authors are not responsible for any financial losses incurred through the
+use of this software.
 
 ## 🆘 Support
 

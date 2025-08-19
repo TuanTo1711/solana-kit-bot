@@ -30,18 +30,16 @@ import {
   type ReadonlyUint8Array,
   type TransactionSigner,
   type WritableAccount,
-} from '@solana/kit';
-import { PUMP_PROGRAM_ADDRESS } from '../programs';
-import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
+} from '@solana/kit'
+import { PUMP_PROGRAM_ADDRESS } from '../programs'
+import { getAccountMetaFactory, type ResolvedAccount } from '../shared'
 
 export const UPDATE_GLOBAL_AUTHORITY_DISCRIMINATOR = new Uint8Array([
   227, 181, 74, 196, 208, 21, 97, 213,
-]);
+])
 
 export function getUpdateGlobalAuthorityDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
-    UPDATE_GLOBAL_AUTHORITY_DISCRIMINATOR
-  );
+  return fixEncoderSize(getBytesEncoder(), 8).encode(UPDATE_GLOBAL_AUTHORITY_DISCRIMINATOR)
 }
 
 export type UpdateGlobalAuthorityInstruction<
@@ -56,12 +54,9 @@ export type UpdateGlobalAuthorityInstruction<
   InstructionWithData<ReadonlyUint8Array> &
   InstructionWithAccounts<
     [
-      TAccountGlobal extends string
-        ? WritableAccount<TAccountGlobal>
-        : TAccountGlobal,
+      TAccountGlobal extends string ? WritableAccount<TAccountGlobal> : TAccountGlobal,
       TAccountAuthority extends string
-        ? ReadonlySignerAccount<TAccountAuthority> &
-            AccountSignerMeta<TAccountAuthority>
+        ? ReadonlySignerAccount<TAccountAuthority> & AccountSignerMeta<TAccountAuthority>
         : TAccountAuthority,
       TAccountNewAuthority extends string
         ? ReadonlyAccount<TAccountNewAuthority>
@@ -69,33 +64,29 @@ export type UpdateGlobalAuthorityInstruction<
       TAccountEventAuthority extends string
         ? ReadonlyAccount<TAccountEventAuthority>
         : TAccountEventAuthority,
-      TAccountProgram extends string
-        ? ReadonlyAccount<TAccountProgram>
-        : TAccountProgram,
+      TAccountProgram extends string ? ReadonlyAccount<TAccountProgram> : TAccountProgram,
       ...TRemainingAccounts,
     ]
-  >;
+  >
 
 export type UpdateGlobalAuthorityInstructionData = {
-  discriminator: ReadonlyUint8Array;
-};
+  discriminator: ReadonlyUint8Array
+}
 
-export type UpdateGlobalAuthorityInstructionDataArgs = {};
+export type UpdateGlobalAuthorityInstructionDataArgs = {}
 
 export function getUpdateGlobalAuthorityInstructionDataEncoder(): FixedSizeEncoder<UpdateGlobalAuthorityInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([['discriminator', fixEncoderSize(getBytesEncoder(), 8)]]),
-    (value) => ({
+    value => ({
       ...value,
       discriminator: UPDATE_GLOBAL_AUTHORITY_DISCRIMINATOR,
     })
-  );
+  )
 }
 
 export function getUpdateGlobalAuthorityInstructionDataDecoder(): FixedSizeDecoder<UpdateGlobalAuthorityInstructionData> {
-  return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
-  ]);
+  return getStructDecoder([['discriminator', fixDecoderSize(getBytesDecoder(), 8)]])
 }
 
 export function getUpdateGlobalAuthorityInstructionDataCodec(): FixedSizeCodec<
@@ -105,7 +96,7 @@ export function getUpdateGlobalAuthorityInstructionDataCodec(): FixedSizeCodec<
   return combineCodec(
     getUpdateGlobalAuthorityInstructionDataEncoder(),
     getUpdateGlobalAuthorityInstructionDataDecoder()
-  );
+  )
 }
 
 export type UpdateGlobalAuthorityAsyncInput<
@@ -115,12 +106,12 @@ export type UpdateGlobalAuthorityAsyncInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  global?: Address<TAccountGlobal>;
-  authority: TransactionSigner<TAccountAuthority>;
-  newAuthority: Address<TAccountNewAuthority>;
-  eventAuthority?: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-};
+  global?: Address<TAccountGlobal>
+  authority: TransactionSigner<TAccountAuthority>
+  newAuthority: Address<TAccountNewAuthority>
+  eventAuthority?: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+}
 
 export async function getUpdateGlobalAuthorityInstructionAsync<
   TAccountGlobal extends string,
@@ -149,7 +140,7 @@ export async function getUpdateGlobalAuthorityInstructionAsync<
   >
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -158,20 +149,15 @@ export async function getUpdateGlobalAuthorityInstructionAsync<
     newAuthority: { value: input.newAuthority ?? null, isWritable: false },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Resolve default values.
   if (!accounts.global.value) {
     accounts.global.value = await getProgramDerivedAddress({
       programAddress,
-      seeds: [
-        getBytesEncoder().encode(new Uint8Array([103, 108, 111, 98, 97, 108])),
-      ],
-    });
+      seeds: [getBytesEncoder().encode(new Uint8Array([103, 108, 111, 98, 97, 108]))],
+    })
   }
   if (!accounts.eventAuthority.value) {
     accounts.eventAuthority.value = await getProgramDerivedAddress({
@@ -179,15 +165,14 @@ export async function getUpdateGlobalAuthorityInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114,
-            105, 116, 121,
+            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121,
           ])
         ),
       ],
-    });
+    })
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.global),
@@ -205,9 +190,9 @@ export async function getUpdateGlobalAuthorityInstructionAsync<
     TAccountNewAuthority,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type UpdateGlobalAuthorityInput<
@@ -217,12 +202,12 @@ export type UpdateGlobalAuthorityInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  global: Address<TAccountGlobal>;
-  authority: TransactionSigner<TAccountAuthority>;
-  newAuthority: Address<TAccountNewAuthority>;
-  eventAuthority: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-};
+  global: Address<TAccountGlobal>
+  authority: TransactionSigner<TAccountAuthority>
+  newAuthority: Address<TAccountNewAuthority>
+  eventAuthority: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+}
 
 export function getUpdateGlobalAuthorityInstruction<
   TAccountGlobal extends string,
@@ -249,7 +234,7 @@ export function getUpdateGlobalAuthorityInstruction<
   TAccountProgram
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -258,13 +243,10 @@ export function getUpdateGlobalAuthorityInstruction<
     newAuthority: { value: input.newAuthority ?? null, isWritable: false },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.global),
@@ -282,25 +264,25 @@ export function getUpdateGlobalAuthorityInstruction<
     TAccountNewAuthority,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type ParsedUpdateGlobalAuthorityInstruction<
   TProgram extends string = typeof PUMP_PROGRAM_ADDRESS,
   TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[],
 > = {
-  programAddress: Address<TProgram>;
+  programAddress: Address<TProgram>
   accounts: {
-    global: TAccountMetas[0];
-    authority: TAccountMetas[1];
-    newAuthority: TAccountMetas[2];
-    eventAuthority: TAccountMetas[3];
-    program: TAccountMetas[4];
-  };
-  data: UpdateGlobalAuthorityInstructionData;
-};
+    global: TAccountMetas[0]
+    authority: TAccountMetas[1]
+    newAuthority: TAccountMetas[2]
+    eventAuthority: TAccountMetas[3]
+    program: TAccountMetas[4]
+  }
+  data: UpdateGlobalAuthorityInstructionData
+}
 
 export function parseUpdateGlobalAuthorityInstruction<
   TProgram extends string,
@@ -312,14 +294,14 @@ export function parseUpdateGlobalAuthorityInstruction<
 ): ParsedUpdateGlobalAuthorityInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 5) {
     // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new Error('Not enough accounts')
   }
-  let accountIndex = 0;
+  let accountIndex = 0
   const getNextAccount = () => {
-    const accountMeta = instruction.accounts![accountIndex]!;
-    accountIndex += 1;
-    return accountMeta;
-  };
+    const accountMeta = instruction.accounts![accountIndex]!
+    accountIndex += 1
+    return accountMeta
+  }
   return {
     programAddress: instruction.programAddress,
     accounts: {
@@ -329,8 +311,6 @@ export function parseUpdateGlobalAuthorityInstruction<
       eventAuthority: getNextAccount(),
       program: getNextAccount(),
     },
-    data: getUpdateGlobalAuthorityInstructionDataDecoder().decode(
-      instruction.data
-    ),
-  };
+    data: getUpdateGlobalAuthorityInstructionDataDecoder().decode(instruction.data),
+  }
 }

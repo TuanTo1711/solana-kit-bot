@@ -28,22 +28,16 @@ import {
   type ReadonlyAccount,
   type ReadonlyUint8Array,
   type WritableAccount,
-} from '@solana/kit';
-import { PUMP_PROGRAM_ADDRESS } from '../programs';
-import {
-  expectAddress,
-  getAccountMetaFactory,
-  type ResolvedAccount,
-} from '../shared';
+} from '@solana/kit'
+import { PUMP_PROGRAM_ADDRESS } from '../programs'
+import { expectAddress, getAccountMetaFactory, type ResolvedAccount } from '../shared'
 
 export const SET_METAPLEX_CREATOR_DISCRIMINATOR = new Uint8Array([
   138, 96, 174, 217, 48, 85, 197, 246,
-]);
+])
 
 export function getSetMetaplexCreatorDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
-    SET_METAPLEX_CREATOR_DISCRIMINATOR
-  );
+  return fixEncoderSize(getBytesEncoder(), 8).encode(SET_METAPLEX_CREATOR_DISCRIMINATOR)
 }
 
 export type SetMetaplexCreatorInstruction<
@@ -58,42 +52,34 @@ export type SetMetaplexCreatorInstruction<
   InstructionWithData<ReadonlyUint8Array> &
   InstructionWithAccounts<
     [
-      TAccountMint extends string
-        ? ReadonlyAccount<TAccountMint>
-        : TAccountMint,
-      TAccountMetadata extends string
-        ? ReadonlyAccount<TAccountMetadata>
-        : TAccountMetadata,
+      TAccountMint extends string ? ReadonlyAccount<TAccountMint> : TAccountMint,
+      TAccountMetadata extends string ? ReadonlyAccount<TAccountMetadata> : TAccountMetadata,
       TAccountBondingCurve extends string
         ? WritableAccount<TAccountBondingCurve>
         : TAccountBondingCurve,
       TAccountEventAuthority extends string
         ? ReadonlyAccount<TAccountEventAuthority>
         : TAccountEventAuthority,
-      TAccountProgram extends string
-        ? ReadonlyAccount<TAccountProgram>
-        : TAccountProgram,
+      TAccountProgram extends string ? ReadonlyAccount<TAccountProgram> : TAccountProgram,
       ...TRemainingAccounts,
     ]
-  >;
+  >
 
 export type SetMetaplexCreatorInstructionData = {
-  discriminator: ReadonlyUint8Array;
-};
+  discriminator: ReadonlyUint8Array
+}
 
-export type SetMetaplexCreatorInstructionDataArgs = {};
+export type SetMetaplexCreatorInstructionDataArgs = {}
 
 export function getSetMetaplexCreatorInstructionDataEncoder(): FixedSizeEncoder<SetMetaplexCreatorInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([['discriminator', fixEncoderSize(getBytesEncoder(), 8)]]),
-    (value) => ({ ...value, discriminator: SET_METAPLEX_CREATOR_DISCRIMINATOR })
-  );
+    value => ({ ...value, discriminator: SET_METAPLEX_CREATOR_DISCRIMINATOR })
+  )
 }
 
 export function getSetMetaplexCreatorInstructionDataDecoder(): FixedSizeDecoder<SetMetaplexCreatorInstructionData> {
-  return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
-  ]);
+  return getStructDecoder([['discriminator', fixDecoderSize(getBytesDecoder(), 8)]])
 }
 
 export function getSetMetaplexCreatorInstructionDataCodec(): FixedSizeCodec<
@@ -103,7 +89,7 @@ export function getSetMetaplexCreatorInstructionDataCodec(): FixedSizeCodec<
   return combineCodec(
     getSetMetaplexCreatorInstructionDataEncoder(),
     getSetMetaplexCreatorInstructionDataDecoder()
-  );
+  )
 }
 
 export type SetMetaplexCreatorAsyncInput<
@@ -113,12 +99,12 @@ export type SetMetaplexCreatorAsyncInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  mint: Address<TAccountMint>;
-  metadata?: Address<TAccountMetadata>;
-  bondingCurve?: Address<TAccountBondingCurve>;
-  eventAuthority?: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-};
+  mint: Address<TAccountMint>
+  metadata?: Address<TAccountMetadata>
+  bondingCurve?: Address<TAccountBondingCurve>
+  eventAuthority?: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+}
 
 export async function getSetMetaplexCreatorInstructionAsync<
   TAccountMint extends string,
@@ -147,7 +133,7 @@ export async function getSetMetaplexCreatorInstructionAsync<
   >
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -156,11 +142,8 @@ export async function getSetMetaplexCreatorInstructionAsync<
     bondingCurve: { value: input.bondingCurve ?? null, isWritable: true },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Resolve default values.
   if (!accounts.metadata.value) {
@@ -168,32 +151,27 @@ export async function getSetMetaplexCreatorInstructionAsync<
       programAddress:
         'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s' as Address<'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'>,
       seeds: [
-        getBytesEncoder().encode(
-          new Uint8Array([109, 101, 116, 97, 100, 97, 116, 97])
-        ),
+        getBytesEncoder().encode(new Uint8Array([109, 101, 116, 97, 100, 97, 116, 97])),
         getBytesEncoder().encode(
           new Uint8Array([
-            11, 112, 101, 177, 227, 209, 124, 69, 56, 157, 82, 127, 107, 4, 195,
-            205, 88, 184, 108, 115, 26, 160, 253, 181, 73, 182, 209, 188, 3,
-            248, 41, 70,
+            11, 112, 101, 177, 227, 209, 124, 69, 56, 157, 82, 127, 107, 4, 195, 205, 88, 184, 108,
+            115, 26, 160, 253, 181, 73, 182, 209, 188, 3, 248, 41, 70,
           ])
         ),
         getAddressEncoder().encode(expectAddress(accounts.mint.value)),
       ],
-    });
+    })
   }
   if (!accounts.bondingCurve.value) {
     accounts.bondingCurve.value = await getProgramDerivedAddress({
       programAddress,
       seeds: [
         getBytesEncoder().encode(
-          new Uint8Array([
-            98, 111, 110, 100, 105, 110, 103, 45, 99, 117, 114, 118, 101,
-          ])
+          new Uint8Array([98, 111, 110, 100, 105, 110, 103, 45, 99, 117, 114, 118, 101])
         ),
         getAddressEncoder().encode(expectAddress(accounts.mint.value)),
       ],
-    });
+    })
   }
   if (!accounts.eventAuthority.value) {
     accounts.eventAuthority.value = await getProgramDerivedAddress({
@@ -201,15 +179,14 @@ export async function getSetMetaplexCreatorInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114,
-            105, 116, 121,
+            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121,
           ])
         ),
       ],
-    });
+    })
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.mint),
@@ -227,9 +204,9 @@ export async function getSetMetaplexCreatorInstructionAsync<
     TAccountBondingCurve,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type SetMetaplexCreatorInput<
@@ -239,12 +216,12 @@ export type SetMetaplexCreatorInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  mint: Address<TAccountMint>;
-  metadata: Address<TAccountMetadata>;
-  bondingCurve: Address<TAccountBondingCurve>;
-  eventAuthority: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-};
+  mint: Address<TAccountMint>
+  metadata: Address<TAccountMetadata>
+  bondingCurve: Address<TAccountBondingCurve>
+  eventAuthority: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+}
 
 export function getSetMetaplexCreatorInstruction<
   TAccountMint extends string,
@@ -271,7 +248,7 @@ export function getSetMetaplexCreatorInstruction<
   TAccountProgram
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -280,13 +257,10 @@ export function getSetMetaplexCreatorInstruction<
     bondingCurve: { value: input.bondingCurve ?? null, isWritable: true },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.mint),
@@ -304,25 +278,25 @@ export function getSetMetaplexCreatorInstruction<
     TAccountBondingCurve,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type ParsedSetMetaplexCreatorInstruction<
   TProgram extends string = typeof PUMP_PROGRAM_ADDRESS,
   TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[],
 > = {
-  programAddress: Address<TProgram>;
+  programAddress: Address<TProgram>
   accounts: {
-    mint: TAccountMetas[0];
-    metadata: TAccountMetas[1];
-    bondingCurve: TAccountMetas[2];
-    eventAuthority: TAccountMetas[3];
-    program: TAccountMetas[4];
-  };
-  data: SetMetaplexCreatorInstructionData;
-};
+    mint: TAccountMetas[0]
+    metadata: TAccountMetas[1]
+    bondingCurve: TAccountMetas[2]
+    eventAuthority: TAccountMetas[3]
+    program: TAccountMetas[4]
+  }
+  data: SetMetaplexCreatorInstructionData
+}
 
 export function parseSetMetaplexCreatorInstruction<
   TProgram extends string,
@@ -334,14 +308,14 @@ export function parseSetMetaplexCreatorInstruction<
 ): ParsedSetMetaplexCreatorInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 5) {
     // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new Error('Not enough accounts')
   }
-  let accountIndex = 0;
+  let accountIndex = 0
   const getNextAccount = () => {
-    const accountMeta = instruction.accounts![accountIndex]!;
-    accountIndex += 1;
-    return accountMeta;
-  };
+    const accountMeta = instruction.accounts![accountIndex]!
+    accountIndex += 1
+    return accountMeta
+  }
   return {
     programAddress: instruction.programAddress,
     accounts: {
@@ -351,8 +325,6 @@ export function parseSetMetaplexCreatorInstruction<
       eventAuthority: getNextAccount(),
       program: getNextAccount(),
     },
-    data: getSetMetaplexCreatorInstructionDataDecoder().decode(
-      instruction.data
-    ),
-  };
+    data: getSetMetaplexCreatorInstructionDataDecoder().decode(instruction.data),
+  }
 }

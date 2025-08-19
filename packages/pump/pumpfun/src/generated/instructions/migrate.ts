@@ -31,20 +31,14 @@ import {
   type ReadonlyUint8Array,
   type TransactionSigner,
   type WritableAccount,
-} from '@solana/kit';
-import { PUMP_PROGRAM_ADDRESS } from '../programs';
-import {
-  expectAddress,
-  getAccountMetaFactory,
-  type ResolvedAccount,
-} from '../shared';
+} from '@solana/kit'
+import { PUMP_PROGRAM_ADDRESS } from '../programs'
+import { expectAddress, getAccountMetaFactory, type ResolvedAccount } from '../shared'
 
-export const MIGRATE_DISCRIMINATOR = new Uint8Array([
-  155, 234, 231, 146, 236, 158, 162, 30,
-]);
+export const MIGRATE_DISCRIMINATOR = new Uint8Array([155, 234, 231, 146, 236, 158, 162, 30])
 
 export function getMigrateDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(MIGRATE_DISCRIMINATOR);
+  return fixEncoderSize(getBytesEncoder(), 8).encode(MIGRATE_DISCRIMINATOR)
 }
 
 export type MigrateInstruction<
@@ -55,9 +49,7 @@ export type MigrateInstruction<
   TAccountBondingCurve extends string | AccountMeta<string> = string,
   TAccountAssociatedBondingCurve extends string | AccountMeta<string> = string,
   TAccountUser extends string | AccountMeta<string> = string,
-  TAccountSystemProgram extends
-    | string
-    | AccountMeta<string> = '11111111111111111111111111111111',
+  TAccountSystemProgram extends string | AccountMeta<string> = '11111111111111111111111111111111',
   TAccountTokenProgram extends
     | string
     | AccountMeta<string> = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
@@ -66,12 +58,8 @@ export type MigrateInstruction<
     | AccountMeta<string> = 'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA',
   TAccountPool extends string | AccountMeta<string> = string,
   TAccountPoolAuthority extends string | AccountMeta<string> = string,
-  TAccountPoolAuthorityMintAccount extends
-    | string
-    | AccountMeta<string> = string,
-  TAccountPoolAuthorityWsolAccount extends
-    | string
-    | AccountMeta<string> = string,
+  TAccountPoolAuthorityMintAccount extends string | AccountMeta<string> = string,
+  TAccountPoolAuthorityWsolAccount extends string | AccountMeta<string> = string,
   TAccountAmmGlobalConfig extends string | AccountMeta<string> = string,
   TAccountWsolMint extends
     | string
@@ -94,15 +82,11 @@ export type MigrateInstruction<
   InstructionWithData<ReadonlyUint8Array> &
   InstructionWithAccounts<
     [
-      TAccountGlobal extends string
-        ? ReadonlyAccount<TAccountGlobal>
-        : TAccountGlobal,
+      TAccountGlobal extends string ? ReadonlyAccount<TAccountGlobal> : TAccountGlobal,
       TAccountWithdrawAuthority extends string
         ? WritableAccount<TAccountWithdrawAuthority>
         : TAccountWithdrawAuthority,
-      TAccountMint extends string
-        ? ReadonlyAccount<TAccountMint>
-        : TAccountMint,
+      TAccountMint extends string ? ReadonlyAccount<TAccountMint> : TAccountMint,
       TAccountBondingCurve extends string
         ? WritableAccount<TAccountBondingCurve>
         : TAccountBondingCurve,
@@ -118,12 +102,8 @@ export type MigrateInstruction<
       TAccountTokenProgram extends string
         ? ReadonlyAccount<TAccountTokenProgram>
         : TAccountTokenProgram,
-      TAccountPumpAmm extends string
-        ? ReadonlyAccount<TAccountPumpAmm>
-        : TAccountPumpAmm,
-      TAccountPool extends string
-        ? WritableAccount<TAccountPool>
-        : TAccountPool,
+      TAccountPumpAmm extends string ? ReadonlyAccount<TAccountPumpAmm> : TAccountPumpAmm,
+      TAccountPool extends string ? WritableAccount<TAccountPool> : TAccountPool,
       TAccountPoolAuthority extends string
         ? WritableAccount<TAccountPoolAuthority>
         : TAccountPoolAuthority,
@@ -136,12 +116,8 @@ export type MigrateInstruction<
       TAccountAmmGlobalConfig extends string
         ? ReadonlyAccount<TAccountAmmGlobalConfig>
         : TAccountAmmGlobalConfig,
-      TAccountWsolMint extends string
-        ? ReadonlyAccount<TAccountWsolMint>
-        : TAccountWsolMint,
-      TAccountLpMint extends string
-        ? WritableAccount<TAccountLpMint>
-        : TAccountLpMint,
+      TAccountWsolMint extends string ? ReadonlyAccount<TAccountWsolMint> : TAccountWsolMint,
+      TAccountLpMint extends string ? WritableAccount<TAccountLpMint> : TAccountLpMint,
       TAccountUserPoolTokenAccount extends string
         ? WritableAccount<TAccountUserPoolTokenAccount>
         : TAccountUserPoolTokenAccount,
@@ -163,38 +139,31 @@ export type MigrateInstruction<
       TAccountEventAuthority extends string
         ? ReadonlyAccount<TAccountEventAuthority>
         : TAccountEventAuthority,
-      TAccountProgram extends string
-        ? ReadonlyAccount<TAccountProgram>
-        : TAccountProgram,
+      TAccountProgram extends string ? ReadonlyAccount<TAccountProgram> : TAccountProgram,
       ...TRemainingAccounts,
     ]
-  >;
+  >
 
-export type MigrateInstructionData = { discriminator: ReadonlyUint8Array };
+export type MigrateInstructionData = { discriminator: ReadonlyUint8Array }
 
-export type MigrateInstructionDataArgs = {};
+export type MigrateInstructionDataArgs = {}
 
 export function getMigrateInstructionDataEncoder(): FixedSizeEncoder<MigrateInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([['discriminator', fixEncoderSize(getBytesEncoder(), 8)]]),
-    (value) => ({ ...value, discriminator: MIGRATE_DISCRIMINATOR })
-  );
+    value => ({ ...value, discriminator: MIGRATE_DISCRIMINATOR })
+  )
 }
 
 export function getMigrateInstructionDataDecoder(): FixedSizeDecoder<MigrateInstructionData> {
-  return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
-  ]);
+  return getStructDecoder([['discriminator', fixDecoderSize(getBytesDecoder(), 8)]])
 }
 
 export function getMigrateInstructionDataCodec(): FixedSizeCodec<
   MigrateInstructionDataArgs,
   MigrateInstructionData
 > {
-  return combineCodec(
-    getMigrateInstructionDataEncoder(),
-    getMigrateInstructionDataDecoder()
-  );
+  return combineCodec(getMigrateInstructionDataEncoder(), getMigrateInstructionDataDecoder())
 }
 
 export type MigrateAsyncInput<
@@ -223,31 +192,31 @@ export type MigrateAsyncInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  global?: Address<TAccountGlobal>;
-  withdrawAuthority: Address<TAccountWithdrawAuthority>;
-  mint: Address<TAccountMint>;
-  bondingCurve?: Address<TAccountBondingCurve>;
-  associatedBondingCurve?: Address<TAccountAssociatedBondingCurve>;
-  user: TransactionSigner<TAccountUser>;
-  systemProgram?: Address<TAccountSystemProgram>;
-  tokenProgram?: Address<TAccountTokenProgram>;
-  pumpAmm?: Address<TAccountPumpAmm>;
-  pool?: Address<TAccountPool>;
-  poolAuthority?: Address<TAccountPoolAuthority>;
-  poolAuthorityMintAccount?: Address<TAccountPoolAuthorityMintAccount>;
-  poolAuthorityWsolAccount?: Address<TAccountPoolAuthorityWsolAccount>;
-  ammGlobalConfig?: Address<TAccountAmmGlobalConfig>;
-  wsolMint?: Address<TAccountWsolMint>;
-  lpMint?: Address<TAccountLpMint>;
-  userPoolTokenAccount?: Address<TAccountUserPoolTokenAccount>;
-  poolBaseTokenAccount?: Address<TAccountPoolBaseTokenAccount>;
-  poolQuoteTokenAccount?: Address<TAccountPoolQuoteTokenAccount>;
-  token2022Program?: Address<TAccountToken2022Program>;
-  associatedTokenProgram?: Address<TAccountAssociatedTokenProgram>;
-  pumpAmmEventAuthority?: Address<TAccountPumpAmmEventAuthority>;
-  eventAuthority?: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-};
+  global?: Address<TAccountGlobal>
+  withdrawAuthority: Address<TAccountWithdrawAuthority>
+  mint: Address<TAccountMint>
+  bondingCurve?: Address<TAccountBondingCurve>
+  associatedBondingCurve?: Address<TAccountAssociatedBondingCurve>
+  user: TransactionSigner<TAccountUser>
+  systemProgram?: Address<TAccountSystemProgram>
+  tokenProgram?: Address<TAccountTokenProgram>
+  pumpAmm?: Address<TAccountPumpAmm>
+  pool?: Address<TAccountPool>
+  poolAuthority?: Address<TAccountPoolAuthority>
+  poolAuthorityMintAccount?: Address<TAccountPoolAuthorityMintAccount>
+  poolAuthorityWsolAccount?: Address<TAccountPoolAuthorityWsolAccount>
+  ammGlobalConfig?: Address<TAccountAmmGlobalConfig>
+  wsolMint?: Address<TAccountWsolMint>
+  lpMint?: Address<TAccountLpMint>
+  userPoolTokenAccount?: Address<TAccountUserPoolTokenAccount>
+  poolBaseTokenAccount?: Address<TAccountPoolBaseTokenAccount>
+  poolQuoteTokenAccount?: Address<TAccountPoolQuoteTokenAccount>
+  token2022Program?: Address<TAccountToken2022Program>
+  associatedTokenProgram?: Address<TAccountAssociatedTokenProgram>
+  pumpAmmEventAuthority?: Address<TAccountPumpAmmEventAuthority>
+  eventAuthority?: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+}
 
 export async function getMigrateInstructionAsync<
   TAccountGlobal extends string,
@@ -333,7 +302,7 @@ export async function getMigrateInstructionAsync<
   >
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -394,33 +363,26 @@ export async function getMigrateInstructionAsync<
     },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Resolve default values.
   if (!accounts.global.value) {
     accounts.global.value = await getProgramDerivedAddress({
       programAddress,
-      seeds: [
-        getBytesEncoder().encode(new Uint8Array([103, 108, 111, 98, 97, 108])),
-      ],
-    });
+      seeds: [getBytesEncoder().encode(new Uint8Array([103, 108, 111, 98, 97, 108]))],
+    })
   }
   if (!accounts.bondingCurve.value) {
     accounts.bondingCurve.value = await getProgramDerivedAddress({
       programAddress,
       seeds: [
         getBytesEncoder().encode(
-          new Uint8Array([
-            98, 111, 110, 100, 105, 110, 103, 45, 99, 117, 114, 118, 101,
-          ])
+          new Uint8Array([98, 111, 110, 100, 105, 110, 103, 45, 99, 117, 114, 118, 101])
         ),
         getAddressEncoder().encode(expectAddress(accounts.mint.value)),
       ],
-    });
+    })
   }
   if (!accounts.associatedBondingCurve.value) {
     accounts.associatedBondingCurve.value = await getProgramDerivedAddress({
@@ -430,43 +392,40 @@ export async function getMigrateInstructionAsync<
         getAddressEncoder().encode(expectAddress(accounts.bondingCurve.value)),
         getBytesEncoder().encode(
           new Uint8Array([
-            6, 221, 246, 225, 215, 101, 161, 147, 217, 203, 225, 70, 206, 235,
-            121, 172, 28, 180, 133, 237, 95, 91, 55, 145, 58, 140, 245, 133,
-            126, 255, 0, 169,
+            6, 221, 246, 225, 215, 101, 161, 147, 217, 203, 225, 70, 206, 235, 121, 172, 28, 180,
+            133, 237, 95, 91, 55, 145, 58, 140, 245, 133, 126, 255, 0, 169,
           ])
         ),
         getAddressEncoder().encode(expectAddress(accounts.mint.value)),
       ],
-    });
+    })
   }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
-      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
+      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>
   }
   if (!accounts.tokenProgram.value) {
     accounts.tokenProgram.value =
-      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>;
+      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>
   }
   if (!accounts.pumpAmm.value) {
     accounts.pumpAmm.value =
-      'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA' as Address<'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA'>;
+      'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA' as Address<'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA'>
   }
   if (!accounts.poolAuthority.value) {
     accounts.poolAuthority.value = await getProgramDerivedAddress({
       programAddress,
       seeds: [
         getBytesEncoder().encode(
-          new Uint8Array([
-            112, 111, 111, 108, 45, 97, 117, 116, 104, 111, 114, 105, 116, 121,
-          ])
+          new Uint8Array([112, 111, 111, 108, 45, 97, 117, 116, 104, 111, 114, 105, 116, 121])
         ),
         getAddressEncoder().encode(expectAddress(accounts.mint.value)),
       ],
-    });
+    })
   }
   if (!accounts.wsolMint.value) {
     accounts.wsolMint.value =
-      'So11111111111111111111111111111111111111112' as Address<'So11111111111111111111111111111111111111112'>;
+      'So11111111111111111111111111111111111111112' as Address<'So11111111111111111111111111111111111111112'>
   }
   if (!accounts.pool.value) {
     accounts.pool.value = await getProgramDerivedAddress({
@@ -479,7 +438,7 @@ export async function getMigrateInstructionAsync<
         getAddressEncoder().encode(expectAddress(accounts.mint.value)),
         getAddressEncoder().encode(expectAddress(accounts.wsolMint.value)),
       ],
-    });
+    })
   }
   if (!accounts.poolAuthorityMintAccount.value) {
     accounts.poolAuthorityMintAccount.value = await getProgramDerivedAddress({
@@ -490,7 +449,7 @@ export async function getMigrateInstructionAsync<
         getAddressEncoder().encode(expectAddress(accounts.tokenProgram.value)),
         getAddressEncoder().encode(expectAddress(accounts.mint.value)),
       ],
-    });
+    })
   }
   if (!accounts.poolAuthorityWsolAccount.value) {
     accounts.poolAuthorityWsolAccount.value = await getProgramDerivedAddress({
@@ -501,7 +460,7 @@ export async function getMigrateInstructionAsync<
         getAddressEncoder().encode(expectAddress(accounts.tokenProgram.value)),
         getAddressEncoder().encode(expectAddress(accounts.wsolMint.value)),
       ],
-    });
+    })
   }
   if (!accounts.ammGlobalConfig.value) {
     accounts.ammGlobalConfig.value = await getProgramDerivedAddress({
@@ -509,12 +468,10 @@ export async function getMigrateInstructionAsync<
         'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA' as Address<'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA'>,
       seeds: [
         getBytesEncoder().encode(
-          new Uint8Array([
-            103, 108, 111, 98, 97, 108, 95, 99, 111, 110, 102, 105, 103,
-          ])
+          new Uint8Array([103, 108, 111, 98, 97, 108, 95, 99, 111, 110, 102, 105, 103])
         ),
       ],
-    });
+    })
   }
   if (!accounts.lpMint.value) {
     accounts.lpMint.value = await getProgramDerivedAddress({
@@ -522,17 +479,15 @@ export async function getMigrateInstructionAsync<
         'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA' as Address<'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA'>,
       seeds: [
         getBytesEncoder().encode(
-          new Uint8Array([
-            112, 111, 111, 108, 95, 108, 112, 95, 109, 105, 110, 116,
-          ])
+          new Uint8Array([112, 111, 111, 108, 95, 108, 112, 95, 109, 105, 110, 116])
         ),
         getAddressEncoder().encode(expectAddress(accounts.pool.value)),
       ],
-    });
+    })
   }
   if (!accounts.token2022Program.value) {
     accounts.token2022Program.value =
-      'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb' as Address<'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'>;
+      'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb' as Address<'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'>
   }
   if (!accounts.userPoolTokenAccount.value) {
     accounts.userPoolTokenAccount.value = await getProgramDerivedAddress({
@@ -540,12 +495,10 @@ export async function getMigrateInstructionAsync<
         'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL' as Address<'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'>,
       seeds: [
         getAddressEncoder().encode(expectAddress(accounts.poolAuthority.value)),
-        getAddressEncoder().encode(
-          expectAddress(accounts.token2022Program.value)
-        ),
+        getAddressEncoder().encode(expectAddress(accounts.token2022Program.value)),
         getAddressEncoder().encode(expectAddress(accounts.lpMint.value)),
       ],
-    });
+    })
   }
   if (!accounts.poolBaseTokenAccount.value) {
     accounts.poolBaseTokenAccount.value = await getProgramDerivedAddress({
@@ -556,7 +509,7 @@ export async function getMigrateInstructionAsync<
         getAddressEncoder().encode(expectAddress(accounts.tokenProgram.value)),
         getAddressEncoder().encode(expectAddress(accounts.mint.value)),
       ],
-    });
+    })
   }
   if (!accounts.poolQuoteTokenAccount.value) {
     accounts.poolQuoteTokenAccount.value = await getProgramDerivedAddress({
@@ -567,11 +520,11 @@ export async function getMigrateInstructionAsync<
         getAddressEncoder().encode(expectAddress(accounts.tokenProgram.value)),
         getAddressEncoder().encode(expectAddress(accounts.wsolMint.value)),
       ],
-    });
+    })
   }
   if (!accounts.associatedTokenProgram.value) {
     accounts.associatedTokenProgram.value =
-      'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL' as Address<'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'>;
+      'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL' as Address<'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'>
   }
   if (!accounts.pumpAmmEventAuthority.value) {
     accounts.pumpAmmEventAuthority.value = await getProgramDerivedAddress({
@@ -580,12 +533,11 @@ export async function getMigrateInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114,
-            105, 116, 121,
+            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121,
           ])
         ),
       ],
-    });
+    })
   }
   if (!accounts.eventAuthority.value) {
     accounts.eventAuthority.value = await getProgramDerivedAddress({
@@ -593,15 +545,14 @@ export async function getMigrateInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114,
-            105, 116, 121,
+            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121,
           ])
         ),
       ],
-    });
+    })
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.global),
@@ -657,9 +608,9 @@ export async function getMigrateInstructionAsync<
     TAccountPumpAmmEventAuthority,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type MigrateInput<
@@ -688,31 +639,31 @@ export type MigrateInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  global: Address<TAccountGlobal>;
-  withdrawAuthority: Address<TAccountWithdrawAuthority>;
-  mint: Address<TAccountMint>;
-  bondingCurve: Address<TAccountBondingCurve>;
-  associatedBondingCurve: Address<TAccountAssociatedBondingCurve>;
-  user: TransactionSigner<TAccountUser>;
-  systemProgram?: Address<TAccountSystemProgram>;
-  tokenProgram?: Address<TAccountTokenProgram>;
-  pumpAmm?: Address<TAccountPumpAmm>;
-  pool: Address<TAccountPool>;
-  poolAuthority: Address<TAccountPoolAuthority>;
-  poolAuthorityMintAccount: Address<TAccountPoolAuthorityMintAccount>;
-  poolAuthorityWsolAccount: Address<TAccountPoolAuthorityWsolAccount>;
-  ammGlobalConfig: Address<TAccountAmmGlobalConfig>;
-  wsolMint?: Address<TAccountWsolMint>;
-  lpMint: Address<TAccountLpMint>;
-  userPoolTokenAccount: Address<TAccountUserPoolTokenAccount>;
-  poolBaseTokenAccount: Address<TAccountPoolBaseTokenAccount>;
-  poolQuoteTokenAccount: Address<TAccountPoolQuoteTokenAccount>;
-  token2022Program?: Address<TAccountToken2022Program>;
-  associatedTokenProgram?: Address<TAccountAssociatedTokenProgram>;
-  pumpAmmEventAuthority: Address<TAccountPumpAmmEventAuthority>;
-  eventAuthority: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-};
+  global: Address<TAccountGlobal>
+  withdrawAuthority: Address<TAccountWithdrawAuthority>
+  mint: Address<TAccountMint>
+  bondingCurve: Address<TAccountBondingCurve>
+  associatedBondingCurve: Address<TAccountAssociatedBondingCurve>
+  user: TransactionSigner<TAccountUser>
+  systemProgram?: Address<TAccountSystemProgram>
+  tokenProgram?: Address<TAccountTokenProgram>
+  pumpAmm?: Address<TAccountPumpAmm>
+  pool: Address<TAccountPool>
+  poolAuthority: Address<TAccountPoolAuthority>
+  poolAuthorityMintAccount: Address<TAccountPoolAuthorityMintAccount>
+  poolAuthorityWsolAccount: Address<TAccountPoolAuthorityWsolAccount>
+  ammGlobalConfig: Address<TAccountAmmGlobalConfig>
+  wsolMint?: Address<TAccountWsolMint>
+  lpMint: Address<TAccountLpMint>
+  userPoolTokenAccount: Address<TAccountUserPoolTokenAccount>
+  poolBaseTokenAccount: Address<TAccountPoolBaseTokenAccount>
+  poolQuoteTokenAccount: Address<TAccountPoolQuoteTokenAccount>
+  token2022Program?: Address<TAccountToken2022Program>
+  associatedTokenProgram?: Address<TAccountAssociatedTokenProgram>
+  pumpAmmEventAuthority: Address<TAccountPumpAmmEventAuthority>
+  eventAuthority: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+}
 
 export function getMigrateInstruction<
   TAccountGlobal extends string,
@@ -796,7 +747,7 @@ export function getMigrateInstruction<
   TAccountProgram
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -857,39 +808,36 @@ export function getMigrateInstruction<
     },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Resolve default values.
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
-      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
+      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>
   }
   if (!accounts.tokenProgram.value) {
     accounts.tokenProgram.value =
-      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>;
+      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>
   }
   if (!accounts.pumpAmm.value) {
     accounts.pumpAmm.value =
-      'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA' as Address<'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA'>;
+      'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA' as Address<'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA'>
   }
   if (!accounts.wsolMint.value) {
     accounts.wsolMint.value =
-      'So11111111111111111111111111111111111111112' as Address<'So11111111111111111111111111111111111111112'>;
+      'So11111111111111111111111111111111111111112' as Address<'So11111111111111111111111111111111111111112'>
   }
   if (!accounts.token2022Program.value) {
     accounts.token2022Program.value =
-      'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb' as Address<'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'>;
+      'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb' as Address<'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'>
   }
   if (!accounts.associatedTokenProgram.value) {
     accounts.associatedTokenProgram.value =
-      'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL' as Address<'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'>;
+      'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL' as Address<'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'>
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.global),
@@ -945,44 +893,44 @@ export function getMigrateInstruction<
     TAccountPumpAmmEventAuthority,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type ParsedMigrateInstruction<
   TProgram extends string = typeof PUMP_PROGRAM_ADDRESS,
   TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[],
 > = {
-  programAddress: Address<TProgram>;
+  programAddress: Address<TProgram>
   accounts: {
-    global: TAccountMetas[0];
-    withdrawAuthority: TAccountMetas[1];
-    mint: TAccountMetas[2];
-    bondingCurve: TAccountMetas[3];
-    associatedBondingCurve: TAccountMetas[4];
-    user: TAccountMetas[5];
-    systemProgram: TAccountMetas[6];
-    tokenProgram: TAccountMetas[7];
-    pumpAmm: TAccountMetas[8];
-    pool: TAccountMetas[9];
-    poolAuthority: TAccountMetas[10];
-    poolAuthorityMintAccount: TAccountMetas[11];
-    poolAuthorityWsolAccount: TAccountMetas[12];
-    ammGlobalConfig: TAccountMetas[13];
-    wsolMint: TAccountMetas[14];
-    lpMint: TAccountMetas[15];
-    userPoolTokenAccount: TAccountMetas[16];
-    poolBaseTokenAccount: TAccountMetas[17];
-    poolQuoteTokenAccount: TAccountMetas[18];
-    token2022Program: TAccountMetas[19];
-    associatedTokenProgram: TAccountMetas[20];
-    pumpAmmEventAuthority: TAccountMetas[21];
-    eventAuthority: TAccountMetas[22];
-    program: TAccountMetas[23];
-  };
-  data: MigrateInstructionData;
-};
+    global: TAccountMetas[0]
+    withdrawAuthority: TAccountMetas[1]
+    mint: TAccountMetas[2]
+    bondingCurve: TAccountMetas[3]
+    associatedBondingCurve: TAccountMetas[4]
+    user: TAccountMetas[5]
+    systemProgram: TAccountMetas[6]
+    tokenProgram: TAccountMetas[7]
+    pumpAmm: TAccountMetas[8]
+    pool: TAccountMetas[9]
+    poolAuthority: TAccountMetas[10]
+    poolAuthorityMintAccount: TAccountMetas[11]
+    poolAuthorityWsolAccount: TAccountMetas[12]
+    ammGlobalConfig: TAccountMetas[13]
+    wsolMint: TAccountMetas[14]
+    lpMint: TAccountMetas[15]
+    userPoolTokenAccount: TAccountMetas[16]
+    poolBaseTokenAccount: TAccountMetas[17]
+    poolQuoteTokenAccount: TAccountMetas[18]
+    token2022Program: TAccountMetas[19]
+    associatedTokenProgram: TAccountMetas[20]
+    pumpAmmEventAuthority: TAccountMetas[21]
+    eventAuthority: TAccountMetas[22]
+    program: TAccountMetas[23]
+  }
+  data: MigrateInstructionData
+}
 
 export function parseMigrateInstruction<
   TProgram extends string,
@@ -994,14 +942,14 @@ export function parseMigrateInstruction<
 ): ParsedMigrateInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 24) {
     // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new Error('Not enough accounts')
   }
-  let accountIndex = 0;
+  let accountIndex = 0
   const getNextAccount = () => {
-    const accountMeta = instruction.accounts![accountIndex]!;
-    accountIndex += 1;
-    return accountMeta;
-  };
+    const accountMeta = instruction.accounts![accountIndex]!
+    accountIndex += 1
+    return accountMeta
+  }
   return {
     programAddress: instruction.programAddress,
     accounts: {
@@ -1031,5 +979,5 @@ export function parseMigrateInstruction<
       program: getNextAccount(),
     },
     data: getMigrateInstructionDataDecoder().decode(instruction.data),
-  };
+  }
 }

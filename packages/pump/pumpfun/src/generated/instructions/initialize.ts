@@ -30,33 +30,27 @@ import {
   type TransactionSigner,
   type WritableAccount,
   type WritableSignerAccount,
-} from '@solana/kit';
-import { PUMP_PROGRAM_ADDRESS } from '../programs';
-import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
+} from '@solana/kit'
+import { PUMP_PROGRAM_ADDRESS } from '../programs'
+import { getAccountMetaFactory, type ResolvedAccount } from '../shared'
 
-export const INITIALIZE_DISCRIMINATOR = new Uint8Array([
-  175, 175, 109, 31, 13, 152, 155, 237,
-]);
+export const INITIALIZE_DISCRIMINATOR = new Uint8Array([175, 175, 109, 31, 13, 152, 155, 237])
 
 export function getInitializeDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(INITIALIZE_DISCRIMINATOR);
+  return fixEncoderSize(getBytesEncoder(), 8).encode(INITIALIZE_DISCRIMINATOR)
 }
 
 export type InitializeInstruction<
   TProgram extends string = typeof PUMP_PROGRAM_ADDRESS,
   TAccountGlobal extends string | AccountMeta<string> = string,
   TAccountUser extends string | AccountMeta<string> = string,
-  TAccountSystemProgram extends
-    | string
-    | AccountMeta<string> = '11111111111111111111111111111111',
+  TAccountSystemProgram extends string | AccountMeta<string> = '11111111111111111111111111111111',
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
   InstructionWithData<ReadonlyUint8Array> &
   InstructionWithAccounts<
     [
-      TAccountGlobal extends string
-        ? WritableAccount<TAccountGlobal>
-        : TAccountGlobal,
+      TAccountGlobal extends string ? WritableAccount<TAccountGlobal> : TAccountGlobal,
       TAccountUser extends string
         ? WritableSignerAccount<TAccountUser> & AccountSignerMeta<TAccountUser>
         : TAccountUser,
@@ -65,33 +59,28 @@ export type InitializeInstruction<
         : TAccountSystemProgram,
       ...TRemainingAccounts,
     ]
-  >;
+  >
 
-export type InitializeInstructionData = { discriminator: ReadonlyUint8Array };
+export type InitializeInstructionData = { discriminator: ReadonlyUint8Array }
 
-export type InitializeInstructionDataArgs = {};
+export type InitializeInstructionDataArgs = {}
 
 export function getInitializeInstructionDataEncoder(): FixedSizeEncoder<InitializeInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([['discriminator', fixEncoderSize(getBytesEncoder(), 8)]]),
-    (value) => ({ ...value, discriminator: INITIALIZE_DISCRIMINATOR })
-  );
+    value => ({ ...value, discriminator: INITIALIZE_DISCRIMINATOR })
+  )
 }
 
 export function getInitializeInstructionDataDecoder(): FixedSizeDecoder<InitializeInstructionData> {
-  return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
-  ]);
+  return getStructDecoder([['discriminator', fixDecoderSize(getBytesDecoder(), 8)]])
 }
 
 export function getInitializeInstructionDataCodec(): FixedSizeCodec<
   InitializeInstructionDataArgs,
   InitializeInstructionData
 > {
-  return combineCodec(
-    getInitializeInstructionDataEncoder(),
-    getInitializeInstructionDataDecoder()
-  );
+  return combineCodec(getInitializeInstructionDataEncoder(), getInitializeInstructionDataDecoder())
 }
 
 export type InitializeAsyncInput<
@@ -99,10 +88,10 @@ export type InitializeAsyncInput<
   TAccountUser extends string = string,
   TAccountSystemProgram extends string = string,
 > = {
-  global?: Address<TAccountGlobal>;
-  user: TransactionSigner<TAccountUser>;
-  systemProgram?: Address<TAccountSystemProgram>;
-};
+  global?: Address<TAccountGlobal>
+  user: TransactionSigner<TAccountUser>
+  systemProgram?: Address<TAccountSystemProgram>
+}
 
 export async function getInitializeInstructionAsync<
   TAccountGlobal extends string,
@@ -110,49 +99,35 @@ export async function getInitializeInstructionAsync<
   TAccountSystemProgram extends string,
   TProgramAddress extends Address = typeof PUMP_PROGRAM_ADDRESS,
 >(
-  input: InitializeAsyncInput<
-    TAccountGlobal,
-    TAccountUser,
-    TAccountSystemProgram
-  >,
+  input: InitializeAsyncInput<TAccountGlobal, TAccountUser, TAccountSystemProgram>,
   config?: { programAddress?: TProgramAddress }
 ): Promise<
-  InitializeInstruction<
-    TProgramAddress,
-    TAccountGlobal,
-    TAccountUser,
-    TAccountSystemProgram
-  >
+  InitializeInstruction<TProgramAddress, TAccountGlobal, TAccountUser, TAccountSystemProgram>
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
     global: { value: input.global ?? null, isWritable: true },
     user: { value: input.user ?? null, isWritable: true },
     systemProgram: { value: input.systemProgram ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Resolve default values.
   if (!accounts.global.value) {
     accounts.global.value = await getProgramDerivedAddress({
       programAddress,
-      seeds: [
-        getBytesEncoder().encode(new Uint8Array([103, 108, 111, 98, 97, 108])),
-      ],
-    });
+      seeds: [getBytesEncoder().encode(new Uint8Array([103, 108, 111, 98, 97, 108]))],
+    })
   }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
-      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
+      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.global),
@@ -161,14 +136,9 @@ export async function getInitializeInstructionAsync<
     ],
     programAddress,
     data: getInitializeInstructionDataEncoder().encode({}),
-  } as InitializeInstruction<
-    TProgramAddress,
-    TAccountGlobal,
-    TAccountUser,
-    TAccountSystemProgram
-  >;
+  } as InitializeInstruction<TProgramAddress, TAccountGlobal, TAccountUser, TAccountSystemProgram>
 
-  return instruction;
+  return instruction
 }
 
 export type InitializeInput<
@@ -176,10 +146,10 @@ export type InitializeInput<
   TAccountUser extends string = string,
   TAccountSystemProgram extends string = string,
 > = {
-  global: Address<TAccountGlobal>;
-  user: TransactionSigner<TAccountUser>;
-  systemProgram?: Address<TAccountSystemProgram>;
-};
+  global: Address<TAccountGlobal>
+  user: TransactionSigner<TAccountUser>
+  systemProgram?: Address<TAccountSystemProgram>
+}
 
 export function getInitializeInstruction<
   TAccountGlobal extends string,
@@ -189,33 +159,25 @@ export function getInitializeInstruction<
 >(
   input: InitializeInput<TAccountGlobal, TAccountUser, TAccountSystemProgram>,
   config?: { programAddress?: TProgramAddress }
-): InitializeInstruction<
-  TProgramAddress,
-  TAccountGlobal,
-  TAccountUser,
-  TAccountSystemProgram
-> {
+): InitializeInstruction<TProgramAddress, TAccountGlobal, TAccountUser, TAccountSystemProgram> {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
     global: { value: input.global ?? null, isWritable: true },
     user: { value: input.user ?? null, isWritable: true },
     systemProgram: { value: input.systemProgram ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Resolve default values.
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
-      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
+      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.global),
@@ -224,28 +186,23 @@ export function getInitializeInstruction<
     ],
     programAddress,
     data: getInitializeInstructionDataEncoder().encode({}),
-  } as InitializeInstruction<
-    TProgramAddress,
-    TAccountGlobal,
-    TAccountUser,
-    TAccountSystemProgram
-  >;
+  } as InitializeInstruction<TProgramAddress, TAccountGlobal, TAccountUser, TAccountSystemProgram>
 
-  return instruction;
+  return instruction
 }
 
 export type ParsedInitializeInstruction<
   TProgram extends string = typeof PUMP_PROGRAM_ADDRESS,
   TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[],
 > = {
-  programAddress: Address<TProgram>;
+  programAddress: Address<TProgram>
   accounts: {
-    global: TAccountMetas[0];
-    user: TAccountMetas[1];
-    systemProgram: TAccountMetas[2];
-  };
-  data: InitializeInstructionData;
-};
+    global: TAccountMetas[0]
+    user: TAccountMetas[1]
+    systemProgram: TAccountMetas[2]
+  }
+  data: InitializeInstructionData
+}
 
 export function parseInitializeInstruction<
   TProgram extends string,
@@ -257,14 +214,14 @@ export function parseInitializeInstruction<
 ): ParsedInitializeInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 3) {
     // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new Error('Not enough accounts')
   }
-  let accountIndex = 0;
+  let accountIndex = 0
   const getNextAccount = () => {
-    const accountMeta = instruction.accounts![accountIndex]!;
-    accountIndex += 1;
-    return accountMeta;
-  };
+    const accountMeta = instruction.accounts![accountIndex]!
+    accountIndex += 1
+    return accountMeta
+  }
   return {
     programAddress: instruction.programAddress,
     accounts: {
@@ -273,5 +230,5 @@ export function parseInitializeInstruction<
       systemProgram: getNextAccount(),
     },
     data: getInitializeInstructionDataDecoder().decode(instruction.data),
-  };
+  }
 }

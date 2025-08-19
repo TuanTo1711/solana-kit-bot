@@ -28,31 +28,23 @@ import {
   type ReadonlyAccount,
   type ReadonlyUint8Array,
   type WritableAccount,
-} from '@solana/kit';
-import { PUMP_PROGRAM_ADDRESS } from '../programs';
-import {
-  expectAddress,
-  getAccountMetaFactory,
-  type ResolvedAccount,
-} from '../shared';
+} from '@solana/kit'
+import { PUMP_PROGRAM_ADDRESS } from '../programs'
+import { expectAddress, getAccountMetaFactory, type ResolvedAccount } from '../shared'
 
 export const COLLECT_CREATOR_FEE_DISCRIMINATOR = new Uint8Array([
   20, 22, 86, 123, 198, 28, 219, 132,
-]);
+])
 
 export function getCollectCreatorFeeDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
-    COLLECT_CREATOR_FEE_DISCRIMINATOR
-  );
+  return fixEncoderSize(getBytesEncoder(), 8).encode(COLLECT_CREATOR_FEE_DISCRIMINATOR)
 }
 
 export type CollectCreatorFeeInstruction<
   TProgram extends string = typeof PUMP_PROGRAM_ADDRESS,
   TAccountCreator extends string | AccountMeta<string> = string,
   TAccountCreatorVault extends string | AccountMeta<string> = string,
-  TAccountSystemProgram extends
-    | string
-    | AccountMeta<string> = '11111111111111111111111111111111',
+  TAccountSystemProgram extends string | AccountMeta<string> = '11111111111111111111111111111111',
   TAccountEventAuthority extends string | AccountMeta<string> = string,
   TAccountProgram extends string | AccountMeta<string> = string,
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
@@ -60,9 +52,7 @@ export type CollectCreatorFeeInstruction<
   InstructionWithData<ReadonlyUint8Array> &
   InstructionWithAccounts<
     [
-      TAccountCreator extends string
-        ? WritableAccount<TAccountCreator>
-        : TAccountCreator,
+      TAccountCreator extends string ? WritableAccount<TAccountCreator> : TAccountCreator,
       TAccountCreatorVault extends string
         ? WritableAccount<TAccountCreatorVault>
         : TAccountCreatorVault,
@@ -72,30 +62,26 @@ export type CollectCreatorFeeInstruction<
       TAccountEventAuthority extends string
         ? ReadonlyAccount<TAccountEventAuthority>
         : TAccountEventAuthority,
-      TAccountProgram extends string
-        ? ReadonlyAccount<TAccountProgram>
-        : TAccountProgram,
+      TAccountProgram extends string ? ReadonlyAccount<TAccountProgram> : TAccountProgram,
       ...TRemainingAccounts,
     ]
-  >;
+  >
 
 export type CollectCreatorFeeInstructionData = {
-  discriminator: ReadonlyUint8Array;
-};
+  discriminator: ReadonlyUint8Array
+}
 
-export type CollectCreatorFeeInstructionDataArgs = {};
+export type CollectCreatorFeeInstructionDataArgs = {}
 
 export function getCollectCreatorFeeInstructionDataEncoder(): FixedSizeEncoder<CollectCreatorFeeInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([['discriminator', fixEncoderSize(getBytesEncoder(), 8)]]),
-    (value) => ({ ...value, discriminator: COLLECT_CREATOR_FEE_DISCRIMINATOR })
-  );
+    value => ({ ...value, discriminator: COLLECT_CREATOR_FEE_DISCRIMINATOR })
+  )
 }
 
 export function getCollectCreatorFeeInstructionDataDecoder(): FixedSizeDecoder<CollectCreatorFeeInstructionData> {
-  return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
-  ]);
+  return getStructDecoder([['discriminator', fixDecoderSize(getBytesDecoder(), 8)]])
 }
 
 export function getCollectCreatorFeeInstructionDataCodec(): FixedSizeCodec<
@@ -105,7 +91,7 @@ export function getCollectCreatorFeeInstructionDataCodec(): FixedSizeCodec<
   return combineCodec(
     getCollectCreatorFeeInstructionDataEncoder(),
     getCollectCreatorFeeInstructionDataDecoder()
-  );
+  )
 }
 
 export type CollectCreatorFeeAsyncInput<
@@ -115,12 +101,12 @@ export type CollectCreatorFeeAsyncInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  creator: Address<TAccountCreator>;
-  creatorVault?: Address<TAccountCreatorVault>;
-  systemProgram?: Address<TAccountSystemProgram>;
-  eventAuthority?: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-};
+  creator: Address<TAccountCreator>
+  creatorVault?: Address<TAccountCreatorVault>
+  systemProgram?: Address<TAccountSystemProgram>
+  eventAuthority?: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+}
 
 export async function getCollectCreatorFeeInstructionAsync<
   TAccountCreator extends string,
@@ -149,7 +135,7 @@ export async function getCollectCreatorFeeInstructionAsync<
   >
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -158,11 +144,8 @@ export async function getCollectCreatorFeeInstructionAsync<
     systemProgram: { value: input.systemProgram ?? null, isWritable: false },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Resolve default values.
   if (!accounts.creatorVault.value) {
@@ -170,17 +153,15 @@ export async function getCollectCreatorFeeInstructionAsync<
       programAddress,
       seeds: [
         getBytesEncoder().encode(
-          new Uint8Array([
-            99, 114, 101, 97, 116, 111, 114, 45, 118, 97, 117, 108, 116,
-          ])
+          new Uint8Array([99, 114, 101, 97, 116, 111, 114, 45, 118, 97, 117, 108, 116])
         ),
         getAddressEncoder().encode(expectAddress(accounts.creator.value)),
       ],
-    });
+    })
   }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
-      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
+      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>
   }
   if (!accounts.eventAuthority.value) {
     accounts.eventAuthority.value = await getProgramDerivedAddress({
@@ -188,15 +169,14 @@ export async function getCollectCreatorFeeInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114,
-            105, 116, 121,
+            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121,
           ])
         ),
       ],
-    });
+    })
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.creator),
@@ -214,9 +194,9 @@ export async function getCollectCreatorFeeInstructionAsync<
     TAccountSystemProgram,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type CollectCreatorFeeInput<
@@ -226,12 +206,12 @@ export type CollectCreatorFeeInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  creator: Address<TAccountCreator>;
-  creatorVault: Address<TAccountCreatorVault>;
-  systemProgram?: Address<TAccountSystemProgram>;
-  eventAuthority: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-};
+  creator: Address<TAccountCreator>
+  creatorVault: Address<TAccountCreatorVault>
+  systemProgram?: Address<TAccountSystemProgram>
+  eventAuthority: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+}
 
 export function getCollectCreatorFeeInstruction<
   TAccountCreator extends string,
@@ -258,7 +238,7 @@ export function getCollectCreatorFeeInstruction<
   TAccountProgram
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -267,19 +247,16 @@ export function getCollectCreatorFeeInstruction<
     systemProgram: { value: input.systemProgram ?? null, isWritable: false },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Resolve default values.
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
-      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
+      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.creator),
@@ -297,25 +274,25 @@ export function getCollectCreatorFeeInstruction<
     TAccountSystemProgram,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type ParsedCollectCreatorFeeInstruction<
   TProgram extends string = typeof PUMP_PROGRAM_ADDRESS,
   TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[],
 > = {
-  programAddress: Address<TProgram>;
+  programAddress: Address<TProgram>
   accounts: {
-    creator: TAccountMetas[0];
-    creatorVault: TAccountMetas[1];
-    systemProgram: TAccountMetas[2];
-    eventAuthority: TAccountMetas[3];
-    program: TAccountMetas[4];
-  };
-  data: CollectCreatorFeeInstructionData;
-};
+    creator: TAccountMetas[0]
+    creatorVault: TAccountMetas[1]
+    systemProgram: TAccountMetas[2]
+    eventAuthority: TAccountMetas[3]
+    program: TAccountMetas[4]
+  }
+  data: CollectCreatorFeeInstructionData
+}
 
 export function parseCollectCreatorFeeInstruction<
   TProgram extends string,
@@ -327,14 +304,14 @@ export function parseCollectCreatorFeeInstruction<
 ): ParsedCollectCreatorFeeInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 5) {
     // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new Error('Not enough accounts')
   }
-  let accountIndex = 0;
+  let accountIndex = 0
   const getNextAccount = () => {
-    const accountMeta = instruction.accounts![accountIndex]!;
-    accountIndex += 1;
-    return accountMeta;
-  };
+    const accountMeta = instruction.accounts![accountIndex]!
+    accountIndex += 1
+    return accountMeta
+  }
   return {
     programAddress: instruction.programAddress,
     accounts: {
@@ -345,5 +322,5 @@ export function parseCollectCreatorFeeInstruction<
       program: getNextAccount(),
     },
     data: getCollectCreatorFeeInstructionDataDecoder().decode(instruction.data),
-  };
+  }
 }

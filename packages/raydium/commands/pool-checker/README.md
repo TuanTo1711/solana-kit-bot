@@ -61,14 +61,14 @@ pnpm run pool-checker telegrambot
 
 ### 2. Các lệnh Telegram Bot
 
-| Lệnh | Mô tả | Ví dụ |
-|------|-------|-------|
-| `/start` | Khởi động bot | `/start` |
-| `/help` | Hiển thị trợ giúp | `/help` |
-| `/add` | Thêm pool mới | `/add <pool_address>` |
-| `/list` | Xem danh sách pools | `/list` |
-| `/stats` | Xem thống kê | `/stats` |
-| `/search` | Tìm kiếm pool | `/search <keyword>` |
+| Lệnh      | Mô tả               | Ví dụ                 |
+| --------- | ------------------- | --------------------- |
+| `/start`  | Khởi động bot       | `/start`              |
+| `/help`   | Hiển thị trợ giúp   | `/help`               |
+| `/add`    | Thêm pool mới       | `/add <pool_address>` |
+| `/list`   | Xem danh sách pools | `/list`               |
+| `/stats`  | Xem thống kê        | `/stats`              |
+| `/search` | Tìm kiếm pool       | `/search <keyword>`   |
 
 ### 3. Sử dụng trong Code
 
@@ -91,7 +91,7 @@ const newPool = await poolRepo.create({
   lpMint: 'lp_mint',
   configAddress: 'config_address',
   observationKey: 'observation_key',
-  isActive: true
+  isActive: true,
 })
 
 // Tìm pool theo địa chỉ
@@ -100,7 +100,7 @@ const pool = await poolRepo.findByAddress('pool_address_here')
 // Lấy tất cả pools
 const allPools = await poolRepo.findAll({
   where: { isActive: true },
-  orderBy: { address: 'asc' }
+  orderBy: { address: 'asc' },
 })
 ```
 

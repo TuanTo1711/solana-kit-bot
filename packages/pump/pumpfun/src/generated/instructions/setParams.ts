@@ -36,16 +36,14 @@ import {
   type TransactionSigner,
   type WritableAccount,
   type WritableSignerAccount,
-} from '@solana/kit';
-import { PUMP_PROGRAM_ADDRESS } from '../programs';
-import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
+} from '@solana/kit'
+import { PUMP_PROGRAM_ADDRESS } from '../programs'
+import { getAccountMetaFactory, type ResolvedAccount } from '../shared'
 
-export const SET_PARAMS_DISCRIMINATOR = new Uint8Array([
-  27, 234, 178, 52, 147, 2, 187, 141,
-]);
+export const SET_PARAMS_DISCRIMINATOR = new Uint8Array([27, 234, 178, 52, 147, 2, 187, 141])
 
 export function getSetParamsDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(SET_PARAMS_DISCRIMINATOR);
+  return fixEncoderSize(getBytesEncoder(), 8).encode(SET_PARAMS_DISCRIMINATOR)
 }
 
 export type SetParamsInstruction<
@@ -59,51 +57,46 @@ export type SetParamsInstruction<
   InstructionWithData<ReadonlyUint8Array> &
   InstructionWithAccounts<
     [
-      TAccountGlobal extends string
-        ? WritableAccount<TAccountGlobal>
-        : TAccountGlobal,
+      TAccountGlobal extends string ? WritableAccount<TAccountGlobal> : TAccountGlobal,
       TAccountAuthority extends string
-        ? WritableSignerAccount<TAccountAuthority> &
-            AccountSignerMeta<TAccountAuthority>
+        ? WritableSignerAccount<TAccountAuthority> & AccountSignerMeta<TAccountAuthority>
         : TAccountAuthority,
       TAccountEventAuthority extends string
         ? ReadonlyAccount<TAccountEventAuthority>
         : TAccountEventAuthority,
-      TAccountProgram extends string
-        ? ReadonlyAccount<TAccountProgram>
-        : TAccountProgram,
+      TAccountProgram extends string ? ReadonlyAccount<TAccountProgram> : TAccountProgram,
       ...TRemainingAccounts,
     ]
-  >;
+  >
 
 export type SetParamsInstructionData = {
-  discriminator: ReadonlyUint8Array;
-  initialVirtualTokenReserves: bigint;
-  initialVirtualSolReserves: bigint;
-  initialRealTokenReserves: bigint;
-  tokenTotalSupply: bigint;
-  feeBasisPoints: bigint;
-  withdrawAuthority: Address;
-  enableMigrate: boolean;
-  poolMigrationFee: bigint;
-  creatorFeeBasisPoints: bigint;
-  setCreatorAuthority: Address;
-  adminSetCreatorAuthority: Address;
-};
+  discriminator: ReadonlyUint8Array
+  initialVirtualTokenReserves: bigint
+  initialVirtualSolReserves: bigint
+  initialRealTokenReserves: bigint
+  tokenTotalSupply: bigint
+  feeBasisPoints: bigint
+  withdrawAuthority: Address
+  enableMigrate: boolean
+  poolMigrationFee: bigint
+  creatorFeeBasisPoints: bigint
+  setCreatorAuthority: Address
+  adminSetCreatorAuthority: Address
+}
 
 export type SetParamsInstructionDataArgs = {
-  initialVirtualTokenReserves: number | bigint;
-  initialVirtualSolReserves: number | bigint;
-  initialRealTokenReserves: number | bigint;
-  tokenTotalSupply: number | bigint;
-  feeBasisPoints: number | bigint;
-  withdrawAuthority: Address;
-  enableMigrate: boolean;
-  poolMigrationFee: number | bigint;
-  creatorFeeBasisPoints: number | bigint;
-  setCreatorAuthority: Address;
-  adminSetCreatorAuthority: Address;
-};
+  initialVirtualTokenReserves: number | bigint
+  initialVirtualSolReserves: number | bigint
+  initialRealTokenReserves: number | bigint
+  tokenTotalSupply: number | bigint
+  feeBasisPoints: number | bigint
+  withdrawAuthority: Address
+  enableMigrate: boolean
+  poolMigrationFee: number | bigint
+  creatorFeeBasisPoints: number | bigint
+  setCreatorAuthority: Address
+  adminSetCreatorAuthority: Address
+}
 
 export function getSetParamsInstructionDataEncoder(): FixedSizeEncoder<SetParamsInstructionDataArgs> {
   return transformEncoder(
@@ -121,8 +114,8 @@ export function getSetParamsInstructionDataEncoder(): FixedSizeEncoder<SetParams
       ['setCreatorAuthority', getAddressEncoder()],
       ['adminSetCreatorAuthority', getAddressEncoder()],
     ]),
-    (value) => ({ ...value, discriminator: SET_PARAMS_DISCRIMINATOR })
-  );
+    value => ({ ...value, discriminator: SET_PARAMS_DISCRIMINATOR })
+  )
 }
 
 export function getSetParamsInstructionDataDecoder(): FixedSizeDecoder<SetParamsInstructionData> {
@@ -139,17 +132,14 @@ export function getSetParamsInstructionDataDecoder(): FixedSizeDecoder<SetParams
     ['creatorFeeBasisPoints', getU64Decoder()],
     ['setCreatorAuthority', getAddressDecoder()],
     ['adminSetCreatorAuthority', getAddressDecoder()],
-  ]);
+  ])
 }
 
 export function getSetParamsInstructionDataCodec(): FixedSizeCodec<
   SetParamsInstructionDataArgs,
   SetParamsInstructionData
 > {
-  return combineCodec(
-    getSetParamsInstructionDataEncoder(),
-    getSetParamsInstructionDataDecoder()
-  );
+  return combineCodec(getSetParamsInstructionDataEncoder(), getSetParamsInstructionDataDecoder())
 }
 
 export type SetParamsAsyncInput<
@@ -158,22 +148,22 @@ export type SetParamsAsyncInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  global?: Address<TAccountGlobal>;
-  authority: TransactionSigner<TAccountAuthority>;
-  eventAuthority?: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-  initialVirtualTokenReserves: SetParamsInstructionDataArgs['initialVirtualTokenReserves'];
-  initialVirtualSolReserves: SetParamsInstructionDataArgs['initialVirtualSolReserves'];
-  initialRealTokenReserves: SetParamsInstructionDataArgs['initialRealTokenReserves'];
-  tokenTotalSupply: SetParamsInstructionDataArgs['tokenTotalSupply'];
-  feeBasisPoints: SetParamsInstructionDataArgs['feeBasisPoints'];
-  withdrawAuthority: SetParamsInstructionDataArgs['withdrawAuthority'];
-  enableMigrate: SetParamsInstructionDataArgs['enableMigrate'];
-  poolMigrationFee: SetParamsInstructionDataArgs['poolMigrationFee'];
-  creatorFeeBasisPoints: SetParamsInstructionDataArgs['creatorFeeBasisPoints'];
-  setCreatorAuthority: SetParamsInstructionDataArgs['setCreatorAuthority'];
-  adminSetCreatorAuthority: SetParamsInstructionDataArgs['adminSetCreatorAuthority'];
-};
+  global?: Address<TAccountGlobal>
+  authority: TransactionSigner<TAccountAuthority>
+  eventAuthority?: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+  initialVirtualTokenReserves: SetParamsInstructionDataArgs['initialVirtualTokenReserves']
+  initialVirtualSolReserves: SetParamsInstructionDataArgs['initialVirtualSolReserves']
+  initialRealTokenReserves: SetParamsInstructionDataArgs['initialRealTokenReserves']
+  tokenTotalSupply: SetParamsInstructionDataArgs['tokenTotalSupply']
+  feeBasisPoints: SetParamsInstructionDataArgs['feeBasisPoints']
+  withdrawAuthority: SetParamsInstructionDataArgs['withdrawAuthority']
+  enableMigrate: SetParamsInstructionDataArgs['enableMigrate']
+  poolMigrationFee: SetParamsInstructionDataArgs['poolMigrationFee']
+  creatorFeeBasisPoints: SetParamsInstructionDataArgs['creatorFeeBasisPoints']
+  setCreatorAuthority: SetParamsInstructionDataArgs['setCreatorAuthority']
+  adminSetCreatorAuthority: SetParamsInstructionDataArgs['adminSetCreatorAuthority']
+}
 
 export async function getSetParamsInstructionAsync<
   TAccountGlobal extends string,
@@ -199,7 +189,7 @@ export async function getSetParamsInstructionAsync<
   >
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -207,23 +197,18 @@ export async function getSetParamsInstructionAsync<
     authority: { value: input.authority ?? null, isWritable: true },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Original args.
-  const args = { ...input };
+  const args = { ...input }
 
   // Resolve default values.
   if (!accounts.global.value) {
     accounts.global.value = await getProgramDerivedAddress({
       programAddress,
-      seeds: [
-        getBytesEncoder().encode(new Uint8Array([103, 108, 111, 98, 97, 108])),
-      ],
-    });
+      seeds: [getBytesEncoder().encode(new Uint8Array([103, 108, 111, 98, 97, 108]))],
+    })
   }
   if (!accounts.eventAuthority.value) {
     accounts.eventAuthority.value = await getProgramDerivedAddress({
@@ -231,15 +216,14 @@ export async function getSetParamsInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114,
-            105, 116, 121,
+            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121,
           ])
         ),
       ],
-    });
+    })
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.global),
@@ -248,18 +232,16 @@ export async function getSetParamsInstructionAsync<
       getAccountMeta(accounts.program),
     ],
     programAddress,
-    data: getSetParamsInstructionDataEncoder().encode(
-      args as SetParamsInstructionDataArgs
-    ),
+    data: getSetParamsInstructionDataEncoder().encode(args as SetParamsInstructionDataArgs),
   } as SetParamsInstruction<
     TProgramAddress,
     TAccountGlobal,
     TAccountAuthority,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type SetParamsInput<
@@ -268,22 +250,22 @@ export type SetParamsInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  global: Address<TAccountGlobal>;
-  authority: TransactionSigner<TAccountAuthority>;
-  eventAuthority: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-  initialVirtualTokenReserves: SetParamsInstructionDataArgs['initialVirtualTokenReserves'];
-  initialVirtualSolReserves: SetParamsInstructionDataArgs['initialVirtualSolReserves'];
-  initialRealTokenReserves: SetParamsInstructionDataArgs['initialRealTokenReserves'];
-  tokenTotalSupply: SetParamsInstructionDataArgs['tokenTotalSupply'];
-  feeBasisPoints: SetParamsInstructionDataArgs['feeBasisPoints'];
-  withdrawAuthority: SetParamsInstructionDataArgs['withdrawAuthority'];
-  enableMigrate: SetParamsInstructionDataArgs['enableMigrate'];
-  poolMigrationFee: SetParamsInstructionDataArgs['poolMigrationFee'];
-  creatorFeeBasisPoints: SetParamsInstructionDataArgs['creatorFeeBasisPoints'];
-  setCreatorAuthority: SetParamsInstructionDataArgs['setCreatorAuthority'];
-  adminSetCreatorAuthority: SetParamsInstructionDataArgs['adminSetCreatorAuthority'];
-};
+  global: Address<TAccountGlobal>
+  authority: TransactionSigner<TAccountAuthority>
+  eventAuthority: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+  initialVirtualTokenReserves: SetParamsInstructionDataArgs['initialVirtualTokenReserves']
+  initialVirtualSolReserves: SetParamsInstructionDataArgs['initialVirtualSolReserves']
+  initialRealTokenReserves: SetParamsInstructionDataArgs['initialRealTokenReserves']
+  tokenTotalSupply: SetParamsInstructionDataArgs['tokenTotalSupply']
+  feeBasisPoints: SetParamsInstructionDataArgs['feeBasisPoints']
+  withdrawAuthority: SetParamsInstructionDataArgs['withdrawAuthority']
+  enableMigrate: SetParamsInstructionDataArgs['enableMigrate']
+  poolMigrationFee: SetParamsInstructionDataArgs['poolMigrationFee']
+  creatorFeeBasisPoints: SetParamsInstructionDataArgs['creatorFeeBasisPoints']
+  setCreatorAuthority: SetParamsInstructionDataArgs['setCreatorAuthority']
+  adminSetCreatorAuthority: SetParamsInstructionDataArgs['adminSetCreatorAuthority']
+}
 
 export function getSetParamsInstruction<
   TAccountGlobal extends string,
@@ -292,12 +274,7 @@ export function getSetParamsInstruction<
   TAccountProgram extends string,
   TProgramAddress extends Address = typeof PUMP_PROGRAM_ADDRESS,
 >(
-  input: SetParamsInput<
-    TAccountGlobal,
-    TAccountAuthority,
-    TAccountEventAuthority,
-    TAccountProgram
-  >,
+  input: SetParamsInput<TAccountGlobal, TAccountAuthority, TAccountEventAuthority, TAccountProgram>,
   config?: { programAddress?: TProgramAddress }
 ): SetParamsInstruction<
   TProgramAddress,
@@ -307,7 +284,7 @@ export function getSetParamsInstruction<
   TAccountProgram
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -315,16 +292,13 @@ export function getSetParamsInstruction<
     authority: { value: input.authority ?? null, isWritable: true },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Original args.
-  const args = { ...input };
+  const args = { ...input }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.global),
@@ -333,33 +307,31 @@ export function getSetParamsInstruction<
       getAccountMeta(accounts.program),
     ],
     programAddress,
-    data: getSetParamsInstructionDataEncoder().encode(
-      args as SetParamsInstructionDataArgs
-    ),
+    data: getSetParamsInstructionDataEncoder().encode(args as SetParamsInstructionDataArgs),
   } as SetParamsInstruction<
     TProgramAddress,
     TAccountGlobal,
     TAccountAuthority,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type ParsedSetParamsInstruction<
   TProgram extends string = typeof PUMP_PROGRAM_ADDRESS,
   TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[],
 > = {
-  programAddress: Address<TProgram>;
+  programAddress: Address<TProgram>
   accounts: {
-    global: TAccountMetas[0];
-    authority: TAccountMetas[1];
-    eventAuthority: TAccountMetas[2];
-    program: TAccountMetas[3];
-  };
-  data: SetParamsInstructionData;
-};
+    global: TAccountMetas[0]
+    authority: TAccountMetas[1]
+    eventAuthority: TAccountMetas[2]
+    program: TAccountMetas[3]
+  }
+  data: SetParamsInstructionData
+}
 
 export function parseSetParamsInstruction<
   TProgram extends string,
@@ -371,14 +343,14 @@ export function parseSetParamsInstruction<
 ): ParsedSetParamsInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 4) {
     // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new Error('Not enough accounts')
   }
-  let accountIndex = 0;
+  let accountIndex = 0
   const getNextAccount = () => {
-    const accountMeta = instruction.accounts![accountIndex]!;
-    accountIndex += 1;
-    return accountMeta;
-  };
+    const accountMeta = instruction.accounts![accountIndex]!
+    accountIndex += 1
+    return accountMeta
+  }
   return {
     programAddress: instruction.programAddress,
     accounts: {
@@ -388,5 +360,5 @@ export function parseSetParamsInstruction<
       program: getNextAccount(),
     },
     data: getSetParamsInstructionDataDecoder().decode(instruction.data),
-  };
+  }
 }

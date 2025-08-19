@@ -39,26 +39,22 @@ import {
   type MaybeAccount,
   type MaybeEncodedAccount,
   type ReadonlyUint8Array,
-} from '@solana/kit';
+} from '@solana/kit'
 
-export const GLOBAL_CONFIG_DISCRIMINATOR = new Uint8Array([
-  149, 8, 156, 202, 160, 252, 176, 217,
-]);
+export const GLOBAL_CONFIG_DISCRIMINATOR = new Uint8Array([149, 8, 156, 202, 160, 252, 176, 217])
 
 export function getGlobalConfigDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
-    GLOBAL_CONFIG_DISCRIMINATOR
-  );
+  return fixEncoderSize(getBytesEncoder(), 8).encode(GLOBAL_CONFIG_DISCRIMINATOR)
 }
 
 export type GlobalConfig = {
-  discriminator: ReadonlyUint8Array;
+  discriminator: ReadonlyUint8Array
   /** The admin pubkey */
-  admin: Address;
+  admin: Address
   /** The lp fee in basis points (0.01%) */
-  lpFeeBasisPoints: bigint;
+  lpFeeBasisPoints: bigint
   /** The protocol fee in basis points (0.01%) */
-  protocolFeeBasisPoints: bigint;
+  protocolFeeBasisPoints: bigint
   /**
    * Flags to disable certain functionality
    * bit 0 - Disable create pool
@@ -67,22 +63,22 @@ export type GlobalConfig = {
    * bit 3 - Disable buy
    * bit 4 - Disable sell
    */
-  disableFlags: number;
+  disableFlags: number
   /** Addresses of the protocol fee recipients */
-  protocolFeeRecipients: Array<Address>;
+  protocolFeeRecipients: Array<Address>
   /** The coin creator fee in basis points (0.01%) */
-  coinCreatorFeeBasisPoints: bigint;
+  coinCreatorFeeBasisPoints: bigint
   /** The admin authority for setting coin creators */
-  adminSetCoinCreatorAuthority: Address;
-};
+  adminSetCoinCreatorAuthority: Address
+}
 
 export type GlobalConfigArgs = {
   /** The admin pubkey */
-  admin: Address;
+  admin: Address
   /** The lp fee in basis points (0.01%) */
-  lpFeeBasisPoints: number | bigint;
+  lpFeeBasisPoints: number | bigint
   /** The protocol fee in basis points (0.01%) */
-  protocolFeeBasisPoints: number | bigint;
+  protocolFeeBasisPoints: number | bigint
   /**
    * Flags to disable certain functionality
    * bit 0 - Disable create pool
@@ -91,14 +87,14 @@ export type GlobalConfigArgs = {
    * bit 3 - Disable buy
    * bit 4 - Disable sell
    */
-  disableFlags: number;
+  disableFlags: number
   /** Addresses of the protocol fee recipients */
-  protocolFeeRecipients: Array<Address>;
+  protocolFeeRecipients: Array<Address>
   /** The coin creator fee in basis points (0.01%) */
-  coinCreatorFeeBasisPoints: number | bigint;
+  coinCreatorFeeBasisPoints: number | bigint
   /** The admin authority for setting coin creators */
-  adminSetCoinCreatorAuthority: Address;
-};
+  adminSetCoinCreatorAuthority: Address
+}
 
 export function getGlobalConfigEncoder(): FixedSizeEncoder<GlobalConfigArgs> {
   return transformEncoder(
@@ -108,15 +104,12 @@ export function getGlobalConfigEncoder(): FixedSizeEncoder<GlobalConfigArgs> {
       ['lpFeeBasisPoints', getU64Encoder()],
       ['protocolFeeBasisPoints', getU64Encoder()],
       ['disableFlags', getU8Encoder()],
-      [
-        'protocolFeeRecipients',
-        getArrayEncoder(getAddressEncoder(), { size: 8 }),
-      ],
+      ['protocolFeeRecipients', getArrayEncoder(getAddressEncoder(), { size: 8 })],
       ['coinCreatorFeeBasisPoints', getU64Encoder()],
       ['adminSetCoinCreatorAuthority', getAddressEncoder()],
     ]),
-    (value) => ({ ...value, discriminator: GLOBAL_CONFIG_DISCRIMINATOR })
-  );
+    value => ({ ...value, discriminator: GLOBAL_CONFIG_DISCRIMINATOR })
+  )
 }
 
 export function getGlobalConfigDecoder(): FixedSizeDecoder<GlobalConfig> {
@@ -126,35 +119,26 @@ export function getGlobalConfigDecoder(): FixedSizeDecoder<GlobalConfig> {
     ['lpFeeBasisPoints', getU64Decoder()],
     ['protocolFeeBasisPoints', getU64Decoder()],
     ['disableFlags', getU8Decoder()],
-    [
-      'protocolFeeRecipients',
-      getArrayDecoder(getAddressDecoder(), { size: 8 }),
-    ],
+    ['protocolFeeRecipients', getArrayDecoder(getAddressDecoder(), { size: 8 })],
     ['coinCreatorFeeBasisPoints', getU64Decoder()],
     ['adminSetCoinCreatorAuthority', getAddressDecoder()],
-  ]);
+  ])
 }
 
-export function getGlobalConfigCodec(): FixedSizeCodec<
-  GlobalConfigArgs,
-  GlobalConfig
-> {
-  return combineCodec(getGlobalConfigEncoder(), getGlobalConfigDecoder());
+export function getGlobalConfigCodec(): FixedSizeCodec<GlobalConfigArgs, GlobalConfig> {
+  return combineCodec(getGlobalConfigEncoder(), getGlobalConfigDecoder())
 }
 
 export function decodeGlobalConfig<TAddress extends string = string>(
   encodedAccount: EncodedAccount<TAddress>
-): Account<GlobalConfig, TAddress>;
+): Account<GlobalConfig, TAddress>
 export function decodeGlobalConfig<TAddress extends string = string>(
   encodedAccount: MaybeEncodedAccount<TAddress>
-): MaybeAccount<GlobalConfig, TAddress>;
+): MaybeAccount<GlobalConfig, TAddress>
 export function decodeGlobalConfig<TAddress extends string = string>(
   encodedAccount: EncodedAccount<TAddress> | MaybeEncodedAccount<TAddress>
 ): Account<GlobalConfig, TAddress> | MaybeAccount<GlobalConfig, TAddress> {
-  return decodeAccount(
-    encodedAccount as MaybeEncodedAccount<TAddress>,
-    getGlobalConfigDecoder()
-  );
+  return decodeAccount(encodedAccount as MaybeEncodedAccount<TAddress>, getGlobalConfigDecoder())
 }
 
 export async function fetchGlobalConfig<TAddress extends string = string>(
@@ -162,9 +146,9 @@ export async function fetchGlobalConfig<TAddress extends string = string>(
   address: Address<TAddress>,
   config?: FetchAccountConfig
 ): Promise<Account<GlobalConfig, TAddress>> {
-  const maybeAccount = await fetchMaybeGlobalConfig(rpc, address, config);
-  assertAccountExists(maybeAccount);
-  return maybeAccount;
+  const maybeAccount = await fetchMaybeGlobalConfig(rpc, address, config)
+  assertAccountExists(maybeAccount)
+  return maybeAccount
 }
 
 export async function fetchMaybeGlobalConfig<TAddress extends string = string>(
@@ -172,8 +156,8 @@ export async function fetchMaybeGlobalConfig<TAddress extends string = string>(
   address: Address<TAddress>,
   config?: FetchAccountConfig
 ): Promise<MaybeAccount<GlobalConfig, TAddress>> {
-  const maybeAccount = await fetchEncodedAccount(rpc, address, config);
-  return decodeGlobalConfig(maybeAccount);
+  const maybeAccount = await fetchEncodedAccount(rpc, address, config)
+  return decodeGlobalConfig(maybeAccount)
 }
 
 export async function fetchAllGlobalConfig(
@@ -181,9 +165,9 @@ export async function fetchAllGlobalConfig(
   addresses: Array<Address>,
   config?: FetchAccountsConfig
 ): Promise<Account<GlobalConfig>[]> {
-  const maybeAccounts = await fetchAllMaybeGlobalConfig(rpc, addresses, config);
-  assertAccountsExist(maybeAccounts);
-  return maybeAccounts;
+  const maybeAccounts = await fetchAllMaybeGlobalConfig(rpc, addresses, config)
+  assertAccountsExist(maybeAccounts)
+  return maybeAccounts
 }
 
 export async function fetchAllMaybeGlobalConfig(
@@ -191,10 +175,10 @@ export async function fetchAllMaybeGlobalConfig(
   addresses: Array<Address>,
   config?: FetchAccountsConfig
 ): Promise<MaybeAccount<GlobalConfig>[]> {
-  const maybeAccounts = await fetchEncodedAccounts(rpc, addresses, config);
-  return maybeAccounts.map((maybeAccount) => decodeGlobalConfig(maybeAccount));
+  const maybeAccounts = await fetchEncodedAccounts(rpc, addresses, config)
+  return maybeAccounts.map(maybeAccount => decodeGlobalConfig(maybeAccount))
 }
 
 export function getGlobalConfigSize(): number {
-  return 353;
+  return 353
 }

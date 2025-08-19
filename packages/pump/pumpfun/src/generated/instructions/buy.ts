@@ -33,20 +33,14 @@ import {
   type TransactionSigner,
   type WritableAccount,
   type WritableSignerAccount,
-} from '@solana/kit';
-import { PUMP_PROGRAM_ADDRESS } from '../programs';
-import {
-  expectAddress,
-  getAccountMetaFactory,
-  type ResolvedAccount,
-} from '../shared';
+} from '@solana/kit'
+import { PUMP_PROGRAM_ADDRESS } from '../programs'
+import { expectAddress, getAccountMetaFactory, type ResolvedAccount } from '../shared'
 
-export const BUY_DISCRIMINATOR = new Uint8Array([
-  102, 6, 61, 18, 1, 218, 235, 234,
-]);
+export const BUY_DISCRIMINATOR = new Uint8Array([102, 6, 61, 18, 1, 218, 235, 234])
 
 export function getBuyDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(BUY_DISCRIMINATOR);
+  return fixEncoderSize(getBytesEncoder(), 8).encode(BUY_DISCRIMINATOR)
 }
 
 export type BuyInstruction<
@@ -58,9 +52,7 @@ export type BuyInstruction<
   TAccountAssociatedBondingCurve extends string | AccountMeta<string> = string,
   TAccountAssociatedUser extends string | AccountMeta<string> = string,
   TAccountUser extends string | AccountMeta<string> = string,
-  TAccountSystemProgram extends
-    | string
-    | AccountMeta<string> = '11111111111111111111111111111111',
+  TAccountSystemProgram extends string | AccountMeta<string> = '11111111111111111111111111111111',
   TAccountTokenProgram extends
     | string
     | AccountMeta<string> = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
@@ -75,15 +67,11 @@ export type BuyInstruction<
   InstructionWithData<ReadonlyUint8Array> &
   InstructionWithAccounts<
     [
-      TAccountGlobal extends string
-        ? ReadonlyAccount<TAccountGlobal>
-        : TAccountGlobal,
+      TAccountGlobal extends string ? ReadonlyAccount<TAccountGlobal> : TAccountGlobal,
       TAccountFeeRecipient extends string
         ? WritableAccount<TAccountFeeRecipient>
         : TAccountFeeRecipient,
-      TAccountMint extends string
-        ? ReadonlyAccount<TAccountMint>
-        : TAccountMint,
+      TAccountMint extends string ? ReadonlyAccount<TAccountMint> : TAccountMint,
       TAccountBondingCurve extends string
         ? WritableAccount<TAccountBondingCurve>
         : TAccountBondingCurve,
@@ -108,9 +96,7 @@ export type BuyInstruction<
       TAccountEventAuthority extends string
         ? ReadonlyAccount<TAccountEventAuthority>
         : TAccountEventAuthority,
-      TAccountProgram extends string
-        ? ReadonlyAccount<TAccountProgram>
-        : TAccountProgram,
+      TAccountProgram extends string ? ReadonlyAccount<TAccountProgram> : TAccountProgram,
       TAccountGlobalVolumeAccumulator extends string
         ? WritableAccount<TAccountGlobalVolumeAccumulator>
         : TAccountGlobalVolumeAccumulator,
@@ -118,23 +104,22 @@ export type BuyInstruction<
         ? WritableAccount<TAccountUserVolumeAccumulator>
         : TAccountUserVolumeAccumulator,
       TAccountUserAccTarget extends string
-        ? WritableSignerAccount<TAccountUserAccTarget> &
-            AccountSignerMeta<TAccountUserAccTarget>
+        ? WritableSignerAccount<TAccountUserAccTarget> & AccountSignerMeta<TAccountUserAccTarget>
         : TAccountUserAccTarget,
       ...TRemainingAccounts,
     ]
-  >;
+  >
 
 export type BuyInstructionData = {
-  discriminator: ReadonlyUint8Array;
-  amount: bigint;
-  maxSolCost: bigint;
-};
+  discriminator: ReadonlyUint8Array
+  amount: bigint
+  maxSolCost: bigint
+}
 
 export type BuyInstructionDataArgs = {
-  amount: number | bigint;
-  maxSolCost: number | bigint;
-};
+  amount: number | bigint
+  maxSolCost: number | bigint
+}
 
 export function getBuyInstructionDataEncoder(): FixedSizeEncoder<BuyInstructionDataArgs> {
   return transformEncoder(
@@ -143,8 +128,8 @@ export function getBuyInstructionDataEncoder(): FixedSizeEncoder<BuyInstructionD
       ['amount', getU64Encoder()],
       ['maxSolCost', getU64Encoder()],
     ]),
-    (value) => ({ ...value, discriminator: BUY_DISCRIMINATOR })
-  );
+    value => ({ ...value, discriminator: BUY_DISCRIMINATOR })
+  )
 }
 
 export function getBuyInstructionDataDecoder(): FixedSizeDecoder<BuyInstructionData> {
@@ -152,17 +137,14 @@ export function getBuyInstructionDataDecoder(): FixedSizeDecoder<BuyInstructionD
     ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
     ['amount', getU64Decoder()],
     ['maxSolCost', getU64Decoder()],
-  ]);
+  ])
 }
 
 export function getBuyInstructionDataCodec(): FixedSizeCodec<
   BuyInstructionDataArgs,
   BuyInstructionData
 > {
-  return combineCodec(
-    getBuyInstructionDataEncoder(),
-    getBuyInstructionDataDecoder()
-  );
+  return combineCodec(getBuyInstructionDataEncoder(), getBuyInstructionDataDecoder())
 }
 
 export type BuyAsyncInput<
@@ -182,24 +164,24 @@ export type BuyAsyncInput<
   TAccountUserVolumeAccumulator extends string = string,
   TAccountUserAccTarget extends string = string,
 > = {
-  global?: Address<TAccountGlobal>;
-  feeRecipient: Address<TAccountFeeRecipient>;
-  mint: Address<TAccountMint>;
-  bondingCurve?: Address<TAccountBondingCurve>;
-  associatedBondingCurve?: Address<TAccountAssociatedBondingCurve>;
-  associatedUser: Address<TAccountAssociatedUser>;
-  user: TransactionSigner<TAccountUser>;
-  systemProgram?: Address<TAccountSystemProgram>;
-  tokenProgram?: Address<TAccountTokenProgram>;
-  creatorVault: Address<TAccountCreatorVault>;
-  eventAuthority?: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-  globalVolumeAccumulator?: Address<TAccountGlobalVolumeAccumulator>;
-  userVolumeAccumulator?: Address<TAccountUserVolumeAccumulator>;
-  userAccTarget: TransactionSigner<TAccountUserAccTarget>;
-  amount: BuyInstructionDataArgs['amount'];
-  maxSolCost: BuyInstructionDataArgs['maxSolCost'];
-};
+  global?: Address<TAccountGlobal>
+  feeRecipient: Address<TAccountFeeRecipient>
+  mint: Address<TAccountMint>
+  bondingCurve?: Address<TAccountBondingCurve>
+  associatedBondingCurve?: Address<TAccountAssociatedBondingCurve>
+  associatedUser: Address<TAccountAssociatedUser>
+  user: TransactionSigner<TAccountUser>
+  systemProgram?: Address<TAccountSystemProgram>
+  tokenProgram?: Address<TAccountTokenProgram>
+  creatorVault: Address<TAccountCreatorVault>
+  eventAuthority?: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+  globalVolumeAccumulator?: Address<TAccountGlobalVolumeAccumulator>
+  userVolumeAccumulator?: Address<TAccountUserVolumeAccumulator>
+  userAccTarget: TransactionSigner<TAccountUserAccTarget>
+  amount: BuyInstructionDataArgs['amount']
+  maxSolCost: BuyInstructionDataArgs['maxSolCost']
+}
 
 export async function getBuyInstructionAsync<
   TAccountGlobal extends string,
@@ -258,7 +240,7 @@ export async function getBuyInstructionAsync<
   >
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -286,36 +268,29 @@ export async function getBuyInstructionAsync<
       isWritable: true,
     },
     userAccTarget: { value: input.userAccTarget ?? null, isWritable: true },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Original args.
-  const args = { ...input };
+  const args = { ...input }
 
   // Resolve default values.
   if (!accounts.global.value) {
     accounts.global.value = await getProgramDerivedAddress({
       programAddress,
-      seeds: [
-        getBytesEncoder().encode(new Uint8Array([103, 108, 111, 98, 97, 108])),
-      ],
-    });
+      seeds: [getBytesEncoder().encode(new Uint8Array([103, 108, 111, 98, 97, 108]))],
+    })
   }
   if (!accounts.bondingCurve.value) {
     accounts.bondingCurve.value = await getProgramDerivedAddress({
       programAddress,
       seeds: [
         getBytesEncoder().encode(
-          new Uint8Array([
-            98, 111, 110, 100, 105, 110, 103, 45, 99, 117, 114, 118, 101,
-          ])
+          new Uint8Array([98, 111, 110, 100, 105, 110, 103, 45, 99, 117, 114, 118, 101])
         ),
         getAddressEncoder().encode(expectAddress(accounts.mint.value)),
       ],
-    });
+    })
   }
   if (!accounts.associatedBondingCurve.value) {
     accounts.associatedBondingCurve.value = await getProgramDerivedAddress({
@@ -325,22 +300,21 @@ export async function getBuyInstructionAsync<
         getAddressEncoder().encode(expectAddress(accounts.bondingCurve.value)),
         getBytesEncoder().encode(
           new Uint8Array([
-            6, 221, 246, 225, 215, 101, 161, 147, 217, 203, 225, 70, 206, 235,
-            121, 172, 28, 180, 133, 237, 95, 91, 55, 145, 58, 140, 245, 133,
-            126, 255, 0, 169,
+            6, 221, 246, 225, 215, 101, 161, 147, 217, 203, 225, 70, 206, 235, 121, 172, 28, 180,
+            133, 237, 95, 91, 55, 145, 58, 140, 245, 133, 126, 255, 0, 169,
           ])
         ),
         getAddressEncoder().encode(expectAddress(accounts.mint.value)),
       ],
-    });
+    })
   }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
-      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
+      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>
   }
   if (!accounts.tokenProgram.value) {
     accounts.tokenProgram.value =
-      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>;
+      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>
   }
   if (!accounts.eventAuthority.value) {
     accounts.eventAuthority.value = await getProgramDerivedAddress({
@@ -348,12 +322,11 @@ export async function getBuyInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114,
-            105, 116, 121,
+            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121,
           ])
         ),
       ],
-    });
+    })
   }
   if (!accounts.globalVolumeAccumulator.value) {
     accounts.globalVolumeAccumulator.value = await getProgramDerivedAddress({
@@ -361,12 +334,12 @@ export async function getBuyInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            103, 108, 111, 98, 97, 108, 95, 118, 111, 108, 117, 109, 101, 95,
-            97, 99, 99, 117, 109, 117, 108, 97, 116, 111, 114,
+            103, 108, 111, 98, 97, 108, 95, 118, 111, 108, 117, 109, 101, 95, 97, 99, 99, 117, 109,
+            117, 108, 97, 116, 111, 114,
           ])
         ),
       ],
-    });
+    })
   }
   if (!accounts.userVolumeAccumulator.value) {
     accounts.userVolumeAccumulator.value = await getProgramDerivedAddress({
@@ -374,16 +347,16 @@ export async function getBuyInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            117, 115, 101, 114, 95, 118, 111, 108, 117, 109, 101, 95, 97, 99,
-            99, 117, 109, 117, 108, 97, 116, 111, 114,
+            117, 115, 101, 114, 95, 118, 111, 108, 117, 109, 101, 95, 97, 99, 99, 117, 109, 117,
+            108, 97, 116, 111, 114,
           ])
         ),
         getAddressEncoder().encode(expectAddress(accounts.userAccTarget.value)),
       ],
-    });
+    })
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.global),
@@ -421,9 +394,9 @@ export async function getBuyInstructionAsync<
     TAccountGlobalVolumeAccumulator,
     TAccountUserVolumeAccumulator,
     TAccountUserAccTarget
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type BuyInput<
@@ -443,24 +416,24 @@ export type BuyInput<
   TAccountUserVolumeAccumulator extends string = string,
   TAccountUserAccTarget extends string = string,
 > = {
-  global: Address<TAccountGlobal>;
-  feeRecipient: Address<TAccountFeeRecipient>;
-  mint: Address<TAccountMint>;
-  bondingCurve: Address<TAccountBondingCurve>;
-  associatedBondingCurve: Address<TAccountAssociatedBondingCurve>;
-  associatedUser: Address<TAccountAssociatedUser>;
-  user: TransactionSigner<TAccountUser>;
-  systemProgram?: Address<TAccountSystemProgram>;
-  tokenProgram?: Address<TAccountTokenProgram>;
-  creatorVault: Address<TAccountCreatorVault>;
-  eventAuthority: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-  globalVolumeAccumulator: Address<TAccountGlobalVolumeAccumulator>;
-  userVolumeAccumulator: Address<TAccountUserVolumeAccumulator>;
-  userAccTarget: TransactionSigner<TAccountUserAccTarget>;
-  amount: BuyInstructionDataArgs['amount'];
-  maxSolCost: BuyInstructionDataArgs['maxSolCost'];
-};
+  global: Address<TAccountGlobal>
+  feeRecipient: Address<TAccountFeeRecipient>
+  mint: Address<TAccountMint>
+  bondingCurve: Address<TAccountBondingCurve>
+  associatedBondingCurve: Address<TAccountAssociatedBondingCurve>
+  associatedUser: Address<TAccountAssociatedUser>
+  user: TransactionSigner<TAccountUser>
+  systemProgram?: Address<TAccountSystemProgram>
+  tokenProgram?: Address<TAccountTokenProgram>
+  creatorVault: Address<TAccountCreatorVault>
+  eventAuthority: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+  globalVolumeAccumulator: Address<TAccountGlobalVolumeAccumulator>
+  userVolumeAccumulator: Address<TAccountUserVolumeAccumulator>
+  userAccTarget: TransactionSigner<TAccountUserAccTarget>
+  amount: BuyInstructionDataArgs['amount']
+  maxSolCost: BuyInstructionDataArgs['maxSolCost']
+}
 
 export function getBuyInstruction<
   TAccountGlobal extends string,
@@ -517,7 +490,7 @@ export function getBuyInstruction<
   TAccountUserAccTarget
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -545,26 +518,23 @@ export function getBuyInstruction<
       isWritable: true,
     },
     userAccTarget: { value: input.userAccTarget ?? null, isWritable: true },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Original args.
-  const args = { ...input };
+  const args = { ...input }
 
   // Resolve default values.
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
-      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
+      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>
   }
   if (!accounts.tokenProgram.value) {
     accounts.tokenProgram.value =
-      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>;
+      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.global),
@@ -602,35 +572,35 @@ export function getBuyInstruction<
     TAccountGlobalVolumeAccumulator,
     TAccountUserVolumeAccumulator,
     TAccountUserAccTarget
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type ParsedBuyInstruction<
   TProgram extends string = typeof PUMP_PROGRAM_ADDRESS,
   TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[],
 > = {
-  programAddress: Address<TProgram>;
+  programAddress: Address<TProgram>
   accounts: {
-    global: TAccountMetas[0];
-    feeRecipient: TAccountMetas[1];
-    mint: TAccountMetas[2];
-    bondingCurve: TAccountMetas[3];
-    associatedBondingCurve: TAccountMetas[4];
-    associatedUser: TAccountMetas[5];
-    user: TAccountMetas[6];
-    systemProgram: TAccountMetas[7];
-    tokenProgram: TAccountMetas[8];
-    creatorVault: TAccountMetas[9];
-    eventAuthority: TAccountMetas[10];
-    program: TAccountMetas[11];
-    globalVolumeAccumulator: TAccountMetas[12];
-    userVolumeAccumulator: TAccountMetas[13];
-    userAccTarget: TAccountMetas[14];
-  };
-  data: BuyInstructionData;
-};
+    global: TAccountMetas[0]
+    feeRecipient: TAccountMetas[1]
+    mint: TAccountMetas[2]
+    bondingCurve: TAccountMetas[3]
+    associatedBondingCurve: TAccountMetas[4]
+    associatedUser: TAccountMetas[5]
+    user: TAccountMetas[6]
+    systemProgram: TAccountMetas[7]
+    tokenProgram: TAccountMetas[8]
+    creatorVault: TAccountMetas[9]
+    eventAuthority: TAccountMetas[10]
+    program: TAccountMetas[11]
+    globalVolumeAccumulator: TAccountMetas[12]
+    userVolumeAccumulator: TAccountMetas[13]
+    userAccTarget: TAccountMetas[14]
+  }
+  data: BuyInstructionData
+}
 
 export function parseBuyInstruction<
   TProgram extends string,
@@ -642,14 +612,14 @@ export function parseBuyInstruction<
 ): ParsedBuyInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 15) {
     // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new Error('Not enough accounts')
   }
-  let accountIndex = 0;
+  let accountIndex = 0
   const getNextAccount = () => {
-    const accountMeta = instruction.accounts![accountIndex]!;
-    accountIndex += 1;
-    return accountMeta;
-  };
+    const accountMeta = instruction.accounts![accountIndex]!
+    accountIndex += 1
+    return accountMeta
+  }
   return {
     programAddress: instruction.programAddress,
     accounts: {
@@ -670,5 +640,5 @@ export function parseBuyInstruction<
       userAccTarget: getNextAccount(),
     },
     data: getBuyInstructionDataDecoder().decode(instruction.data),
-  };
+  }
 }

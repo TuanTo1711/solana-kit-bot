@@ -22,27 +22,27 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit';
+} from '@solana/kit'
 
 export type CreateConfigEvent = {
-  timestamp: bigint;
-  admin: Address;
-  lpFeeBasisPoints: bigint;
-  protocolFeeBasisPoints: bigint;
-  protocolFeeRecipients: Array<Address>;
-  coinCreatorFeeBasisPoints: bigint;
-  adminSetCoinCreatorAuthority: Address;
-};
+  timestamp: bigint
+  admin: Address
+  lpFeeBasisPoints: bigint
+  protocolFeeBasisPoints: bigint
+  protocolFeeRecipients: Array<Address>
+  coinCreatorFeeBasisPoints: bigint
+  adminSetCoinCreatorAuthority: Address
+}
 
 export type CreateConfigEventArgs = {
-  timestamp: number | bigint;
-  admin: Address;
-  lpFeeBasisPoints: number | bigint;
-  protocolFeeBasisPoints: number | bigint;
-  protocolFeeRecipients: Array<Address>;
-  coinCreatorFeeBasisPoints: number | bigint;
-  adminSetCoinCreatorAuthority: Address;
-};
+  timestamp: number | bigint
+  admin: Address
+  lpFeeBasisPoints: number | bigint
+  protocolFeeBasisPoints: number | bigint
+  protocolFeeRecipients: Array<Address>
+  coinCreatorFeeBasisPoints: number | bigint
+  adminSetCoinCreatorAuthority: Address
+}
 
 export function getCreateConfigEventEncoder(): FixedSizeEncoder<CreateConfigEventArgs> {
   return getStructEncoder([
@@ -50,13 +50,10 @@ export function getCreateConfigEventEncoder(): FixedSizeEncoder<CreateConfigEven
     ['admin', getAddressEncoder()],
     ['lpFeeBasisPoints', getU64Encoder()],
     ['protocolFeeBasisPoints', getU64Encoder()],
-    [
-      'protocolFeeRecipients',
-      getArrayEncoder(getAddressEncoder(), { size: 8 }),
-    ],
+    ['protocolFeeRecipients', getArrayEncoder(getAddressEncoder(), { size: 8 })],
     ['coinCreatorFeeBasisPoints', getU64Encoder()],
     ['adminSetCoinCreatorAuthority', getAddressEncoder()],
-  ]);
+  ])
 }
 
 export function getCreateConfigEventDecoder(): FixedSizeDecoder<CreateConfigEvent> {
@@ -65,21 +62,15 @@ export function getCreateConfigEventDecoder(): FixedSizeDecoder<CreateConfigEven
     ['admin', getAddressDecoder()],
     ['lpFeeBasisPoints', getU64Decoder()],
     ['protocolFeeBasisPoints', getU64Decoder()],
-    [
-      'protocolFeeRecipients',
-      getArrayDecoder(getAddressDecoder(), { size: 8 }),
-    ],
+    ['protocolFeeRecipients', getArrayDecoder(getAddressDecoder(), { size: 8 })],
     ['coinCreatorFeeBasisPoints', getU64Decoder()],
     ['adminSetCoinCreatorAuthority', getAddressDecoder()],
-  ]);
+  ])
 }
 
 export function getCreateConfigEventCodec(): FixedSizeCodec<
   CreateConfigEventArgs,
   CreateConfigEvent
 > {
-  return combineCodec(
-    getCreateConfigEventEncoder(),
-    getCreateConfigEventDecoder()
-  );
+  return combineCodec(getCreateConfigEventEncoder(), getCreateConfigEventDecoder())
 }

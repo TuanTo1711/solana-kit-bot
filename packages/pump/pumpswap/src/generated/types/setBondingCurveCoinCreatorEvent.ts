@@ -18,23 +18,23 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit';
+} from '@solana/kit'
 
 export type SetBondingCurveCoinCreatorEvent = {
-  timestamp: bigint;
-  baseMint: Address;
-  pool: Address;
-  bondingCurve: Address;
-  coinCreator: Address;
-};
+  timestamp: bigint
+  baseMint: Address
+  pool: Address
+  bondingCurve: Address
+  coinCreator: Address
+}
 
 export type SetBondingCurveCoinCreatorEventArgs = {
-  timestamp: number | bigint;
-  baseMint: Address;
-  pool: Address;
-  bondingCurve: Address;
-  coinCreator: Address;
-};
+  timestamp: number | bigint
+  baseMint: Address
+  pool: Address
+  bondingCurve: Address
+  coinCreator: Address
+}
 
 export function getSetBondingCurveCoinCreatorEventEncoder(): FixedSizeEncoder<SetBondingCurveCoinCreatorEventArgs> {
   return getStructEncoder([
@@ -43,7 +43,7 @@ export function getSetBondingCurveCoinCreatorEventEncoder(): FixedSizeEncoder<Se
     ['pool', getAddressEncoder()],
     ['bondingCurve', getAddressEncoder()],
     ['coinCreator', getAddressEncoder()],
-  ]);
+  ])
 }
 
 export function getSetBondingCurveCoinCreatorEventDecoder(): FixedSizeDecoder<SetBondingCurveCoinCreatorEvent> {
@@ -53,7 +53,7 @@ export function getSetBondingCurveCoinCreatorEventDecoder(): FixedSizeDecoder<Se
     ['pool', getAddressDecoder()],
     ['bondingCurve', getAddressDecoder()],
     ['coinCreator', getAddressDecoder()],
-  ]);
+  ])
 }
 
 export function getSetBondingCurveCoinCreatorEventCodec(): FixedSizeCodec<
@@ -63,5 +63,5 @@ export function getSetBondingCurveCoinCreatorEventCodec(): FixedSizeCodec<
   return combineCodec(
     getSetBondingCurveCoinCreatorEventEncoder(),
     getSetBondingCurveCoinCreatorEventDecoder()
-  );
+  )
 }

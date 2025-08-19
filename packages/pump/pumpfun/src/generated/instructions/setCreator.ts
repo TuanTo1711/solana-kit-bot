@@ -32,20 +32,14 @@ import {
   type ReadonlyUint8Array,
   type TransactionSigner,
   type WritableAccount,
-} from '@solana/kit';
-import { PUMP_PROGRAM_ADDRESS } from '../programs';
-import {
-  expectAddress,
-  getAccountMetaFactory,
-  type ResolvedAccount,
-} from '../shared';
+} from '@solana/kit'
+import { PUMP_PROGRAM_ADDRESS } from '../programs'
+import { expectAddress, getAccountMetaFactory, type ResolvedAccount } from '../shared'
 
-export const SET_CREATOR_DISCRIMINATOR = new Uint8Array([
-  254, 148, 255, 112, 207, 142, 170, 165,
-]);
+export const SET_CREATOR_DISCRIMINATOR = new Uint8Array([254, 148, 255, 112, 207, 142, 170, 165])
 
 export function getSetCreatorDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(SET_CREATOR_DISCRIMINATOR);
+  return fixEncoderSize(getBytesEncoder(), 8).encode(SET_CREATOR_DISCRIMINATOR)
 }
 
 export type SetCreatorInstruction<
@@ -66,34 +60,26 @@ export type SetCreatorInstruction<
         ? ReadonlySignerAccount<TAccountSetCreatorAuthority> &
             AccountSignerMeta<TAccountSetCreatorAuthority>
         : TAccountSetCreatorAuthority,
-      TAccountGlobal extends string
-        ? ReadonlyAccount<TAccountGlobal>
-        : TAccountGlobal,
-      TAccountMint extends string
-        ? ReadonlyAccount<TAccountMint>
-        : TAccountMint,
-      TAccountMetadata extends string
-        ? ReadonlyAccount<TAccountMetadata>
-        : TAccountMetadata,
+      TAccountGlobal extends string ? ReadonlyAccount<TAccountGlobal> : TAccountGlobal,
+      TAccountMint extends string ? ReadonlyAccount<TAccountMint> : TAccountMint,
+      TAccountMetadata extends string ? ReadonlyAccount<TAccountMetadata> : TAccountMetadata,
       TAccountBondingCurve extends string
         ? WritableAccount<TAccountBondingCurve>
         : TAccountBondingCurve,
       TAccountEventAuthority extends string
         ? ReadonlyAccount<TAccountEventAuthority>
         : TAccountEventAuthority,
-      TAccountProgram extends string
-        ? ReadonlyAccount<TAccountProgram>
-        : TAccountProgram,
+      TAccountProgram extends string ? ReadonlyAccount<TAccountProgram> : TAccountProgram,
       ...TRemainingAccounts,
     ]
-  >;
+  >
 
 export type SetCreatorInstructionData = {
-  discriminator: ReadonlyUint8Array;
-  creator: Address;
-};
+  discriminator: ReadonlyUint8Array
+  creator: Address
+}
 
-export type SetCreatorInstructionDataArgs = { creator: Address };
+export type SetCreatorInstructionDataArgs = { creator: Address }
 
 export function getSetCreatorInstructionDataEncoder(): FixedSizeEncoder<SetCreatorInstructionDataArgs> {
   return transformEncoder(
@@ -101,25 +87,22 @@ export function getSetCreatorInstructionDataEncoder(): FixedSizeEncoder<SetCreat
       ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
       ['creator', getAddressEncoder()],
     ]),
-    (value) => ({ ...value, discriminator: SET_CREATOR_DISCRIMINATOR })
-  );
+    value => ({ ...value, discriminator: SET_CREATOR_DISCRIMINATOR })
+  )
 }
 
 export function getSetCreatorInstructionDataDecoder(): FixedSizeDecoder<SetCreatorInstructionData> {
   return getStructDecoder([
     ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
     ['creator', getAddressDecoder()],
-  ]);
+  ])
 }
 
 export function getSetCreatorInstructionDataCodec(): FixedSizeCodec<
   SetCreatorInstructionDataArgs,
   SetCreatorInstructionData
 > {
-  return combineCodec(
-    getSetCreatorInstructionDataEncoder(),
-    getSetCreatorInstructionDataDecoder()
-  );
+  return combineCodec(getSetCreatorInstructionDataEncoder(), getSetCreatorInstructionDataDecoder())
 }
 
 export type SetCreatorAsyncInput<
@@ -131,15 +114,15 @@ export type SetCreatorAsyncInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  setCreatorAuthority: TransactionSigner<TAccountSetCreatorAuthority>;
-  global?: Address<TAccountGlobal>;
-  mint: Address<TAccountMint>;
-  metadata?: Address<TAccountMetadata>;
-  bondingCurve?: Address<TAccountBondingCurve>;
-  eventAuthority?: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-  creator: SetCreatorInstructionDataArgs['creator'];
-};
+  setCreatorAuthority: TransactionSigner<TAccountSetCreatorAuthority>
+  global?: Address<TAccountGlobal>
+  mint: Address<TAccountMint>
+  metadata?: Address<TAccountMetadata>
+  bondingCurve?: Address<TAccountBondingCurve>
+  eventAuthority?: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+  creator: SetCreatorInstructionDataArgs['creator']
+}
 
 export async function getSetCreatorInstructionAsync<
   TAccountSetCreatorAuthority extends string,
@@ -174,7 +157,7 @@ export async function getSetCreatorInstructionAsync<
   >
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -188,55 +171,45 @@ export async function getSetCreatorInstructionAsync<
     bondingCurve: { value: input.bondingCurve ?? null, isWritable: true },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Original args.
-  const args = { ...input };
+  const args = { ...input }
 
   // Resolve default values.
   if (!accounts.global.value) {
     accounts.global.value = await getProgramDerivedAddress({
       programAddress,
-      seeds: [
-        getBytesEncoder().encode(new Uint8Array([103, 108, 111, 98, 97, 108])),
-      ],
-    });
+      seeds: [getBytesEncoder().encode(new Uint8Array([103, 108, 111, 98, 97, 108]))],
+    })
   }
   if (!accounts.metadata.value) {
     accounts.metadata.value = await getProgramDerivedAddress({
       programAddress:
         'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s' as Address<'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'>,
       seeds: [
-        getBytesEncoder().encode(
-          new Uint8Array([109, 101, 116, 97, 100, 97, 116, 97])
-        ),
+        getBytesEncoder().encode(new Uint8Array([109, 101, 116, 97, 100, 97, 116, 97])),
         getBytesEncoder().encode(
           new Uint8Array([
-            11, 112, 101, 177, 227, 209, 124, 69, 56, 157, 82, 127, 107, 4, 195,
-            205, 88, 184, 108, 115, 26, 160, 253, 181, 73, 182, 209, 188, 3,
-            248, 41, 70,
+            11, 112, 101, 177, 227, 209, 124, 69, 56, 157, 82, 127, 107, 4, 195, 205, 88, 184, 108,
+            115, 26, 160, 253, 181, 73, 182, 209, 188, 3, 248, 41, 70,
           ])
         ),
         getAddressEncoder().encode(expectAddress(accounts.mint.value)),
       ],
-    });
+    })
   }
   if (!accounts.bondingCurve.value) {
     accounts.bondingCurve.value = await getProgramDerivedAddress({
       programAddress,
       seeds: [
         getBytesEncoder().encode(
-          new Uint8Array([
-            98, 111, 110, 100, 105, 110, 103, 45, 99, 117, 114, 118, 101,
-          ])
+          new Uint8Array([98, 111, 110, 100, 105, 110, 103, 45, 99, 117, 114, 118, 101])
         ),
         getAddressEncoder().encode(expectAddress(accounts.mint.value)),
       ],
-    });
+    })
   }
   if (!accounts.eventAuthority.value) {
     accounts.eventAuthority.value = await getProgramDerivedAddress({
@@ -244,15 +217,14 @@ export async function getSetCreatorInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114,
-            105, 116, 121,
+            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121,
           ])
         ),
       ],
-    });
+    })
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.setCreatorAuthority),
@@ -264,9 +236,7 @@ export async function getSetCreatorInstructionAsync<
       getAccountMeta(accounts.program),
     ],
     programAddress,
-    data: getSetCreatorInstructionDataEncoder().encode(
-      args as SetCreatorInstructionDataArgs
-    ),
+    data: getSetCreatorInstructionDataEncoder().encode(args as SetCreatorInstructionDataArgs),
   } as SetCreatorInstruction<
     TProgramAddress,
     TAccountSetCreatorAuthority,
@@ -276,9 +246,9 @@ export async function getSetCreatorInstructionAsync<
     TAccountBondingCurve,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type SetCreatorInput<
@@ -290,15 +260,15 @@ export type SetCreatorInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  setCreatorAuthority: TransactionSigner<TAccountSetCreatorAuthority>;
-  global: Address<TAccountGlobal>;
-  mint: Address<TAccountMint>;
-  metadata: Address<TAccountMetadata>;
-  bondingCurve: Address<TAccountBondingCurve>;
-  eventAuthority: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-  creator: SetCreatorInstructionDataArgs['creator'];
-};
+  setCreatorAuthority: TransactionSigner<TAccountSetCreatorAuthority>
+  global: Address<TAccountGlobal>
+  mint: Address<TAccountMint>
+  metadata: Address<TAccountMetadata>
+  bondingCurve: Address<TAccountBondingCurve>
+  eventAuthority: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+  creator: SetCreatorInstructionDataArgs['creator']
+}
 
 export function getSetCreatorInstruction<
   TAccountSetCreatorAuthority extends string,
@@ -331,7 +301,7 @@ export function getSetCreatorInstruction<
   TAccountProgram
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -345,16 +315,13 @@ export function getSetCreatorInstruction<
     bondingCurve: { value: input.bondingCurve ?? null, isWritable: true },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Original args.
-  const args = { ...input };
+  const args = { ...input }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.setCreatorAuthority),
@@ -366,9 +333,7 @@ export function getSetCreatorInstruction<
       getAccountMeta(accounts.program),
     ],
     programAddress,
-    data: getSetCreatorInstructionDataEncoder().encode(
-      args as SetCreatorInstructionDataArgs
-    ),
+    data: getSetCreatorInstructionDataEncoder().encode(args as SetCreatorInstructionDataArgs),
   } as SetCreatorInstruction<
     TProgramAddress,
     TAccountSetCreatorAuthority,
@@ -378,27 +343,27 @@ export function getSetCreatorInstruction<
     TAccountBondingCurve,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type ParsedSetCreatorInstruction<
   TProgram extends string = typeof PUMP_PROGRAM_ADDRESS,
   TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[],
 > = {
-  programAddress: Address<TProgram>;
+  programAddress: Address<TProgram>
   accounts: {
-    setCreatorAuthority: TAccountMetas[0];
-    global: TAccountMetas[1];
-    mint: TAccountMetas[2];
-    metadata: TAccountMetas[3];
-    bondingCurve: TAccountMetas[4];
-    eventAuthority: TAccountMetas[5];
-    program: TAccountMetas[6];
-  };
-  data: SetCreatorInstructionData;
-};
+    setCreatorAuthority: TAccountMetas[0]
+    global: TAccountMetas[1]
+    mint: TAccountMetas[2]
+    metadata: TAccountMetas[3]
+    bondingCurve: TAccountMetas[4]
+    eventAuthority: TAccountMetas[5]
+    program: TAccountMetas[6]
+  }
+  data: SetCreatorInstructionData
+}
 
 export function parseSetCreatorInstruction<
   TProgram extends string,
@@ -410,14 +375,14 @@ export function parseSetCreatorInstruction<
 ): ParsedSetCreatorInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 7) {
     // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new Error('Not enough accounts')
   }
-  let accountIndex = 0;
+  let accountIndex = 0
   const getNextAccount = () => {
-    const accountMeta = instruction.accounts![accountIndex]!;
-    accountIndex += 1;
-    return accountMeta;
-  };
+    const accountMeta = instruction.accounts![accountIndex]!
+    accountIndex += 1
+    return accountMeta
+  }
   return {
     programAddress: instruction.programAddress,
     accounts: {
@@ -430,5 +395,5 @@ export function parseSetCreatorInstruction<
       program: getNextAccount(),
     },
     data: getSetCreatorInstructionDataDecoder().decode(instruction.data),
-  };
+  }
 }

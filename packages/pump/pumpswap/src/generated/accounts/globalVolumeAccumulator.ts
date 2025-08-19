@@ -39,36 +39,34 @@ import {
   type MaybeAccount,
   type MaybeEncodedAccount,
   type ReadonlyUint8Array,
-} from '@solana/kit';
+} from '@solana/kit'
 
 export const GLOBAL_VOLUME_ACCUMULATOR_DISCRIMINATOR = new Uint8Array([
   202, 42, 246, 43, 142, 190, 30, 255,
-]);
+])
 
 export function getGlobalVolumeAccumulatorDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
-    GLOBAL_VOLUME_ACCUMULATOR_DISCRIMINATOR
-  );
+  return fixEncoderSize(getBytesEncoder(), 8).encode(GLOBAL_VOLUME_ACCUMULATOR_DISCRIMINATOR)
 }
 
 export type GlobalVolumeAccumulator = {
-  discriminator: ReadonlyUint8Array;
-  startTime: bigint;
-  endTime: bigint;
-  secondsInADay: bigint;
-  mint: Address;
-  totalTokenSupply: Array<bigint>;
-  solVolumes: Array<bigint>;
-};
+  discriminator: ReadonlyUint8Array
+  startTime: bigint
+  endTime: bigint
+  secondsInADay: bigint
+  mint: Address
+  totalTokenSupply: Array<bigint>
+  solVolumes: Array<bigint>
+}
 
 export type GlobalVolumeAccumulatorArgs = {
-  startTime: number | bigint;
-  endTime: number | bigint;
-  secondsInADay: number | bigint;
-  mint: Address;
-  totalTokenSupply: Array<number | bigint>;
-  solVolumes: Array<number | bigint>;
-};
+  startTime: number | bigint
+  endTime: number | bigint
+  secondsInADay: number | bigint
+  mint: Address
+  totalTokenSupply: Array<number | bigint>
+  solVolumes: Array<number | bigint>
+}
 
 export function getGlobalVolumeAccumulatorEncoder(): FixedSizeEncoder<GlobalVolumeAccumulatorArgs> {
   return transformEncoder(
@@ -81,11 +79,11 @@ export function getGlobalVolumeAccumulatorEncoder(): FixedSizeEncoder<GlobalVolu
       ['totalTokenSupply', getArrayEncoder(getU64Encoder(), { size: 30 })],
       ['solVolumes', getArrayEncoder(getU64Encoder(), { size: 30 })],
     ]),
-    (value) => ({
+    value => ({
       ...value,
       discriminator: GLOBAL_VOLUME_ACCUMULATOR_DISCRIMINATOR,
     })
-  );
+  )
 }
 
 export function getGlobalVolumeAccumulatorDecoder(): FixedSizeDecoder<GlobalVolumeAccumulator> {
@@ -97,61 +95,48 @@ export function getGlobalVolumeAccumulatorDecoder(): FixedSizeDecoder<GlobalVolu
     ['mint', getAddressDecoder()],
     ['totalTokenSupply', getArrayDecoder(getU64Decoder(), { size: 30 })],
     ['solVolumes', getArrayDecoder(getU64Decoder(), { size: 30 })],
-  ]);
+  ])
 }
 
 export function getGlobalVolumeAccumulatorCodec(): FixedSizeCodec<
   GlobalVolumeAccumulatorArgs,
   GlobalVolumeAccumulator
 > {
-  return combineCodec(
-    getGlobalVolumeAccumulatorEncoder(),
-    getGlobalVolumeAccumulatorDecoder()
-  );
+  return combineCodec(getGlobalVolumeAccumulatorEncoder(), getGlobalVolumeAccumulatorDecoder())
 }
 
 export function decodeGlobalVolumeAccumulator<TAddress extends string = string>(
   encodedAccount: EncodedAccount<TAddress>
-): Account<GlobalVolumeAccumulator, TAddress>;
+): Account<GlobalVolumeAccumulator, TAddress>
 export function decodeGlobalVolumeAccumulator<TAddress extends string = string>(
   encodedAccount: MaybeEncodedAccount<TAddress>
-): MaybeAccount<GlobalVolumeAccumulator, TAddress>;
+): MaybeAccount<GlobalVolumeAccumulator, TAddress>
 export function decodeGlobalVolumeAccumulator<TAddress extends string = string>(
   encodedAccount: EncodedAccount<TAddress> | MaybeEncodedAccount<TAddress>
-):
-  | Account<GlobalVolumeAccumulator, TAddress>
-  | MaybeAccount<GlobalVolumeAccumulator, TAddress> {
+): Account<GlobalVolumeAccumulator, TAddress> | MaybeAccount<GlobalVolumeAccumulator, TAddress> {
   return decodeAccount(
     encodedAccount as MaybeEncodedAccount<TAddress>,
     getGlobalVolumeAccumulatorDecoder()
-  );
+  )
 }
 
-export async function fetchGlobalVolumeAccumulator<
-  TAddress extends string = string,
->(
+export async function fetchGlobalVolumeAccumulator<TAddress extends string = string>(
   rpc: Parameters<typeof fetchEncodedAccount>[0],
   address: Address<TAddress>,
   config?: FetchAccountConfig
 ): Promise<Account<GlobalVolumeAccumulator, TAddress>> {
-  const maybeAccount = await fetchMaybeGlobalVolumeAccumulator(
-    rpc,
-    address,
-    config
-  );
-  assertAccountExists(maybeAccount);
-  return maybeAccount;
+  const maybeAccount = await fetchMaybeGlobalVolumeAccumulator(rpc, address, config)
+  assertAccountExists(maybeAccount)
+  return maybeAccount
 }
 
-export async function fetchMaybeGlobalVolumeAccumulator<
-  TAddress extends string = string,
->(
+export async function fetchMaybeGlobalVolumeAccumulator<TAddress extends string = string>(
   rpc: Parameters<typeof fetchEncodedAccount>[0],
   address: Address<TAddress>,
   config?: FetchAccountConfig
 ): Promise<MaybeAccount<GlobalVolumeAccumulator, TAddress>> {
-  const maybeAccount = await fetchEncodedAccount(rpc, address, config);
-  return decodeGlobalVolumeAccumulator(maybeAccount);
+  const maybeAccount = await fetchEncodedAccount(rpc, address, config)
+  return decodeGlobalVolumeAccumulator(maybeAccount)
 }
 
 export async function fetchAllGlobalVolumeAccumulator(
@@ -159,13 +144,9 @@ export async function fetchAllGlobalVolumeAccumulator(
   addresses: Array<Address>,
   config?: FetchAccountsConfig
 ): Promise<Account<GlobalVolumeAccumulator>[]> {
-  const maybeAccounts = await fetchAllMaybeGlobalVolumeAccumulator(
-    rpc,
-    addresses,
-    config
-  );
-  assertAccountsExist(maybeAccounts);
-  return maybeAccounts;
+  const maybeAccounts = await fetchAllMaybeGlobalVolumeAccumulator(rpc, addresses, config)
+  assertAccountsExist(maybeAccounts)
+  return maybeAccounts
 }
 
 export async function fetchAllMaybeGlobalVolumeAccumulator(
@@ -173,12 +154,10 @@ export async function fetchAllMaybeGlobalVolumeAccumulator(
   addresses: Array<Address>,
   config?: FetchAccountsConfig
 ): Promise<MaybeAccount<GlobalVolumeAccumulator>[]> {
-  const maybeAccounts = await fetchEncodedAccounts(rpc, addresses, config);
-  return maybeAccounts.map((maybeAccount) =>
-    decodeGlobalVolumeAccumulator(maybeAccount)
-  );
+  const maybeAccounts = await fetchEncodedAccounts(rpc, addresses, config)
+  return maybeAccounts.map(maybeAccount => decodeGlobalVolumeAccumulator(maybeAccount))
 }
 
 export function getGlobalVolumeAccumulatorSize(): number {
-  return 544;
+  return 544
 }

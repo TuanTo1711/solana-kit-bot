@@ -20,26 +20,26 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit';
+} from '@solana/kit'
 
 export type CollectCreatorFeeEvent = {
-  timestamp: bigint;
-  creator: Address;
-  creatorFee: bigint;
-};
+  timestamp: bigint
+  creator: Address
+  creatorFee: bigint
+}
 
 export type CollectCreatorFeeEventArgs = {
-  timestamp: number | bigint;
-  creator: Address;
-  creatorFee: number | bigint;
-};
+  timestamp: number | bigint
+  creator: Address
+  creatorFee: number | bigint
+}
 
 export function getCollectCreatorFeeEventEncoder(): FixedSizeEncoder<CollectCreatorFeeEventArgs> {
   return getStructEncoder([
     ['timestamp', getI64Encoder()],
     ['creator', getAddressEncoder()],
     ['creatorFee', getU64Encoder()],
-  ]);
+  ])
 }
 
 export function getCollectCreatorFeeEventDecoder(): FixedSizeDecoder<CollectCreatorFeeEvent> {
@@ -47,15 +47,12 @@ export function getCollectCreatorFeeEventDecoder(): FixedSizeDecoder<CollectCrea
     ['timestamp', getI64Decoder()],
     ['creator', getAddressDecoder()],
     ['creatorFee', getU64Decoder()],
-  ]);
+  ])
 }
 
 export function getCollectCreatorFeeEventCodec(): FixedSizeCodec<
   CollectCreatorFeeEventArgs,
   CollectCreatorFeeEvent
 > {
-  return combineCodec(
-    getCollectCreatorFeeEventEncoder(),
-    getCollectCreatorFeeEventDecoder()
-  );
+  return combineCodec(getCollectCreatorFeeEventEncoder(), getCollectCreatorFeeEventDecoder())
 }

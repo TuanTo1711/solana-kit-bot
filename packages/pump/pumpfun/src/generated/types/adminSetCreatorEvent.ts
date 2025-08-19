@@ -18,25 +18,25 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit';
+} from '@solana/kit'
 
 export type AdminSetCreatorEvent = {
-  timestamp: bigint;
-  adminSetCreatorAuthority: Address;
-  mint: Address;
-  bondingCurve: Address;
-  oldCreator: Address;
-  newCreator: Address;
-};
+  timestamp: bigint
+  adminSetCreatorAuthority: Address
+  mint: Address
+  bondingCurve: Address
+  oldCreator: Address
+  newCreator: Address
+}
 
 export type AdminSetCreatorEventArgs = {
-  timestamp: number | bigint;
-  adminSetCreatorAuthority: Address;
-  mint: Address;
-  bondingCurve: Address;
-  oldCreator: Address;
-  newCreator: Address;
-};
+  timestamp: number | bigint
+  adminSetCreatorAuthority: Address
+  mint: Address
+  bondingCurve: Address
+  oldCreator: Address
+  newCreator: Address
+}
 
 export function getAdminSetCreatorEventEncoder(): FixedSizeEncoder<AdminSetCreatorEventArgs> {
   return getStructEncoder([
@@ -46,7 +46,7 @@ export function getAdminSetCreatorEventEncoder(): FixedSizeEncoder<AdminSetCreat
     ['bondingCurve', getAddressEncoder()],
     ['oldCreator', getAddressEncoder()],
     ['newCreator', getAddressEncoder()],
-  ]);
+  ])
 }
 
 export function getAdminSetCreatorEventDecoder(): FixedSizeDecoder<AdminSetCreatorEvent> {
@@ -57,15 +57,12 @@ export function getAdminSetCreatorEventDecoder(): FixedSizeDecoder<AdminSetCreat
     ['bondingCurve', getAddressDecoder()],
     ['oldCreator', getAddressDecoder()],
     ['newCreator', getAddressDecoder()],
-  ]);
+  ])
 }
 
 export function getAdminSetCreatorEventCodec(): FixedSizeCodec<
   AdminSetCreatorEventArgs,
   AdminSetCreatorEvent
 > {
-  return combineCodec(
-    getAdminSetCreatorEventEncoder(),
-    getAdminSetCreatorEventDecoder()
-  );
+  return combineCodec(getAdminSetCreatorEventEncoder(), getAdminSetCreatorEventDecoder())
 }

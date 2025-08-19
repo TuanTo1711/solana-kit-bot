@@ -20,23 +20,23 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit';
+} from '@solana/kit'
 
 export type CollectCoinCreatorFeeEvent = {
-  timestamp: bigint;
-  coinCreator: Address;
-  coinCreatorFee: bigint;
-  coinCreatorVaultAta: Address;
-  coinCreatorTokenAccount: Address;
-};
+  timestamp: bigint
+  coinCreator: Address
+  coinCreatorFee: bigint
+  coinCreatorVaultAta: Address
+  coinCreatorTokenAccount: Address
+}
 
 export type CollectCoinCreatorFeeEventArgs = {
-  timestamp: number | bigint;
-  coinCreator: Address;
-  coinCreatorFee: number | bigint;
-  coinCreatorVaultAta: Address;
-  coinCreatorTokenAccount: Address;
-};
+  timestamp: number | bigint
+  coinCreator: Address
+  coinCreatorFee: number | bigint
+  coinCreatorVaultAta: Address
+  coinCreatorTokenAccount: Address
+}
 
 export function getCollectCoinCreatorFeeEventEncoder(): FixedSizeEncoder<CollectCoinCreatorFeeEventArgs> {
   return getStructEncoder([
@@ -45,7 +45,7 @@ export function getCollectCoinCreatorFeeEventEncoder(): FixedSizeEncoder<Collect
     ['coinCreatorFee', getU64Encoder()],
     ['coinCreatorVaultAta', getAddressEncoder()],
     ['coinCreatorTokenAccount', getAddressEncoder()],
-  ]);
+  ])
 }
 
 export function getCollectCoinCreatorFeeEventDecoder(): FixedSizeDecoder<CollectCoinCreatorFeeEvent> {
@@ -55,7 +55,7 @@ export function getCollectCoinCreatorFeeEventDecoder(): FixedSizeDecoder<Collect
     ['coinCreatorFee', getU64Decoder()],
     ['coinCreatorVaultAta', getAddressDecoder()],
     ['coinCreatorTokenAccount', getAddressDecoder()],
-  ]);
+  ])
 }
 
 export function getCollectCoinCreatorFeeEventCodec(): FixedSizeCodec<
@@ -65,5 +65,5 @@ export function getCollectCoinCreatorFeeEventCodec(): FixedSizeCodec<
   return combineCodec(
     getCollectCoinCreatorFeeEventEncoder(),
     getCollectCoinCreatorFeeEventDecoder()
-  );
+  )
 }

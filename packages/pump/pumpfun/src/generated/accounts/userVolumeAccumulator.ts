@@ -39,38 +39,36 @@ import {
   type MaybeAccount,
   type MaybeEncodedAccount,
   type ReadonlyUint8Array,
-} from '@solana/kit';
+} from '@solana/kit'
 
 export const USER_VOLUME_ACCUMULATOR_DISCRIMINATOR = new Uint8Array([
   86, 255, 112, 14, 102, 53, 154, 250,
-]);
+])
 
 export function getUserVolumeAccumulatorDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
-    USER_VOLUME_ACCUMULATOR_DISCRIMINATOR
-  );
+  return fixEncoderSize(getBytesEncoder(), 8).encode(USER_VOLUME_ACCUMULATOR_DISCRIMINATOR)
 }
 
 export type UserVolumeAccumulator = {
-  discriminator: ReadonlyUint8Array;
-  user: Address;
-  needsClaim: boolean;
-  totalUnclaimedTokens: bigint;
-  totalClaimedTokens: bigint;
-  currentSolVolume: bigint;
-  lastUpdateTimestamp: bigint;
-  hasTotalClaimedTokens: boolean;
-};
+  discriminator: ReadonlyUint8Array
+  user: Address
+  needsClaim: boolean
+  totalUnclaimedTokens: bigint
+  totalClaimedTokens: bigint
+  currentSolVolume: bigint
+  lastUpdateTimestamp: bigint
+  hasTotalClaimedTokens: boolean
+}
 
 export type UserVolumeAccumulatorArgs = {
-  user: Address;
-  needsClaim: boolean;
-  totalUnclaimedTokens: number | bigint;
-  totalClaimedTokens: number | bigint;
-  currentSolVolume: number | bigint;
-  lastUpdateTimestamp: number | bigint;
-  hasTotalClaimedTokens: boolean;
-};
+  user: Address
+  needsClaim: boolean
+  totalUnclaimedTokens: number | bigint
+  totalClaimedTokens: number | bigint
+  currentSolVolume: number | bigint
+  lastUpdateTimestamp: number | bigint
+  hasTotalClaimedTokens: boolean
+}
 
 export function getUserVolumeAccumulatorEncoder(): FixedSizeEncoder<UserVolumeAccumulatorArgs> {
   return transformEncoder(
@@ -84,11 +82,11 @@ export function getUserVolumeAccumulatorEncoder(): FixedSizeEncoder<UserVolumeAc
       ['lastUpdateTimestamp', getI64Encoder()],
       ['hasTotalClaimedTokens', getBooleanEncoder()],
     ]),
-    (value) => ({
+    value => ({
       ...value,
       discriminator: USER_VOLUME_ACCUMULATOR_DISCRIMINATOR,
     })
-  );
+  )
 }
 
 export function getUserVolumeAccumulatorDecoder(): FixedSizeDecoder<UserVolumeAccumulator> {
@@ -101,61 +99,48 @@ export function getUserVolumeAccumulatorDecoder(): FixedSizeDecoder<UserVolumeAc
     ['currentSolVolume', getU64Decoder()],
     ['lastUpdateTimestamp', getI64Decoder()],
     ['hasTotalClaimedTokens', getBooleanDecoder()],
-  ]);
+  ])
 }
 
 export function getUserVolumeAccumulatorCodec(): FixedSizeCodec<
   UserVolumeAccumulatorArgs,
   UserVolumeAccumulator
 > {
-  return combineCodec(
-    getUserVolumeAccumulatorEncoder(),
-    getUserVolumeAccumulatorDecoder()
-  );
+  return combineCodec(getUserVolumeAccumulatorEncoder(), getUserVolumeAccumulatorDecoder())
 }
 
 export function decodeUserVolumeAccumulator<TAddress extends string = string>(
   encodedAccount: EncodedAccount<TAddress>
-): Account<UserVolumeAccumulator, TAddress>;
+): Account<UserVolumeAccumulator, TAddress>
 export function decodeUserVolumeAccumulator<TAddress extends string = string>(
   encodedAccount: MaybeEncodedAccount<TAddress>
-): MaybeAccount<UserVolumeAccumulator, TAddress>;
+): MaybeAccount<UserVolumeAccumulator, TAddress>
 export function decodeUserVolumeAccumulator<TAddress extends string = string>(
   encodedAccount: EncodedAccount<TAddress> | MaybeEncodedAccount<TAddress>
-):
-  | Account<UserVolumeAccumulator, TAddress>
-  | MaybeAccount<UserVolumeAccumulator, TAddress> {
+): Account<UserVolumeAccumulator, TAddress> | MaybeAccount<UserVolumeAccumulator, TAddress> {
   return decodeAccount(
     encodedAccount as MaybeEncodedAccount<TAddress>,
     getUserVolumeAccumulatorDecoder()
-  );
+  )
 }
 
-export async function fetchUserVolumeAccumulator<
-  TAddress extends string = string,
->(
+export async function fetchUserVolumeAccumulator<TAddress extends string = string>(
   rpc: Parameters<typeof fetchEncodedAccount>[0],
   address: Address<TAddress>,
   config?: FetchAccountConfig
 ): Promise<Account<UserVolumeAccumulator, TAddress>> {
-  const maybeAccount = await fetchMaybeUserVolumeAccumulator(
-    rpc,
-    address,
-    config
-  );
-  assertAccountExists(maybeAccount);
-  return maybeAccount;
+  const maybeAccount = await fetchMaybeUserVolumeAccumulator(rpc, address, config)
+  assertAccountExists(maybeAccount)
+  return maybeAccount
 }
 
-export async function fetchMaybeUserVolumeAccumulator<
-  TAddress extends string = string,
->(
+export async function fetchMaybeUserVolumeAccumulator<TAddress extends string = string>(
   rpc: Parameters<typeof fetchEncodedAccount>[0],
   address: Address<TAddress>,
   config?: FetchAccountConfig
 ): Promise<MaybeAccount<UserVolumeAccumulator, TAddress>> {
-  const maybeAccount = await fetchEncodedAccount(rpc, address, config);
-  return decodeUserVolumeAccumulator(maybeAccount);
+  const maybeAccount = await fetchEncodedAccount(rpc, address, config)
+  return decodeUserVolumeAccumulator(maybeAccount)
 }
 
 export async function fetchAllUserVolumeAccumulator(
@@ -163,13 +148,9 @@ export async function fetchAllUserVolumeAccumulator(
   addresses: Array<Address>,
   config?: FetchAccountsConfig
 ): Promise<Account<UserVolumeAccumulator>[]> {
-  const maybeAccounts = await fetchAllMaybeUserVolumeAccumulator(
-    rpc,
-    addresses,
-    config
-  );
-  assertAccountsExist(maybeAccounts);
-  return maybeAccounts;
+  const maybeAccounts = await fetchAllMaybeUserVolumeAccumulator(rpc, addresses, config)
+  assertAccountsExist(maybeAccounts)
+  return maybeAccounts
 }
 
 export async function fetchAllMaybeUserVolumeAccumulator(
@@ -177,12 +158,10 @@ export async function fetchAllMaybeUserVolumeAccumulator(
   addresses: Array<Address>,
   config?: FetchAccountsConfig
 ): Promise<MaybeAccount<UserVolumeAccumulator>[]> {
-  const maybeAccounts = await fetchEncodedAccounts(rpc, addresses, config);
-  return maybeAccounts.map((maybeAccount) =>
-    decodeUserVolumeAccumulator(maybeAccount)
-  );
+  const maybeAccounts = await fetchEncodedAccounts(rpc, addresses, config)
+  return maybeAccounts.map(maybeAccount => decodeUserVolumeAccumulator(maybeAccount))
 }
 
 export function getUserVolumeAccumulatorSize(): number {
-  return 74;
+  return 74
 }

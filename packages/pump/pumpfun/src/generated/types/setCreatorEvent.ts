@@ -18,21 +18,21 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit';
+} from '@solana/kit'
 
 export type SetCreatorEvent = {
-  timestamp: bigint;
-  mint: Address;
-  bondingCurve: Address;
-  creator: Address;
-};
+  timestamp: bigint
+  mint: Address
+  bondingCurve: Address
+  creator: Address
+}
 
 export type SetCreatorEventArgs = {
-  timestamp: number | bigint;
-  mint: Address;
-  bondingCurve: Address;
-  creator: Address;
-};
+  timestamp: number | bigint
+  mint: Address
+  bondingCurve: Address
+  creator: Address
+}
 
 export function getSetCreatorEventEncoder(): FixedSizeEncoder<SetCreatorEventArgs> {
   return getStructEncoder([
@@ -40,7 +40,7 @@ export function getSetCreatorEventEncoder(): FixedSizeEncoder<SetCreatorEventArg
     ['mint', getAddressEncoder()],
     ['bondingCurve', getAddressEncoder()],
     ['creator', getAddressEncoder()],
-  ]);
+  ])
 }
 
 export function getSetCreatorEventDecoder(): FixedSizeDecoder<SetCreatorEvent> {
@@ -49,12 +49,9 @@ export function getSetCreatorEventDecoder(): FixedSizeDecoder<SetCreatorEvent> {
     ['mint', getAddressDecoder()],
     ['bondingCurve', getAddressDecoder()],
     ['creator', getAddressDecoder()],
-  ]);
+  ])
 }
 
-export function getSetCreatorEventCodec(): FixedSizeCodec<
-  SetCreatorEventArgs,
-  SetCreatorEvent
-> {
-  return combineCodec(getSetCreatorEventEncoder(), getSetCreatorEventDecoder());
+export function getSetCreatorEventCodec(): FixedSizeCodec<SetCreatorEventArgs, SetCreatorEvent> {
+  return combineCodec(getSetCreatorEventEncoder(), getSetCreatorEventDecoder())
 }

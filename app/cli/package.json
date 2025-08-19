@@ -22,6 +22,7 @@
     "@solana-kit-bot/core": "workspace:*",
     "@solana-kit-bot/provider": "workspace:*",
     "@solana-kit-bot/pumpswap-pool-checker": "workspace:*",
+    "@solana-kit-bot/pumpswap-limit-order": "workspace:*",
     "@solana-kit-bot/pumpswap-virtual-trading": "workspace:*",
     "@solana-kit-bot/raydium-launchlab-pool-checker": "workspace:*",
     "@solana-kit-bot/raydium-launchlab-virtual-trading": "workspace:*",

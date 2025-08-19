@@ -28,22 +28,16 @@ import {
   type ReadonlyAccount,
   type ReadonlyUint8Array,
   type WritableAccount,
-} from '@solana/kit';
-import { PUMP_PROGRAM_ADDRESS } from '../programs';
-import {
-  expectAddress,
-  getAccountMetaFactory,
-  type ResolvedAccount,
-} from '../shared';
+} from '@solana/kit'
+import { PUMP_PROGRAM_ADDRESS } from '../programs'
+import { expectAddress, getAccountMetaFactory, type ResolvedAccount } from '../shared'
 
 export const SYNC_USER_VOLUME_ACCUMULATOR_DISCRIMINATOR = new Uint8Array([
   86, 31, 192, 87, 163, 87, 79, 238,
-]);
+])
 
 export function getSyncUserVolumeAccumulatorDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
-    SYNC_USER_VOLUME_ACCUMULATOR_DISCRIMINATOR
-  );
+  return fixEncoderSize(getBytesEncoder(), 8).encode(SYNC_USER_VOLUME_ACCUMULATOR_DISCRIMINATOR)
 }
 
 export type SyncUserVolumeAccumulatorInstruction<
@@ -58,9 +52,7 @@ export type SyncUserVolumeAccumulatorInstruction<
   InstructionWithData<ReadonlyUint8Array> &
   InstructionWithAccounts<
     [
-      TAccountUser extends string
-        ? ReadonlyAccount<TAccountUser>
-        : TAccountUser,
+      TAccountUser extends string ? ReadonlyAccount<TAccountUser> : TAccountUser,
       TAccountGlobalVolumeAccumulator extends string
         ? ReadonlyAccount<TAccountGlobalVolumeAccumulator>
         : TAccountGlobalVolumeAccumulator,
@@ -70,33 +62,29 @@ export type SyncUserVolumeAccumulatorInstruction<
       TAccountEventAuthority extends string
         ? ReadonlyAccount<TAccountEventAuthority>
         : TAccountEventAuthority,
-      TAccountProgram extends string
-        ? ReadonlyAccount<TAccountProgram>
-        : TAccountProgram,
+      TAccountProgram extends string ? ReadonlyAccount<TAccountProgram> : TAccountProgram,
       ...TRemainingAccounts,
     ]
-  >;
+  >
 
 export type SyncUserVolumeAccumulatorInstructionData = {
-  discriminator: ReadonlyUint8Array;
-};
+  discriminator: ReadonlyUint8Array
+}
 
-export type SyncUserVolumeAccumulatorInstructionDataArgs = {};
+export type SyncUserVolumeAccumulatorInstructionDataArgs = {}
 
 export function getSyncUserVolumeAccumulatorInstructionDataEncoder(): FixedSizeEncoder<SyncUserVolumeAccumulatorInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([['discriminator', fixEncoderSize(getBytesEncoder(), 8)]]),
-    (value) => ({
+    value => ({
       ...value,
       discriminator: SYNC_USER_VOLUME_ACCUMULATOR_DISCRIMINATOR,
     })
-  );
+  )
 }
 
 export function getSyncUserVolumeAccumulatorInstructionDataDecoder(): FixedSizeDecoder<SyncUserVolumeAccumulatorInstructionData> {
-  return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
-  ]);
+  return getStructDecoder([['discriminator', fixDecoderSize(getBytesDecoder(), 8)]])
 }
 
 export function getSyncUserVolumeAccumulatorInstructionDataCodec(): FixedSizeCodec<
@@ -106,7 +94,7 @@ export function getSyncUserVolumeAccumulatorInstructionDataCodec(): FixedSizeCod
   return combineCodec(
     getSyncUserVolumeAccumulatorInstructionDataEncoder(),
     getSyncUserVolumeAccumulatorInstructionDataDecoder()
-  );
+  )
 }
 
 export type SyncUserVolumeAccumulatorAsyncInput<
@@ -116,12 +104,12 @@ export type SyncUserVolumeAccumulatorAsyncInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  user: Address<TAccountUser>;
-  globalVolumeAccumulator?: Address<TAccountGlobalVolumeAccumulator>;
-  userVolumeAccumulator?: Address<TAccountUserVolumeAccumulator>;
-  eventAuthority?: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-};
+  user: Address<TAccountUser>
+  globalVolumeAccumulator?: Address<TAccountGlobalVolumeAccumulator>
+  userVolumeAccumulator?: Address<TAccountUserVolumeAccumulator>
+  eventAuthority?: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+}
 
 export async function getSyncUserVolumeAccumulatorInstructionAsync<
   TAccountUser extends string,
@@ -150,7 +138,7 @@ export async function getSyncUserVolumeAccumulatorInstructionAsync<
   >
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -165,11 +153,8 @@ export async function getSyncUserVolumeAccumulatorInstructionAsync<
     },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Resolve default values.
   if (!accounts.globalVolumeAccumulator.value) {
@@ -178,12 +163,12 @@ export async function getSyncUserVolumeAccumulatorInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            103, 108, 111, 98, 97, 108, 95, 118, 111, 108, 117, 109, 101, 95,
-            97, 99, 99, 117, 109, 117, 108, 97, 116, 111, 114,
+            103, 108, 111, 98, 97, 108, 95, 118, 111, 108, 117, 109, 101, 95, 97, 99, 99, 117, 109,
+            117, 108, 97, 116, 111, 114,
           ])
         ),
       ],
-    });
+    })
   }
   if (!accounts.userVolumeAccumulator.value) {
     accounts.userVolumeAccumulator.value = await getProgramDerivedAddress({
@@ -191,13 +176,13 @@ export async function getSyncUserVolumeAccumulatorInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            117, 115, 101, 114, 95, 118, 111, 108, 117, 109, 101, 95, 97, 99,
-            99, 117, 109, 117, 108, 97, 116, 111, 114,
+            117, 115, 101, 114, 95, 118, 111, 108, 117, 109, 101, 95, 97, 99, 99, 117, 109, 117,
+            108, 97, 116, 111, 114,
           ])
         ),
         getAddressEncoder().encode(expectAddress(accounts.user.value)),
       ],
-    });
+    })
   }
   if (!accounts.eventAuthority.value) {
     accounts.eventAuthority.value = await getProgramDerivedAddress({
@@ -205,15 +190,14 @@ export async function getSyncUserVolumeAccumulatorInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114,
-            105, 116, 121,
+            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121,
           ])
         ),
       ],
-    });
+    })
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.user),
@@ -231,9 +215,9 @@ export async function getSyncUserVolumeAccumulatorInstructionAsync<
     TAccountUserVolumeAccumulator,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type SyncUserVolumeAccumulatorInput<
@@ -243,12 +227,12 @@ export type SyncUserVolumeAccumulatorInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  user: Address<TAccountUser>;
-  globalVolumeAccumulator: Address<TAccountGlobalVolumeAccumulator>;
-  userVolumeAccumulator: Address<TAccountUserVolumeAccumulator>;
-  eventAuthority: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-};
+  user: Address<TAccountUser>
+  globalVolumeAccumulator: Address<TAccountGlobalVolumeAccumulator>
+  userVolumeAccumulator: Address<TAccountUserVolumeAccumulator>
+  eventAuthority: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+}
 
 export function getSyncUserVolumeAccumulatorInstruction<
   TAccountUser extends string,
@@ -275,7 +259,7 @@ export function getSyncUserVolumeAccumulatorInstruction<
   TAccountProgram
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -290,13 +274,10 @@ export function getSyncUserVolumeAccumulatorInstruction<
     },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.user),
@@ -314,25 +295,25 @@ export function getSyncUserVolumeAccumulatorInstruction<
     TAccountUserVolumeAccumulator,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type ParsedSyncUserVolumeAccumulatorInstruction<
   TProgram extends string = typeof PUMP_PROGRAM_ADDRESS,
   TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[],
 > = {
-  programAddress: Address<TProgram>;
+  programAddress: Address<TProgram>
   accounts: {
-    user: TAccountMetas[0];
-    globalVolumeAccumulator: TAccountMetas[1];
-    userVolumeAccumulator: TAccountMetas[2];
-    eventAuthority: TAccountMetas[3];
-    program: TAccountMetas[4];
-  };
-  data: SyncUserVolumeAccumulatorInstructionData;
-};
+    user: TAccountMetas[0]
+    globalVolumeAccumulator: TAccountMetas[1]
+    userVolumeAccumulator: TAccountMetas[2]
+    eventAuthority: TAccountMetas[3]
+    program: TAccountMetas[4]
+  }
+  data: SyncUserVolumeAccumulatorInstructionData
+}
 
 export function parseSyncUserVolumeAccumulatorInstruction<
   TProgram extends string,
@@ -344,14 +325,14 @@ export function parseSyncUserVolumeAccumulatorInstruction<
 ): ParsedSyncUserVolumeAccumulatorInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 5) {
     // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new Error('Not enough accounts')
   }
-  let accountIndex = 0;
+  let accountIndex = 0
   const getNextAccount = () => {
-    const accountMeta = instruction.accounts![accountIndex]!;
-    accountIndex += 1;
-    return accountMeta;
-  };
+    const accountMeta = instruction.accounts![accountIndex]!
+    accountIndex += 1
+    return accountMeta
+  }
   return {
     programAddress: instruction.programAddress,
     accounts: {
@@ -361,8 +342,6 @@ export function parseSyncUserVolumeAccumulatorInstruction<
       eventAuthority: getNextAccount(),
       program: getNextAccount(),
     },
-    data: getSyncUserVolumeAccumulatorInstructionDataDecoder().decode(
-      instruction.data
-    ),
-  };
+    data: getSyncUserVolumeAccumulatorInstructionDataDecoder().decode(instruction.data),
+  }
 }

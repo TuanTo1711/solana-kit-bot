@@ -33,20 +33,14 @@ import {
   type TransactionSigner,
   type WritableAccount,
   type WritableSignerAccount,
-} from '@solana/kit';
-import { PUMP_PROGRAM_ADDRESS } from '../programs';
-import {
-  expectAddress,
-  getAccountMetaFactory,
-  type ResolvedAccount,
-} from '../shared';
+} from '@solana/kit'
+import { PUMP_PROGRAM_ADDRESS } from '../programs'
+import { expectAddress, getAccountMetaFactory, type ResolvedAccount } from '../shared'
 
-export const SELL_DISCRIMINATOR = new Uint8Array([
-  51, 230, 133, 164, 1, 127, 131, 173,
-]);
+export const SELL_DISCRIMINATOR = new Uint8Array([51, 230, 133, 164, 1, 127, 131, 173])
 
 export function getSellDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(SELL_DISCRIMINATOR);
+  return fixEncoderSize(getBytesEncoder(), 8).encode(SELL_DISCRIMINATOR)
 }
 
 export type SellInstruction<
@@ -58,9 +52,7 @@ export type SellInstruction<
   TAccountAssociatedBondingCurve extends string | AccountMeta<string> = string,
   TAccountAssociatedUser extends string | AccountMeta<string> = string,
   TAccountUser extends string | AccountMeta<string> = string,
-  TAccountSystemProgram extends
-    | string
-    | AccountMeta<string> = '11111111111111111111111111111111',
+  TAccountSystemProgram extends string | AccountMeta<string> = '11111111111111111111111111111111',
   TAccountCreatorVault extends string | AccountMeta<string> = string,
   TAccountTokenProgram extends
     | string
@@ -72,15 +64,11 @@ export type SellInstruction<
   InstructionWithData<ReadonlyUint8Array> &
   InstructionWithAccounts<
     [
-      TAccountGlobal extends string
-        ? ReadonlyAccount<TAccountGlobal>
-        : TAccountGlobal,
+      TAccountGlobal extends string ? ReadonlyAccount<TAccountGlobal> : TAccountGlobal,
       TAccountFeeRecipient extends string
         ? WritableAccount<TAccountFeeRecipient>
         : TAccountFeeRecipient,
-      TAccountMint extends string
-        ? ReadonlyAccount<TAccountMint>
-        : TAccountMint,
+      TAccountMint extends string ? ReadonlyAccount<TAccountMint> : TAccountMint,
       TAccountBondingCurve extends string
         ? WritableAccount<TAccountBondingCurve>
         : TAccountBondingCurve,
@@ -105,23 +93,21 @@ export type SellInstruction<
       TAccountEventAuthority extends string
         ? ReadonlyAccount<TAccountEventAuthority>
         : TAccountEventAuthority,
-      TAccountProgram extends string
-        ? ReadonlyAccount<TAccountProgram>
-        : TAccountProgram,
+      TAccountProgram extends string ? ReadonlyAccount<TAccountProgram> : TAccountProgram,
       ...TRemainingAccounts,
     ]
-  >;
+  >
 
 export type SellInstructionData = {
-  discriminator: ReadonlyUint8Array;
-  amount: bigint;
-  minSolOutput: bigint;
-};
+  discriminator: ReadonlyUint8Array
+  amount: bigint
+  minSolOutput: bigint
+}
 
 export type SellInstructionDataArgs = {
-  amount: number | bigint;
-  minSolOutput: number | bigint;
-};
+  amount: number | bigint
+  minSolOutput: number | bigint
+}
 
 export function getSellInstructionDataEncoder(): FixedSizeEncoder<SellInstructionDataArgs> {
   return transformEncoder(
@@ -130,8 +116,8 @@ export function getSellInstructionDataEncoder(): FixedSizeEncoder<SellInstructio
       ['amount', getU64Encoder()],
       ['minSolOutput', getU64Encoder()],
     ]),
-    (value) => ({ ...value, discriminator: SELL_DISCRIMINATOR })
-  );
+    value => ({ ...value, discriminator: SELL_DISCRIMINATOR })
+  )
 }
 
 export function getSellInstructionDataDecoder(): FixedSizeDecoder<SellInstructionData> {
@@ -139,17 +125,14 @@ export function getSellInstructionDataDecoder(): FixedSizeDecoder<SellInstructio
     ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
     ['amount', getU64Decoder()],
     ['minSolOutput', getU64Decoder()],
-  ]);
+  ])
 }
 
 export function getSellInstructionDataCodec(): FixedSizeCodec<
   SellInstructionDataArgs,
   SellInstructionData
 > {
-  return combineCodec(
-    getSellInstructionDataEncoder(),
-    getSellInstructionDataDecoder()
-  );
+  return combineCodec(getSellInstructionDataEncoder(), getSellInstructionDataDecoder())
 }
 
 export type SellAsyncInput<
@@ -166,21 +149,21 @@ export type SellAsyncInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  global?: Address<TAccountGlobal>;
-  feeRecipient: Address<TAccountFeeRecipient>;
-  mint: Address<TAccountMint>;
-  bondingCurve?: Address<TAccountBondingCurve>;
-  associatedBondingCurve?: Address<TAccountAssociatedBondingCurve>;
-  associatedUser: Address<TAccountAssociatedUser>;
-  user: TransactionSigner<TAccountUser>;
-  systemProgram?: Address<TAccountSystemProgram>;
-  creatorVault: Address<TAccountCreatorVault>;
-  tokenProgram?: Address<TAccountTokenProgram>;
-  eventAuthority?: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-  amount: SellInstructionDataArgs['amount'];
-  minSolOutput: SellInstructionDataArgs['minSolOutput'];
-};
+  global?: Address<TAccountGlobal>
+  feeRecipient: Address<TAccountFeeRecipient>
+  mint: Address<TAccountMint>
+  bondingCurve?: Address<TAccountBondingCurve>
+  associatedBondingCurve?: Address<TAccountAssociatedBondingCurve>
+  associatedUser: Address<TAccountAssociatedUser>
+  user: TransactionSigner<TAccountUser>
+  systemProgram?: Address<TAccountSystemProgram>
+  creatorVault: Address<TAccountCreatorVault>
+  tokenProgram?: Address<TAccountTokenProgram>
+  eventAuthority?: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+  amount: SellInstructionDataArgs['amount']
+  minSolOutput: SellInstructionDataArgs['minSolOutput']
+}
 
 export async function getSellInstructionAsync<
   TAccountGlobal extends string,
@@ -230,7 +213,7 @@ export async function getSellInstructionAsync<
   >
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -249,36 +232,29 @@ export async function getSellInstructionAsync<
     tokenProgram: { value: input.tokenProgram ?? null, isWritable: false },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Original args.
-  const args = { ...input };
+  const args = { ...input }
 
   // Resolve default values.
   if (!accounts.global.value) {
     accounts.global.value = await getProgramDerivedAddress({
       programAddress,
-      seeds: [
-        getBytesEncoder().encode(new Uint8Array([103, 108, 111, 98, 97, 108])),
-      ],
-    });
+      seeds: [getBytesEncoder().encode(new Uint8Array([103, 108, 111, 98, 97, 108]))],
+    })
   }
   if (!accounts.bondingCurve.value) {
     accounts.bondingCurve.value = await getProgramDerivedAddress({
       programAddress,
       seeds: [
         getBytesEncoder().encode(
-          new Uint8Array([
-            98, 111, 110, 100, 105, 110, 103, 45, 99, 117, 114, 118, 101,
-          ])
+          new Uint8Array([98, 111, 110, 100, 105, 110, 103, 45, 99, 117, 114, 118, 101])
         ),
         getAddressEncoder().encode(expectAddress(accounts.mint.value)),
       ],
-    });
+    })
   }
   if (!accounts.associatedBondingCurve.value) {
     accounts.associatedBondingCurve.value = await getProgramDerivedAddress({
@@ -288,22 +264,21 @@ export async function getSellInstructionAsync<
         getAddressEncoder().encode(expectAddress(accounts.bondingCurve.value)),
         getBytesEncoder().encode(
           new Uint8Array([
-            6, 221, 246, 225, 215, 101, 161, 147, 217, 203, 225, 70, 206, 235,
-            121, 172, 28, 180, 133, 237, 95, 91, 55, 145, 58, 140, 245, 133,
-            126, 255, 0, 169,
+            6, 221, 246, 225, 215, 101, 161, 147, 217, 203, 225, 70, 206, 235, 121, 172, 28, 180,
+            133, 237, 95, 91, 55, 145, 58, 140, 245, 133, 126, 255, 0, 169,
           ])
         ),
         getAddressEncoder().encode(expectAddress(accounts.mint.value)),
       ],
-    });
+    })
   }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
-      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
+      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>
   }
   if (!accounts.tokenProgram.value) {
     accounts.tokenProgram.value =
-      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>;
+      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>
   }
   if (!accounts.eventAuthority.value) {
     accounts.eventAuthority.value = await getProgramDerivedAddress({
@@ -311,15 +286,14 @@ export async function getSellInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114,
-            105, 116, 121,
+            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121,
           ])
         ),
       ],
-    });
+    })
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.global),
@@ -336,9 +310,7 @@ export async function getSellInstructionAsync<
       getAccountMeta(accounts.program),
     ],
     programAddress,
-    data: getSellInstructionDataEncoder().encode(
-      args as SellInstructionDataArgs
-    ),
+    data: getSellInstructionDataEncoder().encode(args as SellInstructionDataArgs),
   } as SellInstruction<
     TProgramAddress,
     TAccountGlobal,
@@ -353,9 +325,9 @@ export async function getSellInstructionAsync<
     TAccountTokenProgram,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type SellInput<
@@ -372,21 +344,21 @@ export type SellInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  global: Address<TAccountGlobal>;
-  feeRecipient: Address<TAccountFeeRecipient>;
-  mint: Address<TAccountMint>;
-  bondingCurve: Address<TAccountBondingCurve>;
-  associatedBondingCurve: Address<TAccountAssociatedBondingCurve>;
-  associatedUser: Address<TAccountAssociatedUser>;
-  user: TransactionSigner<TAccountUser>;
-  systemProgram?: Address<TAccountSystemProgram>;
-  creatorVault: Address<TAccountCreatorVault>;
-  tokenProgram?: Address<TAccountTokenProgram>;
-  eventAuthority: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-  amount: SellInstructionDataArgs['amount'];
-  minSolOutput: SellInstructionDataArgs['minSolOutput'];
-};
+  global: Address<TAccountGlobal>
+  feeRecipient: Address<TAccountFeeRecipient>
+  mint: Address<TAccountMint>
+  bondingCurve: Address<TAccountBondingCurve>
+  associatedBondingCurve: Address<TAccountAssociatedBondingCurve>
+  associatedUser: Address<TAccountAssociatedUser>
+  user: TransactionSigner<TAccountUser>
+  systemProgram?: Address<TAccountSystemProgram>
+  creatorVault: Address<TAccountCreatorVault>
+  tokenProgram?: Address<TAccountTokenProgram>
+  eventAuthority: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+  amount: SellInstructionDataArgs['amount']
+  minSolOutput: SellInstructionDataArgs['minSolOutput']
+}
 
 export function getSellInstruction<
   TAccountGlobal extends string,
@@ -434,7 +406,7 @@ export function getSellInstruction<
   TAccountProgram
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -453,26 +425,23 @@ export function getSellInstruction<
     tokenProgram: { value: input.tokenProgram ?? null, isWritable: false },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Original args.
-  const args = { ...input };
+  const args = { ...input }
 
   // Resolve default values.
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
-      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
+      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>
   }
   if (!accounts.tokenProgram.value) {
     accounts.tokenProgram.value =
-      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>;
+      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.global),
@@ -489,9 +458,7 @@ export function getSellInstruction<
       getAccountMeta(accounts.program),
     ],
     programAddress,
-    data: getSellInstructionDataEncoder().encode(
-      args as SellInstructionDataArgs
-    ),
+    data: getSellInstructionDataEncoder().encode(args as SellInstructionDataArgs),
   } as SellInstruction<
     TProgramAddress,
     TAccountGlobal,
@@ -506,32 +473,32 @@ export function getSellInstruction<
     TAccountTokenProgram,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type ParsedSellInstruction<
   TProgram extends string = typeof PUMP_PROGRAM_ADDRESS,
   TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[],
 > = {
-  programAddress: Address<TProgram>;
+  programAddress: Address<TProgram>
   accounts: {
-    global: TAccountMetas[0];
-    feeRecipient: TAccountMetas[1];
-    mint: TAccountMetas[2];
-    bondingCurve: TAccountMetas[3];
-    associatedBondingCurve: TAccountMetas[4];
-    associatedUser: TAccountMetas[5];
-    user: TAccountMetas[6];
-    systemProgram: TAccountMetas[7];
-    creatorVault: TAccountMetas[8];
-    tokenProgram: TAccountMetas[9];
-    eventAuthority: TAccountMetas[10];
-    program: TAccountMetas[11];
-  };
-  data: SellInstructionData;
-};
+    global: TAccountMetas[0]
+    feeRecipient: TAccountMetas[1]
+    mint: TAccountMetas[2]
+    bondingCurve: TAccountMetas[3]
+    associatedBondingCurve: TAccountMetas[4]
+    associatedUser: TAccountMetas[5]
+    user: TAccountMetas[6]
+    systemProgram: TAccountMetas[7]
+    creatorVault: TAccountMetas[8]
+    tokenProgram: TAccountMetas[9]
+    eventAuthority: TAccountMetas[10]
+    program: TAccountMetas[11]
+  }
+  data: SellInstructionData
+}
 
 export function parseSellInstruction<
   TProgram extends string,
@@ -543,14 +510,14 @@ export function parseSellInstruction<
 ): ParsedSellInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 12) {
     // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new Error('Not enough accounts')
   }
-  let accountIndex = 0;
+  let accountIndex = 0
   const getNextAccount = () => {
-    const accountMeta = instruction.accounts![accountIndex]!;
-    accountIndex += 1;
-    return accountMeta;
-  };
+    const accountMeta = instruction.accounts![accountIndex]!
+    accountIndex += 1
+    return accountMeta
+  }
   return {
     programAddress: instruction.programAddress,
     accounts: {
@@ -568,5 +535,5 @@ export function parseSellInstruction<
       program: getNextAccount(),
     },
     data: getSellInstructionDataDecoder().decode(instruction.data),
-  };
+  }
 }

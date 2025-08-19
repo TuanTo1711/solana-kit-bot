@@ -18,30 +18,30 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit';
+} from '@solana/kit'
 
 export type CloseUserVolumeAccumulatorEvent = {
-  user: Address;
-  timestamp: bigint;
-};
+  user: Address
+  timestamp: bigint
+}
 
 export type CloseUserVolumeAccumulatorEventArgs = {
-  user: Address;
-  timestamp: number | bigint;
-};
+  user: Address
+  timestamp: number | bigint
+}
 
 export function getCloseUserVolumeAccumulatorEventEncoder(): FixedSizeEncoder<CloseUserVolumeAccumulatorEventArgs> {
   return getStructEncoder([
     ['user', getAddressEncoder()],
     ['timestamp', getI64Encoder()],
-  ]);
+  ])
 }
 
 export function getCloseUserVolumeAccumulatorEventDecoder(): FixedSizeDecoder<CloseUserVolumeAccumulatorEvent> {
   return getStructDecoder([
     ['user', getAddressDecoder()],
     ['timestamp', getI64Decoder()],
-  ]);
+  ])
 }
 
 export function getCloseUserVolumeAccumulatorEventCodec(): FixedSizeCodec<
@@ -51,5 +51,5 @@ export function getCloseUserVolumeAccumulatorEventCodec(): FixedSizeCodec<
   return combineCodec(
     getCloseUserVolumeAccumulatorEventEncoder(),
     getCloseUserVolumeAccumulatorEventDecoder()
-  );
+  )
 }

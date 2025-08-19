@@ -18,21 +18,21 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit';
+} from '@solana/kit'
 
 export type CompleteEvent = {
-  user: Address;
-  mint: Address;
-  bondingCurve: Address;
-  timestamp: bigint;
-};
+  user: Address
+  mint: Address
+  bondingCurve: Address
+  timestamp: bigint
+}
 
 export type CompleteEventArgs = {
-  user: Address;
-  mint: Address;
-  bondingCurve: Address;
-  timestamp: number | bigint;
-};
+  user: Address
+  mint: Address
+  bondingCurve: Address
+  timestamp: number | bigint
+}
 
 export function getCompleteEventEncoder(): FixedSizeEncoder<CompleteEventArgs> {
   return getStructEncoder([
@@ -40,7 +40,7 @@ export function getCompleteEventEncoder(): FixedSizeEncoder<CompleteEventArgs> {
     ['mint', getAddressEncoder()],
     ['bondingCurve', getAddressEncoder()],
     ['timestamp', getI64Encoder()],
-  ]);
+  ])
 }
 
 export function getCompleteEventDecoder(): FixedSizeDecoder<CompleteEvent> {
@@ -49,12 +49,9 @@ export function getCompleteEventDecoder(): FixedSizeDecoder<CompleteEvent> {
     ['mint', getAddressDecoder()],
     ['bondingCurve', getAddressDecoder()],
     ['timestamp', getI64Decoder()],
-  ]);
+  ])
 }
 
-export function getCompleteEventCodec(): FixedSizeCodec<
-  CompleteEventArgs,
-  CompleteEvent
-> {
-  return combineCodec(getCompleteEventEncoder(), getCompleteEventDecoder());
+export function getCompleteEventCodec(): FixedSizeCodec<CompleteEventArgs, CompleteEvent> {
+  return combineCodec(getCompleteEventEncoder(), getCompleteEventDecoder())
 }

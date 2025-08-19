@@ -12,7 +12,7 @@ import {
   getBytesEncoder,
   type Address,
   type ReadonlyUint8Array,
-} from '@solana/kit';
+} from '@solana/kit'
 import {
   type ParsedAdminSetCreatorInstruction,
   type ParsedAdminSetIdlAuthorityInstruction,
@@ -32,10 +32,10 @@ import {
   type ParsedSetParamsInstruction,
   type ParsedSyncUserVolumeAccumulatorInstruction,
   type ParsedUpdateGlobalAuthorityInstruction,
-} from '../instructions';
+} from '../instructions'
 
 export const PUMP_PROGRAM_ADDRESS =
-  '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P' as Address<'6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P'>;
+  '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P' as Address<'6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P'>
 
 export enum PumpAccount {
   BondingCurve,
@@ -47,7 +47,7 @@ export enum PumpAccount {
 export function identifyPumpAccount(
   account: { data: ReadonlyUint8Array } | ReadonlyUint8Array
 ): PumpAccount {
-  const data = 'data' in account ? account.data : account;
+  const data = 'data' in account ? account.data : account
   if (
     containsBytes(
       data,
@@ -57,7 +57,7 @@ export function identifyPumpAccount(
       0
     )
   ) {
-    return PumpAccount.BondingCurve;
+    return PumpAccount.BondingCurve
   }
   if (
     containsBytes(
@@ -68,7 +68,7 @@ export function identifyPumpAccount(
       0
     )
   ) {
-    return PumpAccount.Global;
+    return PumpAccount.Global
   }
   if (
     containsBytes(
@@ -79,7 +79,7 @@ export function identifyPumpAccount(
       0
     )
   ) {
-    return PumpAccount.GlobalVolumeAccumulator;
+    return PumpAccount.GlobalVolumeAccumulator
   }
   if (
     containsBytes(
@@ -90,11 +90,9 @@ export function identifyPumpAccount(
       0
     )
   ) {
-    return PumpAccount.UserVolumeAccumulator;
+    return PumpAccount.UserVolumeAccumulator
   }
-  throw new Error(
-    'The provided account could not be identified as a pump account.'
-  );
+  throw new Error('The provided account could not be identified as a pump account.')
 }
 
 export enum PumpInstruction {
@@ -121,7 +119,7 @@ export enum PumpInstruction {
 export function identifyPumpInstruction(
   instruction: { data: ReadonlyUint8Array } | ReadonlyUint8Array
 ): PumpInstruction {
-  const data = 'data' in instruction ? instruction.data : instruction;
+  const data = 'data' in instruction ? instruction.data : instruction
   if (
     containsBytes(
       data,
@@ -131,7 +129,7 @@ export function identifyPumpInstruction(
       0
     )
   ) {
-    return PumpInstruction.AdminSetCreator;
+    return PumpInstruction.AdminSetCreator
   }
   if (
     containsBytes(
@@ -142,7 +140,7 @@ export function identifyPumpInstruction(
       0
     )
   ) {
-    return PumpInstruction.AdminSetIdlAuthority;
+    return PumpInstruction.AdminSetIdlAuthority
   }
   if (
     containsBytes(
@@ -153,7 +151,7 @@ export function identifyPumpInstruction(
       0
     )
   ) {
-    return PumpInstruction.AdminUpdateTokenIncentives;
+    return PumpInstruction.AdminUpdateTokenIncentives
   }
   if (
     containsBytes(
@@ -164,18 +162,16 @@ export function identifyPumpInstruction(
       0
     )
   ) {
-    return PumpInstruction.Buy;
+    return PumpInstruction.Buy
   }
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([16, 4, 71, 28, 204, 1, 40, 27])
-      ),
+      fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([16, 4, 71, 28, 204, 1, 40, 27])),
       0
     )
   ) {
-    return PumpInstruction.ClaimTokenIncentives;
+    return PumpInstruction.ClaimTokenIncentives
   }
   if (
     containsBytes(
@@ -186,7 +182,7 @@ export function identifyPumpInstruction(
       0
     )
   ) {
-    return PumpInstruction.CloseUserVolumeAccumulator;
+    return PumpInstruction.CloseUserVolumeAccumulator
   }
   if (
     containsBytes(
@@ -197,18 +193,16 @@ export function identifyPumpInstruction(
       0
     )
   ) {
-    return PumpInstruction.CollectCreatorFee;
+    return PumpInstruction.CollectCreatorFee
   }
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([24, 30, 200, 40, 5, 28, 7, 119])
-      ),
+      fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([24, 30, 200, 40, 5, 28, 7, 119])),
       0
     )
   ) {
-    return PumpInstruction.Create;
+    return PumpInstruction.Create
   }
   if (
     containsBytes(
@@ -219,7 +213,7 @@ export function identifyPumpInstruction(
       0
     )
   ) {
-    return PumpInstruction.ExtendAccount;
+    return PumpInstruction.ExtendAccount
   }
   if (
     containsBytes(
@@ -230,7 +224,7 @@ export function identifyPumpInstruction(
       0
     )
   ) {
-    return PumpInstruction.InitUserVolumeAccumulator;
+    return PumpInstruction.InitUserVolumeAccumulator
   }
   if (
     containsBytes(
@@ -241,7 +235,7 @@ export function identifyPumpInstruction(
       0
     )
   ) {
-    return PumpInstruction.Initialize;
+    return PumpInstruction.Initialize
   }
   if (
     containsBytes(
@@ -252,7 +246,7 @@ export function identifyPumpInstruction(
       0
     )
   ) {
-    return PumpInstruction.Migrate;
+    return PumpInstruction.Migrate
   }
   if (
     containsBytes(
@@ -263,7 +257,7 @@ export function identifyPumpInstruction(
       0
     )
   ) {
-    return PumpInstruction.Sell;
+    return PumpInstruction.Sell
   }
   if (
     containsBytes(
@@ -274,7 +268,7 @@ export function identifyPumpInstruction(
       0
     )
   ) {
-    return PumpInstruction.SetCreator;
+    return PumpInstruction.SetCreator
   }
   if (
     containsBytes(
@@ -285,7 +279,7 @@ export function identifyPumpInstruction(
       0
     )
   ) {
-    return PumpInstruction.SetMetaplexCreator;
+    return PumpInstruction.SetMetaplexCreator
   }
   if (
     containsBytes(
@@ -296,7 +290,7 @@ export function identifyPumpInstruction(
       0
     )
   ) {
-    return PumpInstruction.SetParams;
+    return PumpInstruction.SetParams
   }
   if (
     containsBytes(
@@ -307,7 +301,7 @@ export function identifyPumpInstruction(
       0
     )
   ) {
-    return PumpInstruction.SyncUserVolumeAccumulator;
+    return PumpInstruction.SyncUserVolumeAccumulator
   }
   if (
     containsBytes(
@@ -318,65 +312,63 @@ export function identifyPumpInstruction(
       0
     )
   ) {
-    return PumpInstruction.UpdateGlobalAuthority;
+    return PumpInstruction.UpdateGlobalAuthority
   }
-  throw new Error(
-    'The provided instruction could not be identified as a pump instruction.'
-  );
+  throw new Error('The provided instruction could not be identified as a pump instruction.')
 }
 
 export type ParsedPumpInstruction<
   TProgram extends string = '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P',
 > =
   | ({
-      instructionType: PumpInstruction.AdminSetCreator;
+      instructionType: PumpInstruction.AdminSetCreator
     } & ParsedAdminSetCreatorInstruction<TProgram>)
   | ({
-      instructionType: PumpInstruction.AdminSetIdlAuthority;
+      instructionType: PumpInstruction.AdminSetIdlAuthority
     } & ParsedAdminSetIdlAuthorityInstruction<TProgram>)
   | ({
-      instructionType: PumpInstruction.AdminUpdateTokenIncentives;
+      instructionType: PumpInstruction.AdminUpdateTokenIncentives
     } & ParsedAdminUpdateTokenIncentivesInstruction<TProgram>)
   | ({ instructionType: PumpInstruction.Buy } & ParsedBuyInstruction<TProgram>)
   | ({
-      instructionType: PumpInstruction.ClaimTokenIncentives;
+      instructionType: PumpInstruction.ClaimTokenIncentives
     } & ParsedClaimTokenIncentivesInstruction<TProgram>)
   | ({
-      instructionType: PumpInstruction.CloseUserVolumeAccumulator;
+      instructionType: PumpInstruction.CloseUserVolumeAccumulator
     } & ParsedCloseUserVolumeAccumulatorInstruction<TProgram>)
   | ({
-      instructionType: PumpInstruction.CollectCreatorFee;
+      instructionType: PumpInstruction.CollectCreatorFee
     } & ParsedCollectCreatorFeeInstruction<TProgram>)
   | ({
-      instructionType: PumpInstruction.Create;
+      instructionType: PumpInstruction.Create
     } & ParsedCreateInstruction<TProgram>)
   | ({
-      instructionType: PumpInstruction.ExtendAccount;
+      instructionType: PumpInstruction.ExtendAccount
     } & ParsedExtendAccountInstruction<TProgram>)
   | ({
-      instructionType: PumpInstruction.InitUserVolumeAccumulator;
+      instructionType: PumpInstruction.InitUserVolumeAccumulator
     } & ParsedInitUserVolumeAccumulatorInstruction<TProgram>)
   | ({
-      instructionType: PumpInstruction.Initialize;
+      instructionType: PumpInstruction.Initialize
     } & ParsedInitializeInstruction<TProgram>)
   | ({
-      instructionType: PumpInstruction.Migrate;
+      instructionType: PumpInstruction.Migrate
     } & ParsedMigrateInstruction<TProgram>)
   | ({
-      instructionType: PumpInstruction.Sell;
+      instructionType: PumpInstruction.Sell
     } & ParsedSellInstruction<TProgram>)
   | ({
-      instructionType: PumpInstruction.SetCreator;
+      instructionType: PumpInstruction.SetCreator
     } & ParsedSetCreatorInstruction<TProgram>)
   | ({
-      instructionType: PumpInstruction.SetMetaplexCreator;
+      instructionType: PumpInstruction.SetMetaplexCreator
     } & ParsedSetMetaplexCreatorInstruction<TProgram>)
   | ({
-      instructionType: PumpInstruction.SetParams;
+      instructionType: PumpInstruction.SetParams
     } & ParsedSetParamsInstruction<TProgram>)
   | ({
-      instructionType: PumpInstruction.SyncUserVolumeAccumulator;
+      instructionType: PumpInstruction.SyncUserVolumeAccumulator
     } & ParsedSyncUserVolumeAccumulatorInstruction<TProgram>)
   | ({
-      instructionType: PumpInstruction.UpdateGlobalAuthority;
-    } & ParsedUpdateGlobalAuthorityInstruction<TProgram>);
+      instructionType: PumpInstruction.UpdateGlobalAuthority
+    } & ParsedUpdateGlobalAuthorityInstruction<TProgram>)

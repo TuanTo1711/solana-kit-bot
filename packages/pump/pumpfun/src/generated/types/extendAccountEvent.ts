@@ -20,23 +20,23 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit';
+} from '@solana/kit'
 
 export type ExtendAccountEvent = {
-  account: Address;
-  user: Address;
-  currentSize: bigint;
-  newSize: bigint;
-  timestamp: bigint;
-};
+  account: Address
+  user: Address
+  currentSize: bigint
+  newSize: bigint
+  timestamp: bigint
+}
 
 export type ExtendAccountEventArgs = {
-  account: Address;
-  user: Address;
-  currentSize: number | bigint;
-  newSize: number | bigint;
-  timestamp: number | bigint;
-};
+  account: Address
+  user: Address
+  currentSize: number | bigint
+  newSize: number | bigint
+  timestamp: number | bigint
+}
 
 export function getExtendAccountEventEncoder(): FixedSizeEncoder<ExtendAccountEventArgs> {
   return getStructEncoder([
@@ -45,7 +45,7 @@ export function getExtendAccountEventEncoder(): FixedSizeEncoder<ExtendAccountEv
     ['currentSize', getU64Encoder()],
     ['newSize', getU64Encoder()],
     ['timestamp', getI64Encoder()],
-  ]);
+  ])
 }
 
 export function getExtendAccountEventDecoder(): FixedSizeDecoder<ExtendAccountEvent> {
@@ -55,15 +55,12 @@ export function getExtendAccountEventDecoder(): FixedSizeDecoder<ExtendAccountEv
     ['currentSize', getU64Decoder()],
     ['newSize', getU64Decoder()],
     ['timestamp', getI64Decoder()],
-  ]);
+  ])
 }
 
 export function getExtendAccountEventCodec(): FixedSizeCodec<
   ExtendAccountEventArgs,
   ExtendAccountEvent
 > {
-  return combineCodec(
-    getExtendAccountEventEncoder(),
-    getExtendAccountEventDecoder()
-  );
+  return combineCodec(getExtendAccountEventEncoder(), getExtendAccountEventDecoder())
 }

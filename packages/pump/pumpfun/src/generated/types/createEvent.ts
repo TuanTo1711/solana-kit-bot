@@ -26,37 +26,37 @@ import {
   type Codec,
   type Decoder,
   type Encoder,
-} from '@solana/kit';
+} from '@solana/kit'
 
 export type CreateEvent = {
-  name: string;
-  symbol: string;
-  uri: string;
-  mint: Address;
-  bondingCurve: Address;
-  user: Address;
-  creator: Address;
-  timestamp: bigint;
-  virtualTokenReserves: bigint;
-  virtualSolReserves: bigint;
-  realTokenReserves: bigint;
-  tokenTotalSupply: bigint;
-};
+  name: string
+  symbol: string
+  uri: string
+  mint: Address
+  bondingCurve: Address
+  user: Address
+  creator: Address
+  timestamp: bigint
+  virtualTokenReserves: bigint
+  virtualSolReserves: bigint
+  realTokenReserves: bigint
+  tokenTotalSupply: bigint
+}
 
 export type CreateEventArgs = {
-  name: string;
-  symbol: string;
-  uri: string;
-  mint: Address;
-  bondingCurve: Address;
-  user: Address;
-  creator: Address;
-  timestamp: number | bigint;
-  virtualTokenReserves: number | bigint;
-  virtualSolReserves: number | bigint;
-  realTokenReserves: number | bigint;
-  tokenTotalSupply: number | bigint;
-};
+  name: string
+  symbol: string
+  uri: string
+  mint: Address
+  bondingCurve: Address
+  user: Address
+  creator: Address
+  timestamp: number | bigint
+  virtualTokenReserves: number | bigint
+  virtualSolReserves: number | bigint
+  realTokenReserves: number | bigint
+  tokenTotalSupply: number | bigint
+}
 
 export function getCreateEventEncoder(): Encoder<CreateEventArgs> {
   return getStructEncoder([
@@ -72,7 +72,7 @@ export function getCreateEventEncoder(): Encoder<CreateEventArgs> {
     ['virtualSolReserves', getU64Encoder()],
     ['realTokenReserves', getU64Encoder()],
     ['tokenTotalSupply', getU64Encoder()],
-  ]);
+  ])
 }
 
 export function getCreateEventDecoder(): Decoder<CreateEvent> {
@@ -89,9 +89,9 @@ export function getCreateEventDecoder(): Decoder<CreateEvent> {
     ['virtualSolReserves', getU64Decoder()],
     ['realTokenReserves', getU64Decoder()],
     ['tokenTotalSupply', getU64Decoder()],
-  ]);
+  ])
 }
 
 export function getCreateEventCodec(): Codec<CreateEventArgs, CreateEvent> {
-  return combineCodec(getCreateEventEncoder(), getCreateEventDecoder());
+  return combineCodec(getCreateEventEncoder(), getCreateEventDecoder())
 }

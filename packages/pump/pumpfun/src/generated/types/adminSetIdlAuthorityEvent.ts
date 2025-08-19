@@ -16,26 +16,23 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit';
+} from '@solana/kit'
 
-export type AdminSetIdlAuthorityEvent = { idlAuthority: Address };
+export type AdminSetIdlAuthorityEvent = { idlAuthority: Address }
 
-export type AdminSetIdlAuthorityEventArgs = AdminSetIdlAuthorityEvent;
+export type AdminSetIdlAuthorityEventArgs = AdminSetIdlAuthorityEvent
 
 export function getAdminSetIdlAuthorityEventEncoder(): FixedSizeEncoder<AdminSetIdlAuthorityEventArgs> {
-  return getStructEncoder([['idlAuthority', getAddressEncoder()]]);
+  return getStructEncoder([['idlAuthority', getAddressEncoder()]])
 }
 
 export function getAdminSetIdlAuthorityEventDecoder(): FixedSizeDecoder<AdminSetIdlAuthorityEvent> {
-  return getStructDecoder([['idlAuthority', getAddressDecoder()]]);
+  return getStructDecoder([['idlAuthority', getAddressDecoder()]])
 }
 
 export function getAdminSetIdlAuthorityEventCodec(): FixedSizeCodec<
   AdminSetIdlAuthorityEventArgs,
   AdminSetIdlAuthorityEvent
 > {
-  return combineCodec(
-    getAdminSetIdlAuthorityEventEncoder(),
-    getAdminSetIdlAuthorityEventDecoder()
-  );
+  return combineCodec(getAdminSetIdlAuthorityEventEncoder(), getAdminSetIdlAuthorityEventDecoder())
 }

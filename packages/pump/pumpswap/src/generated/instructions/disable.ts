@@ -32,16 +32,14 @@ import {
   type ReadonlyUint8Array,
   type TransactionSigner,
   type WritableAccount,
-} from '@solana/kit';
-import { PUMP_AMM_PROGRAM_ADDRESS } from '../programs';
-import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
+} from '@solana/kit'
+import { PUMP_AMM_PROGRAM_ADDRESS } from '../programs'
+import { getAccountMetaFactory, type ResolvedAccount } from '../shared'
 
-export const DISABLE_DISCRIMINATOR = new Uint8Array([
-  185, 173, 187, 90, 216, 15, 238, 233,
-]);
+export const DISABLE_DISCRIMINATOR = new Uint8Array([185, 173, 187, 90, 216, 15, 238, 233])
 
 export function getDisableDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(DISABLE_DISCRIMINATOR);
+  return fixEncoderSize(getBytesEncoder(), 8).encode(DISABLE_DISCRIMINATOR)
 }
 
 export type DisableInstruction<
@@ -56,8 +54,7 @@ export type DisableInstruction<
   InstructionWithAccounts<
     [
       TAccountAdmin extends string
-        ? ReadonlySignerAccount<TAccountAdmin> &
-            AccountSignerMeta<TAccountAdmin>
+        ? ReadonlySignerAccount<TAccountAdmin> & AccountSignerMeta<TAccountAdmin>
         : TAccountAdmin,
       TAccountGlobalConfig extends string
         ? WritableAccount<TAccountGlobalConfig>
@@ -65,29 +62,27 @@ export type DisableInstruction<
       TAccountEventAuthority extends string
         ? ReadonlyAccount<TAccountEventAuthority>
         : TAccountEventAuthority,
-      TAccountProgram extends string
-        ? ReadonlyAccount<TAccountProgram>
-        : TAccountProgram,
+      TAccountProgram extends string ? ReadonlyAccount<TAccountProgram> : TAccountProgram,
       ...TRemainingAccounts,
     ]
-  >;
+  >
 
 export type DisableInstructionData = {
-  discriminator: ReadonlyUint8Array;
-  disableCreatePool: boolean;
-  disableDeposit: boolean;
-  disableWithdraw: boolean;
-  disableBuy: boolean;
-  disableSell: boolean;
-};
+  discriminator: ReadonlyUint8Array
+  disableCreatePool: boolean
+  disableDeposit: boolean
+  disableWithdraw: boolean
+  disableBuy: boolean
+  disableSell: boolean
+}
 
 export type DisableInstructionDataArgs = {
-  disableCreatePool: boolean;
-  disableDeposit: boolean;
-  disableWithdraw: boolean;
-  disableBuy: boolean;
-  disableSell: boolean;
-};
+  disableCreatePool: boolean
+  disableDeposit: boolean
+  disableWithdraw: boolean
+  disableBuy: boolean
+  disableSell: boolean
+}
 
 export function getDisableInstructionDataEncoder(): FixedSizeEncoder<DisableInstructionDataArgs> {
   return transformEncoder(
@@ -99,8 +94,8 @@ export function getDisableInstructionDataEncoder(): FixedSizeEncoder<DisableInst
       ['disableBuy', getBooleanEncoder()],
       ['disableSell', getBooleanEncoder()],
     ]),
-    (value) => ({ ...value, discriminator: DISABLE_DISCRIMINATOR })
-  );
+    value => ({ ...value, discriminator: DISABLE_DISCRIMINATOR })
+  )
 }
 
 export function getDisableInstructionDataDecoder(): FixedSizeDecoder<DisableInstructionData> {
@@ -111,17 +106,14 @@ export function getDisableInstructionDataDecoder(): FixedSizeDecoder<DisableInst
     ['disableWithdraw', getBooleanDecoder()],
     ['disableBuy', getBooleanDecoder()],
     ['disableSell', getBooleanDecoder()],
-  ]);
+  ])
 }
 
 export function getDisableInstructionDataCodec(): FixedSizeCodec<
   DisableInstructionDataArgs,
   DisableInstructionData
 > {
-  return combineCodec(
-    getDisableInstructionDataEncoder(),
-    getDisableInstructionDataDecoder()
-  );
+  return combineCodec(getDisableInstructionDataEncoder(), getDisableInstructionDataDecoder())
 }
 
 export type DisableAsyncInput<
@@ -130,16 +122,16 @@ export type DisableAsyncInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  admin: TransactionSigner<TAccountAdmin>;
-  globalConfig: Address<TAccountGlobalConfig>;
-  eventAuthority?: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-  disableCreatePool: DisableInstructionDataArgs['disableCreatePool'];
-  disableDeposit: DisableInstructionDataArgs['disableDeposit'];
-  disableWithdraw: DisableInstructionDataArgs['disableWithdraw'];
-  disableBuy: DisableInstructionDataArgs['disableBuy'];
-  disableSell: DisableInstructionDataArgs['disableSell'];
-};
+  admin: TransactionSigner<TAccountAdmin>
+  globalConfig: Address<TAccountGlobalConfig>
+  eventAuthority?: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+  disableCreatePool: DisableInstructionDataArgs['disableCreatePool']
+  disableDeposit: DisableInstructionDataArgs['disableDeposit']
+  disableWithdraw: DisableInstructionDataArgs['disableWithdraw']
+  disableBuy: DisableInstructionDataArgs['disableBuy']
+  disableSell: DisableInstructionDataArgs['disableSell']
+}
 
 export async function getDisableInstructionAsync<
   TAccountAdmin extends string,
@@ -165,7 +157,7 @@ export async function getDisableInstructionAsync<
   >
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -173,14 +165,11 @@ export async function getDisableInstructionAsync<
     globalConfig: { value: input.globalConfig ?? null, isWritable: true },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Original args.
-  const args = { ...input };
+  const args = { ...input }
 
   // Resolve default values.
   if (!accounts.eventAuthority.value) {
@@ -189,15 +178,14 @@ export async function getDisableInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114,
-            105, 116, 121,
+            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121,
           ])
         ),
       ],
-    });
+    })
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.admin),
@@ -206,18 +194,16 @@ export async function getDisableInstructionAsync<
       getAccountMeta(accounts.program),
     ],
     programAddress,
-    data: getDisableInstructionDataEncoder().encode(
-      args as DisableInstructionDataArgs
-    ),
+    data: getDisableInstructionDataEncoder().encode(args as DisableInstructionDataArgs),
   } as DisableInstruction<
     TProgramAddress,
     TAccountAdmin,
     TAccountGlobalConfig,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type DisableInput<
@@ -226,16 +212,16 @@ export type DisableInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  admin: TransactionSigner<TAccountAdmin>;
-  globalConfig: Address<TAccountGlobalConfig>;
-  eventAuthority: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-  disableCreatePool: DisableInstructionDataArgs['disableCreatePool'];
-  disableDeposit: DisableInstructionDataArgs['disableDeposit'];
-  disableWithdraw: DisableInstructionDataArgs['disableWithdraw'];
-  disableBuy: DisableInstructionDataArgs['disableBuy'];
-  disableSell: DisableInstructionDataArgs['disableSell'];
-};
+  admin: TransactionSigner<TAccountAdmin>
+  globalConfig: Address<TAccountGlobalConfig>
+  eventAuthority: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+  disableCreatePool: DisableInstructionDataArgs['disableCreatePool']
+  disableDeposit: DisableInstructionDataArgs['disableDeposit']
+  disableWithdraw: DisableInstructionDataArgs['disableWithdraw']
+  disableBuy: DisableInstructionDataArgs['disableBuy']
+  disableSell: DisableInstructionDataArgs['disableSell']
+}
 
 export function getDisableInstruction<
   TAccountAdmin extends string,
@@ -244,12 +230,7 @@ export function getDisableInstruction<
   TAccountProgram extends string,
   TProgramAddress extends Address = typeof PUMP_AMM_PROGRAM_ADDRESS,
 >(
-  input: DisableInput<
-    TAccountAdmin,
-    TAccountGlobalConfig,
-    TAccountEventAuthority,
-    TAccountProgram
-  >,
+  input: DisableInput<TAccountAdmin, TAccountGlobalConfig, TAccountEventAuthority, TAccountProgram>,
   config?: { programAddress?: TProgramAddress }
 ): DisableInstruction<
   TProgramAddress,
@@ -259,7 +240,7 @@ export function getDisableInstruction<
   TAccountProgram
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -267,16 +248,13 @@ export function getDisableInstruction<
     globalConfig: { value: input.globalConfig ?? null, isWritable: true },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Original args.
-  const args = { ...input };
+  const args = { ...input }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.admin),
@@ -285,33 +263,31 @@ export function getDisableInstruction<
       getAccountMeta(accounts.program),
     ],
     programAddress,
-    data: getDisableInstructionDataEncoder().encode(
-      args as DisableInstructionDataArgs
-    ),
+    data: getDisableInstructionDataEncoder().encode(args as DisableInstructionDataArgs),
   } as DisableInstruction<
     TProgramAddress,
     TAccountAdmin,
     TAccountGlobalConfig,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type ParsedDisableInstruction<
   TProgram extends string = typeof PUMP_AMM_PROGRAM_ADDRESS,
   TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[],
 > = {
-  programAddress: Address<TProgram>;
+  programAddress: Address<TProgram>
   accounts: {
-    admin: TAccountMetas[0];
-    globalConfig: TAccountMetas[1];
-    eventAuthority: TAccountMetas[2];
-    program: TAccountMetas[3];
-  };
-  data: DisableInstructionData;
-};
+    admin: TAccountMetas[0]
+    globalConfig: TAccountMetas[1]
+    eventAuthority: TAccountMetas[2]
+    program: TAccountMetas[3]
+  }
+  data: DisableInstructionData
+}
 
 export function parseDisableInstruction<
   TProgram extends string,
@@ -323,14 +299,14 @@ export function parseDisableInstruction<
 ): ParsedDisableInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 4) {
     // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new Error('Not enough accounts')
   }
-  let accountIndex = 0;
+  let accountIndex = 0
   const getNextAccount = () => {
-    const accountMeta = instruction.accounts![accountIndex]!;
-    accountIndex += 1;
-    return accountMeta;
-  };
+    const accountMeta = instruction.accounts![accountIndex]!
+    accountIndex += 1
+    return accountMeta
+  }
   return {
     programAddress: instruction.programAddress,
     accounts: {
@@ -340,5 +316,5 @@ export function parseDisableInstruction<
       program: getNextAccount(),
     },
     data: getDisableInstructionDataDecoder().decode(instruction.data),
-  };
+  }
 }

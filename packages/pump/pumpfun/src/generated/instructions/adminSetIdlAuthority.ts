@@ -32,18 +32,16 @@ import {
   type ReadonlyUint8Array,
   type TransactionSigner,
   type WritableAccount,
-} from '@solana/kit';
-import { PUMP_PROGRAM_ADDRESS } from '../programs';
-import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
+} from '@solana/kit'
+import { PUMP_PROGRAM_ADDRESS } from '../programs'
+import { getAccountMetaFactory, type ResolvedAccount } from '../shared'
 
 export const ADMIN_SET_IDL_AUTHORITY_DISCRIMINATOR = new Uint8Array([
   8, 217, 96, 231, 144, 104, 192, 5,
-]);
+])
 
 export function getAdminSetIdlAuthorityDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
-    ADMIN_SET_IDL_AUTHORITY_DISCRIMINATOR
-  );
+  return fixEncoderSize(getBytesEncoder(), 8).encode(ADMIN_SET_IDL_AUTHORITY_DISCRIMINATOR)
 }
 
 export type AdminSetIdlAuthorityInstruction<
@@ -51,9 +49,7 @@ export type AdminSetIdlAuthorityInstruction<
   TAccountAuthority extends string | AccountMeta<string> = string,
   TAccountGlobal extends string | AccountMeta<string> = string,
   TAccountIdlAccount extends string | AccountMeta<string> = string,
-  TAccountSystemProgram extends
-    | string
-    | AccountMeta<string> = '11111111111111111111111111111111',
+  TAccountSystemProgram extends string | AccountMeta<string> = '11111111111111111111111111111111',
   TAccountProgramSigner extends string | AccountMeta<string> = string,
   TAccountEventAuthority extends string | AccountMeta<string> = string,
   TAccountProgram extends string | AccountMeta<string> = string,
@@ -63,15 +59,10 @@ export type AdminSetIdlAuthorityInstruction<
   InstructionWithAccounts<
     [
       TAccountAuthority extends string
-        ? ReadonlySignerAccount<TAccountAuthority> &
-            AccountSignerMeta<TAccountAuthority>
+        ? ReadonlySignerAccount<TAccountAuthority> & AccountSignerMeta<TAccountAuthority>
         : TAccountAuthority,
-      TAccountGlobal extends string
-        ? ReadonlyAccount<TAccountGlobal>
-        : TAccountGlobal,
-      TAccountIdlAccount extends string
-        ? WritableAccount<TAccountIdlAccount>
-        : TAccountIdlAccount,
+      TAccountGlobal extends string ? ReadonlyAccount<TAccountGlobal> : TAccountGlobal,
+      TAccountIdlAccount extends string ? WritableAccount<TAccountIdlAccount> : TAccountIdlAccount,
       TAccountSystemProgram extends string
         ? ReadonlyAccount<TAccountSystemProgram>
         : TAccountSystemProgram,
@@ -81,19 +72,17 @@ export type AdminSetIdlAuthorityInstruction<
       TAccountEventAuthority extends string
         ? ReadonlyAccount<TAccountEventAuthority>
         : TAccountEventAuthority,
-      TAccountProgram extends string
-        ? ReadonlyAccount<TAccountProgram>
-        : TAccountProgram,
+      TAccountProgram extends string ? ReadonlyAccount<TAccountProgram> : TAccountProgram,
       ...TRemainingAccounts,
     ]
-  >;
+  >
 
 export type AdminSetIdlAuthorityInstructionData = {
-  discriminator: ReadonlyUint8Array;
-  idlAuthority: Address;
-};
+  discriminator: ReadonlyUint8Array
+  idlAuthority: Address
+}
 
-export type AdminSetIdlAuthorityInstructionDataArgs = { idlAuthority: Address };
+export type AdminSetIdlAuthorityInstructionDataArgs = { idlAuthority: Address }
 
 export function getAdminSetIdlAuthorityInstructionDataEncoder(): FixedSizeEncoder<AdminSetIdlAuthorityInstructionDataArgs> {
   return transformEncoder(
@@ -101,18 +90,18 @@ export function getAdminSetIdlAuthorityInstructionDataEncoder(): FixedSizeEncode
       ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
       ['idlAuthority', getAddressEncoder()],
     ]),
-    (value) => ({
+    value => ({
       ...value,
       discriminator: ADMIN_SET_IDL_AUTHORITY_DISCRIMINATOR,
     })
-  );
+  )
 }
 
 export function getAdminSetIdlAuthorityInstructionDataDecoder(): FixedSizeDecoder<AdminSetIdlAuthorityInstructionData> {
   return getStructDecoder([
     ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
     ['idlAuthority', getAddressDecoder()],
-  ]);
+  ])
 }
 
 export function getAdminSetIdlAuthorityInstructionDataCodec(): FixedSizeCodec<
@@ -122,7 +111,7 @@ export function getAdminSetIdlAuthorityInstructionDataCodec(): FixedSizeCodec<
   return combineCodec(
     getAdminSetIdlAuthorityInstructionDataEncoder(),
     getAdminSetIdlAuthorityInstructionDataDecoder()
-  );
+  )
 }
 
 export type AdminSetIdlAuthorityAsyncInput<
@@ -134,15 +123,15 @@ export type AdminSetIdlAuthorityAsyncInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  authority: TransactionSigner<TAccountAuthority>;
-  global?: Address<TAccountGlobal>;
-  idlAccount: Address<TAccountIdlAccount>;
-  systemProgram?: Address<TAccountSystemProgram>;
-  programSigner?: Address<TAccountProgramSigner>;
-  eventAuthority?: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-  idlAuthority: AdminSetIdlAuthorityInstructionDataArgs['idlAuthority'];
-};
+  authority: TransactionSigner<TAccountAuthority>
+  global?: Address<TAccountGlobal>
+  idlAccount: Address<TAccountIdlAccount>
+  systemProgram?: Address<TAccountSystemProgram>
+  programSigner?: Address<TAccountProgramSigner>
+  eventAuthority?: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+  idlAuthority: AdminSetIdlAuthorityInstructionDataArgs['idlAuthority']
+}
 
 export async function getAdminSetIdlAuthorityInstructionAsync<
   TAccountAuthority extends string,
@@ -177,7 +166,7 @@ export async function getAdminSetIdlAuthorityInstructionAsync<
   >
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -188,33 +177,28 @@ export async function getAdminSetIdlAuthorityInstructionAsync<
     programSigner: { value: input.programSigner ?? null, isWritable: false },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Original args.
-  const args = { ...input };
+  const args = { ...input }
 
   // Resolve default values.
   if (!accounts.global.value) {
     accounts.global.value = await getProgramDerivedAddress({
       programAddress,
-      seeds: [
-        getBytesEncoder().encode(new Uint8Array([103, 108, 111, 98, 97, 108])),
-      ],
-    });
+      seeds: [getBytesEncoder().encode(new Uint8Array([103, 108, 111, 98, 97, 108]))],
+    })
   }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
-      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
+      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>
   }
   if (!accounts.programSigner.value) {
     accounts.programSigner.value = await getProgramDerivedAddress({
       programAddress,
       seeds: [],
-    });
+    })
   }
   if (!accounts.eventAuthority.value) {
     accounts.eventAuthority.value = await getProgramDerivedAddress({
@@ -222,15 +206,14 @@ export async function getAdminSetIdlAuthorityInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114,
-            105, 116, 121,
+            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121,
           ])
         ),
       ],
-    });
+    })
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.authority),
@@ -254,9 +237,9 @@ export async function getAdminSetIdlAuthorityInstructionAsync<
     TAccountProgramSigner,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type AdminSetIdlAuthorityInput<
@@ -268,15 +251,15 @@ export type AdminSetIdlAuthorityInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  authority: TransactionSigner<TAccountAuthority>;
-  global: Address<TAccountGlobal>;
-  idlAccount: Address<TAccountIdlAccount>;
-  systemProgram?: Address<TAccountSystemProgram>;
-  programSigner: Address<TAccountProgramSigner>;
-  eventAuthority: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-  idlAuthority: AdminSetIdlAuthorityInstructionDataArgs['idlAuthority'];
-};
+  authority: TransactionSigner<TAccountAuthority>
+  global: Address<TAccountGlobal>
+  idlAccount: Address<TAccountIdlAccount>
+  systemProgram?: Address<TAccountSystemProgram>
+  programSigner: Address<TAccountProgramSigner>
+  eventAuthority: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+  idlAuthority: AdminSetIdlAuthorityInstructionDataArgs['idlAuthority']
+}
 
 export function getAdminSetIdlAuthorityInstruction<
   TAccountAuthority extends string,
@@ -309,7 +292,7 @@ export function getAdminSetIdlAuthorityInstruction<
   TAccountProgram
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -320,22 +303,19 @@ export function getAdminSetIdlAuthorityInstruction<
     programSigner: { value: input.programSigner ?? null, isWritable: false },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Original args.
-  const args = { ...input };
+  const args = { ...input }
 
   // Resolve default values.
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
-      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
+      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.authority),
@@ -359,27 +339,27 @@ export function getAdminSetIdlAuthorityInstruction<
     TAccountProgramSigner,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type ParsedAdminSetIdlAuthorityInstruction<
   TProgram extends string = typeof PUMP_PROGRAM_ADDRESS,
   TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[],
 > = {
-  programAddress: Address<TProgram>;
+  programAddress: Address<TProgram>
   accounts: {
-    authority: TAccountMetas[0];
-    global: TAccountMetas[1];
-    idlAccount: TAccountMetas[2];
-    systemProgram: TAccountMetas[3];
-    programSigner: TAccountMetas[4];
-    eventAuthority: TAccountMetas[5];
-    program: TAccountMetas[6];
-  };
-  data: AdminSetIdlAuthorityInstructionData;
-};
+    authority: TAccountMetas[0]
+    global: TAccountMetas[1]
+    idlAccount: TAccountMetas[2]
+    systemProgram: TAccountMetas[3]
+    programSigner: TAccountMetas[4]
+    eventAuthority: TAccountMetas[5]
+    program: TAccountMetas[6]
+  }
+  data: AdminSetIdlAuthorityInstructionData
+}
 
 export function parseAdminSetIdlAuthorityInstruction<
   TProgram extends string,
@@ -391,14 +371,14 @@ export function parseAdminSetIdlAuthorityInstruction<
 ): ParsedAdminSetIdlAuthorityInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 7) {
     // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new Error('Not enough accounts')
   }
-  let accountIndex = 0;
+  let accountIndex = 0
   const getNextAccount = () => {
-    const accountMeta = instruction.accounts![accountIndex]!;
-    accountIndex += 1;
-    return accountMeta;
-  };
+    const accountMeta = instruction.accounts![accountIndex]!
+    accountIndex += 1
+    return accountMeta
+  }
   return {
     programAddress: instruction.programAddress,
     accounts: {
@@ -410,8 +390,6 @@ export function parseAdminSetIdlAuthorityInstruction<
       eventAuthority: getNextAccount(),
       program: getNextAccount(),
     },
-    data: getAdminSetIdlAuthorityInstructionDataDecoder().decode(
-      instruction.data
-    ),
-  };
+    data: getAdminSetIdlAuthorityInstructionDataDecoder().decode(instruction.data),
+  }
 }

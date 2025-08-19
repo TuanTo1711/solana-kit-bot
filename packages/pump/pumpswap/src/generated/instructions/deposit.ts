@@ -32,16 +32,14 @@ import {
   type ReadonlyUint8Array,
   type TransactionSigner,
   type WritableAccount,
-} from '@solana/kit';
-import { PUMP_AMM_PROGRAM_ADDRESS } from '../programs';
-import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
+} from '@solana/kit'
+import { PUMP_AMM_PROGRAM_ADDRESS } from '../programs'
+import { getAccountMetaFactory, type ResolvedAccount } from '../shared'
 
-export const DEPOSIT_DISCRIMINATOR = new Uint8Array([
-  242, 35, 198, 137, 82, 225, 242, 182,
-]);
+export const DEPOSIT_DISCRIMINATOR = new Uint8Array([242, 35, 198, 137, 82, 225, 242, 182])
 
 export function getDepositDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(DEPOSIT_DISCRIMINATOR);
+  return fixEncoderSize(getBytesEncoder(), 8).encode(DEPOSIT_DISCRIMINATOR)
 }
 
 export type DepositInstruction<
@@ -70,24 +68,16 @@ export type DepositInstruction<
   InstructionWithData<ReadonlyUint8Array> &
   InstructionWithAccounts<
     [
-      TAccountPool extends string
-        ? WritableAccount<TAccountPool>
-        : TAccountPool,
+      TAccountPool extends string ? WritableAccount<TAccountPool> : TAccountPool,
       TAccountGlobalConfig extends string
         ? ReadonlyAccount<TAccountGlobalConfig>
         : TAccountGlobalConfig,
       TAccountUser extends string
         ? ReadonlySignerAccount<TAccountUser> & AccountSignerMeta<TAccountUser>
         : TAccountUser,
-      TAccountBaseMint extends string
-        ? ReadonlyAccount<TAccountBaseMint>
-        : TAccountBaseMint,
-      TAccountQuoteMint extends string
-        ? ReadonlyAccount<TAccountQuoteMint>
-        : TAccountQuoteMint,
-      TAccountLpMint extends string
-        ? WritableAccount<TAccountLpMint>
-        : TAccountLpMint,
+      TAccountBaseMint extends string ? ReadonlyAccount<TAccountBaseMint> : TAccountBaseMint,
+      TAccountQuoteMint extends string ? ReadonlyAccount<TAccountQuoteMint> : TAccountQuoteMint,
+      TAccountLpMint extends string ? WritableAccount<TAccountLpMint> : TAccountLpMint,
       TAccountUserBaseTokenAccount extends string
         ? WritableAccount<TAccountUserBaseTokenAccount>
         : TAccountUserBaseTokenAccount,
@@ -112,25 +102,23 @@ export type DepositInstruction<
       TAccountEventAuthority extends string
         ? ReadonlyAccount<TAccountEventAuthority>
         : TAccountEventAuthority,
-      TAccountProgram extends string
-        ? ReadonlyAccount<TAccountProgram>
-        : TAccountProgram,
+      TAccountProgram extends string ? ReadonlyAccount<TAccountProgram> : TAccountProgram,
       ...TRemainingAccounts,
     ]
-  >;
+  >
 
 export type DepositInstructionData = {
-  discriminator: ReadonlyUint8Array;
-  lpTokenAmountOut: bigint;
-  maxBaseAmountIn: bigint;
-  maxQuoteAmountIn: bigint;
-};
+  discriminator: ReadonlyUint8Array
+  lpTokenAmountOut: bigint
+  maxBaseAmountIn: bigint
+  maxQuoteAmountIn: bigint
+}
 
 export type DepositInstructionDataArgs = {
-  lpTokenAmountOut: number | bigint;
-  maxBaseAmountIn: number | bigint;
-  maxQuoteAmountIn: number | bigint;
-};
+  lpTokenAmountOut: number | bigint
+  maxBaseAmountIn: number | bigint
+  maxQuoteAmountIn: number | bigint
+}
 
 export function getDepositInstructionDataEncoder(): FixedSizeEncoder<DepositInstructionDataArgs> {
   return transformEncoder(
@@ -140,8 +128,8 @@ export function getDepositInstructionDataEncoder(): FixedSizeEncoder<DepositInst
       ['maxBaseAmountIn', getU64Encoder()],
       ['maxQuoteAmountIn', getU64Encoder()],
     ]),
-    (value) => ({ ...value, discriminator: DEPOSIT_DISCRIMINATOR })
-  );
+    value => ({ ...value, discriminator: DEPOSIT_DISCRIMINATOR })
+  )
 }
 
 export function getDepositInstructionDataDecoder(): FixedSizeDecoder<DepositInstructionData> {
@@ -150,17 +138,14 @@ export function getDepositInstructionDataDecoder(): FixedSizeDecoder<DepositInst
     ['lpTokenAmountOut', getU64Decoder()],
     ['maxBaseAmountIn', getU64Decoder()],
     ['maxQuoteAmountIn', getU64Decoder()],
-  ]);
+  ])
 }
 
 export function getDepositInstructionDataCodec(): FixedSizeCodec<
   DepositInstructionDataArgs,
   DepositInstructionData
 > {
-  return combineCodec(
-    getDepositInstructionDataEncoder(),
-    getDepositInstructionDataDecoder()
-  );
+  return combineCodec(getDepositInstructionDataEncoder(), getDepositInstructionDataDecoder())
 }
 
 export type DepositAsyncInput<
@@ -180,25 +165,25 @@ export type DepositAsyncInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  pool: Address<TAccountPool>;
-  globalConfig: Address<TAccountGlobalConfig>;
-  user: TransactionSigner<TAccountUser>;
-  baseMint: Address<TAccountBaseMint>;
-  quoteMint: Address<TAccountQuoteMint>;
-  lpMint: Address<TAccountLpMint>;
-  userBaseTokenAccount: Address<TAccountUserBaseTokenAccount>;
-  userQuoteTokenAccount: Address<TAccountUserQuoteTokenAccount>;
-  userPoolTokenAccount: Address<TAccountUserPoolTokenAccount>;
-  poolBaseTokenAccount: Address<TAccountPoolBaseTokenAccount>;
-  poolQuoteTokenAccount: Address<TAccountPoolQuoteTokenAccount>;
-  tokenProgram?: Address<TAccountTokenProgram>;
-  token2022Program?: Address<TAccountToken2022Program>;
-  eventAuthority?: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-  lpTokenAmountOut: DepositInstructionDataArgs['lpTokenAmountOut'];
-  maxBaseAmountIn: DepositInstructionDataArgs['maxBaseAmountIn'];
-  maxQuoteAmountIn: DepositInstructionDataArgs['maxQuoteAmountIn'];
-};
+  pool: Address<TAccountPool>
+  globalConfig: Address<TAccountGlobalConfig>
+  user: TransactionSigner<TAccountUser>
+  baseMint: Address<TAccountBaseMint>
+  quoteMint: Address<TAccountQuoteMint>
+  lpMint: Address<TAccountLpMint>
+  userBaseTokenAccount: Address<TAccountUserBaseTokenAccount>
+  userQuoteTokenAccount: Address<TAccountUserQuoteTokenAccount>
+  userPoolTokenAccount: Address<TAccountUserPoolTokenAccount>
+  poolBaseTokenAccount: Address<TAccountPoolBaseTokenAccount>
+  poolQuoteTokenAccount: Address<TAccountPoolQuoteTokenAccount>
+  tokenProgram?: Address<TAccountTokenProgram>
+  token2022Program?: Address<TAccountToken2022Program>
+  eventAuthority?: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+  lpTokenAmountOut: DepositInstructionDataArgs['lpTokenAmountOut']
+  maxBaseAmountIn: DepositInstructionDataArgs['maxBaseAmountIn']
+  maxQuoteAmountIn: DepositInstructionDataArgs['maxQuoteAmountIn']
+}
 
 export async function getDepositInstructionAsync<
   TAccountPool extends string,
@@ -257,7 +242,7 @@ export async function getDepositInstructionAsync<
   >
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -294,23 +279,20 @@ export async function getDepositInstructionAsync<
     },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Original args.
-  const args = { ...input };
+  const args = { ...input }
 
   // Resolve default values.
   if (!accounts.tokenProgram.value) {
     accounts.tokenProgram.value =
-      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>;
+      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>
   }
   if (!accounts.token2022Program.value) {
     accounts.token2022Program.value =
-      'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb' as Address<'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'>;
+      'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb' as Address<'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'>
   }
   if (!accounts.eventAuthority.value) {
     accounts.eventAuthority.value = await getProgramDerivedAddress({
@@ -318,15 +300,14 @@ export async function getDepositInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114,
-            105, 116, 121,
+            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121,
           ])
         ),
       ],
-    });
+    })
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.pool),
@@ -346,9 +327,7 @@ export async function getDepositInstructionAsync<
       getAccountMeta(accounts.program),
     ],
     programAddress,
-    data: getDepositInstructionDataEncoder().encode(
-      args as DepositInstructionDataArgs
-    ),
+    data: getDepositInstructionDataEncoder().encode(args as DepositInstructionDataArgs),
   } as DepositInstruction<
     TProgramAddress,
     TAccountPool,
@@ -366,9 +345,9 @@ export async function getDepositInstructionAsync<
     TAccountToken2022Program,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type DepositInput<
@@ -388,25 +367,25 @@ export type DepositInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  pool: Address<TAccountPool>;
-  globalConfig: Address<TAccountGlobalConfig>;
-  user: TransactionSigner<TAccountUser>;
-  baseMint: Address<TAccountBaseMint>;
-  quoteMint: Address<TAccountQuoteMint>;
-  lpMint: Address<TAccountLpMint>;
-  userBaseTokenAccount: Address<TAccountUserBaseTokenAccount>;
-  userQuoteTokenAccount: Address<TAccountUserQuoteTokenAccount>;
-  userPoolTokenAccount: Address<TAccountUserPoolTokenAccount>;
-  poolBaseTokenAccount: Address<TAccountPoolBaseTokenAccount>;
-  poolQuoteTokenAccount: Address<TAccountPoolQuoteTokenAccount>;
-  tokenProgram?: Address<TAccountTokenProgram>;
-  token2022Program?: Address<TAccountToken2022Program>;
-  eventAuthority: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-  lpTokenAmountOut: DepositInstructionDataArgs['lpTokenAmountOut'];
-  maxBaseAmountIn: DepositInstructionDataArgs['maxBaseAmountIn'];
-  maxQuoteAmountIn: DepositInstructionDataArgs['maxQuoteAmountIn'];
-};
+  pool: Address<TAccountPool>
+  globalConfig: Address<TAccountGlobalConfig>
+  user: TransactionSigner<TAccountUser>
+  baseMint: Address<TAccountBaseMint>
+  quoteMint: Address<TAccountQuoteMint>
+  lpMint: Address<TAccountLpMint>
+  userBaseTokenAccount: Address<TAccountUserBaseTokenAccount>
+  userQuoteTokenAccount: Address<TAccountUserQuoteTokenAccount>
+  userPoolTokenAccount: Address<TAccountUserPoolTokenAccount>
+  poolBaseTokenAccount: Address<TAccountPoolBaseTokenAccount>
+  poolQuoteTokenAccount: Address<TAccountPoolQuoteTokenAccount>
+  tokenProgram?: Address<TAccountTokenProgram>
+  token2022Program?: Address<TAccountToken2022Program>
+  eventAuthority: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+  lpTokenAmountOut: DepositInstructionDataArgs['lpTokenAmountOut']
+  maxBaseAmountIn: DepositInstructionDataArgs['maxBaseAmountIn']
+  maxQuoteAmountIn: DepositInstructionDataArgs['maxQuoteAmountIn']
+}
 
 export function getDepositInstruction<
   TAccountPool extends string,
@@ -463,7 +442,7 @@ export function getDepositInstruction<
   TAccountProgram
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -500,26 +479,23 @@ export function getDepositInstruction<
     },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Original args.
-  const args = { ...input };
+  const args = { ...input }
 
   // Resolve default values.
   if (!accounts.tokenProgram.value) {
     accounts.tokenProgram.value =
-      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>;
+      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>
   }
   if (!accounts.token2022Program.value) {
     accounts.token2022Program.value =
-      'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb' as Address<'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'>;
+      'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb' as Address<'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'>
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.pool),
@@ -539,9 +515,7 @@ export function getDepositInstruction<
       getAccountMeta(accounts.program),
     ],
     programAddress,
-    data: getDepositInstructionDataEncoder().encode(
-      args as DepositInstructionDataArgs
-    ),
+    data: getDepositInstructionDataEncoder().encode(args as DepositInstructionDataArgs),
   } as DepositInstruction<
     TProgramAddress,
     TAccountPool,
@@ -559,35 +533,35 @@ export function getDepositInstruction<
     TAccountToken2022Program,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type ParsedDepositInstruction<
   TProgram extends string = typeof PUMP_AMM_PROGRAM_ADDRESS,
   TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[],
 > = {
-  programAddress: Address<TProgram>;
+  programAddress: Address<TProgram>
   accounts: {
-    pool: TAccountMetas[0];
-    globalConfig: TAccountMetas[1];
-    user: TAccountMetas[2];
-    baseMint: TAccountMetas[3];
-    quoteMint: TAccountMetas[4];
-    lpMint: TAccountMetas[5];
-    userBaseTokenAccount: TAccountMetas[6];
-    userQuoteTokenAccount: TAccountMetas[7];
-    userPoolTokenAccount: TAccountMetas[8];
-    poolBaseTokenAccount: TAccountMetas[9];
-    poolQuoteTokenAccount: TAccountMetas[10];
-    tokenProgram: TAccountMetas[11];
-    token2022Program: TAccountMetas[12];
-    eventAuthority: TAccountMetas[13];
-    program: TAccountMetas[14];
-  };
-  data: DepositInstructionData;
-};
+    pool: TAccountMetas[0]
+    globalConfig: TAccountMetas[1]
+    user: TAccountMetas[2]
+    baseMint: TAccountMetas[3]
+    quoteMint: TAccountMetas[4]
+    lpMint: TAccountMetas[5]
+    userBaseTokenAccount: TAccountMetas[6]
+    userQuoteTokenAccount: TAccountMetas[7]
+    userPoolTokenAccount: TAccountMetas[8]
+    poolBaseTokenAccount: TAccountMetas[9]
+    poolQuoteTokenAccount: TAccountMetas[10]
+    tokenProgram: TAccountMetas[11]
+    token2022Program: TAccountMetas[12]
+    eventAuthority: TAccountMetas[13]
+    program: TAccountMetas[14]
+  }
+  data: DepositInstructionData
+}
 
 export function parseDepositInstruction<
   TProgram extends string,
@@ -599,14 +573,14 @@ export function parseDepositInstruction<
 ): ParsedDepositInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 15) {
     // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new Error('Not enough accounts')
   }
-  let accountIndex = 0;
+  let accountIndex = 0
   const getNextAccount = () => {
-    const accountMeta = instruction.accounts![accountIndex]!;
-    accountIndex += 1;
-    return accountMeta;
-  };
+    const accountMeta = instruction.accounts![accountIndex]!
+    accountIndex += 1
+    return accountMeta
+  }
   return {
     programAddress: instruction.programAddress,
     accounts: {
@@ -627,5 +601,5 @@ export function parseDepositInstruction<
       program: getNextAccount(),
     },
     data: getDepositInstructionDataDecoder().decode(instruction.data),
-  };
+  }
 }

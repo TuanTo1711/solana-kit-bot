@@ -35,22 +35,16 @@ import {
   type TransactionSigner,
   type WritableAccount,
   type WritableSignerAccount,
-} from '@solana/kit';
-import { PUMP_AMM_PROGRAM_ADDRESS } from '../programs';
-import {
-  expectAddress,
-  getAccountMetaFactory,
-  type ResolvedAccount,
-} from '../shared';
+} from '@solana/kit'
+import { PUMP_AMM_PROGRAM_ADDRESS } from '../programs'
+import { expectAddress, getAccountMetaFactory, type ResolvedAccount } from '../shared'
 
 export const ADMIN_UPDATE_TOKEN_INCENTIVES_DISCRIMINATOR = new Uint8Array([
   209, 11, 115, 87, 213, 23, 124, 204,
-]);
+])
 
 export function getAdminUpdateTokenIncentivesDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
-    ADMIN_UPDATE_TOKEN_INCENTIVES_DISCRIMINATOR
-  );
+  return fixEncoderSize(getBytesEncoder(), 8).encode(ADMIN_UPDATE_TOKEN_INCENTIVES_DISCRIMINATOR)
 }
 
 export type AdminUpdateTokenIncentivesInstruction<
@@ -59,15 +53,11 @@ export type AdminUpdateTokenIncentivesInstruction<
   TAccountGlobalConfig extends string | AccountMeta<string> = string,
   TAccountGlobalVolumeAccumulator extends string | AccountMeta<string> = string,
   TAccountMint extends string | AccountMeta<string> = string,
-  TAccountGlobalIncentiveTokenAccount extends
-    | string
-    | AccountMeta<string> = string,
+  TAccountGlobalIncentiveTokenAccount extends string | AccountMeta<string> = string,
   TAccountAssociatedTokenProgram extends
     | string
     | AccountMeta<string> = 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
-  TAccountSystemProgram extends
-    | string
-    | AccountMeta<string> = '11111111111111111111111111111111',
+  TAccountSystemProgram extends string | AccountMeta<string> = '11111111111111111111111111111111',
   TAccountTokenProgram extends
     | string
     | AccountMeta<string> = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
@@ -79,8 +69,7 @@ export type AdminUpdateTokenIncentivesInstruction<
   InstructionWithAccounts<
     [
       TAccountAdmin extends string
-        ? WritableSignerAccount<TAccountAdmin> &
-            AccountSignerMeta<TAccountAdmin>
+        ? WritableSignerAccount<TAccountAdmin> & AccountSignerMeta<TAccountAdmin>
         : TAccountAdmin,
       TAccountGlobalConfig extends string
         ? ReadonlyAccount<TAccountGlobalConfig>
@@ -88,9 +77,7 @@ export type AdminUpdateTokenIncentivesInstruction<
       TAccountGlobalVolumeAccumulator extends string
         ? WritableAccount<TAccountGlobalVolumeAccumulator>
         : TAccountGlobalVolumeAccumulator,
-      TAccountMint extends string
-        ? ReadonlyAccount<TAccountMint>
-        : TAccountMint,
+      TAccountMint extends string ? ReadonlyAccount<TAccountMint> : TAccountMint,
       TAccountGlobalIncentiveTokenAccount extends string
         ? WritableAccount<TAccountGlobalIncentiveTokenAccount>
         : TAccountGlobalIncentiveTokenAccount,
@@ -106,29 +93,27 @@ export type AdminUpdateTokenIncentivesInstruction<
       TAccountEventAuthority extends string
         ? ReadonlyAccount<TAccountEventAuthority>
         : TAccountEventAuthority,
-      TAccountProgram extends string
-        ? ReadonlyAccount<TAccountProgram>
-        : TAccountProgram,
+      TAccountProgram extends string ? ReadonlyAccount<TAccountProgram> : TAccountProgram,
       ...TRemainingAccounts,
     ]
-  >;
+  >
 
 export type AdminUpdateTokenIncentivesInstructionData = {
-  discriminator: ReadonlyUint8Array;
-  startTime: bigint;
-  endTime: bigint;
-  secondsInADay: bigint;
-  dayNumber: bigint;
-  tokenSupplyPerDay: bigint;
-};
+  discriminator: ReadonlyUint8Array
+  startTime: bigint
+  endTime: bigint
+  secondsInADay: bigint
+  dayNumber: bigint
+  tokenSupplyPerDay: bigint
+}
 
 export type AdminUpdateTokenIncentivesInstructionDataArgs = {
-  startTime: number | bigint;
-  endTime: number | bigint;
-  secondsInADay: number | bigint;
-  dayNumber: number | bigint;
-  tokenSupplyPerDay: number | bigint;
-};
+  startTime: number | bigint
+  endTime: number | bigint
+  secondsInADay: number | bigint
+  dayNumber: number | bigint
+  tokenSupplyPerDay: number | bigint
+}
 
 export function getAdminUpdateTokenIncentivesInstructionDataEncoder(): FixedSizeEncoder<AdminUpdateTokenIncentivesInstructionDataArgs> {
   return transformEncoder(
@@ -140,11 +125,11 @@ export function getAdminUpdateTokenIncentivesInstructionDataEncoder(): FixedSize
       ['dayNumber', getU64Encoder()],
       ['tokenSupplyPerDay', getU64Encoder()],
     ]),
-    (value) => ({
+    value => ({
       ...value,
       discriminator: ADMIN_UPDATE_TOKEN_INCENTIVES_DISCRIMINATOR,
     })
-  );
+  )
 }
 
 export function getAdminUpdateTokenIncentivesInstructionDataDecoder(): FixedSizeDecoder<AdminUpdateTokenIncentivesInstructionData> {
@@ -155,7 +140,7 @@ export function getAdminUpdateTokenIncentivesInstructionDataDecoder(): FixedSize
     ['secondsInADay', getI64Decoder()],
     ['dayNumber', getU64Decoder()],
     ['tokenSupplyPerDay', getU64Decoder()],
-  ]);
+  ])
 }
 
 export function getAdminUpdateTokenIncentivesInstructionDataCodec(): FixedSizeCodec<
@@ -165,7 +150,7 @@ export function getAdminUpdateTokenIncentivesInstructionDataCodec(): FixedSizeCo
   return combineCodec(
     getAdminUpdateTokenIncentivesInstructionDataEncoder(),
     getAdminUpdateTokenIncentivesInstructionDataDecoder()
-  );
+  )
 }
 
 export type AdminUpdateTokenIncentivesAsyncInput<
@@ -180,22 +165,22 @@ export type AdminUpdateTokenIncentivesAsyncInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  admin: TransactionSigner<TAccountAdmin>;
-  globalConfig?: Address<TAccountGlobalConfig>;
-  globalVolumeAccumulator?: Address<TAccountGlobalVolumeAccumulator>;
-  mint: Address<TAccountMint>;
-  globalIncentiveTokenAccount?: Address<TAccountGlobalIncentiveTokenAccount>;
-  associatedTokenProgram?: Address<TAccountAssociatedTokenProgram>;
-  systemProgram?: Address<TAccountSystemProgram>;
-  tokenProgram?: Address<TAccountTokenProgram>;
-  eventAuthority?: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-  startTime: AdminUpdateTokenIncentivesInstructionDataArgs['startTime'];
-  endTime: AdminUpdateTokenIncentivesInstructionDataArgs['endTime'];
-  secondsInADay: AdminUpdateTokenIncentivesInstructionDataArgs['secondsInADay'];
-  dayNumber: AdminUpdateTokenIncentivesInstructionDataArgs['dayNumber'];
-  tokenSupplyPerDay: AdminUpdateTokenIncentivesInstructionDataArgs['tokenSupplyPerDay'];
-};
+  admin: TransactionSigner<TAccountAdmin>
+  globalConfig?: Address<TAccountGlobalConfig>
+  globalVolumeAccumulator?: Address<TAccountGlobalVolumeAccumulator>
+  mint: Address<TAccountMint>
+  globalIncentiveTokenAccount?: Address<TAccountGlobalIncentiveTokenAccount>
+  associatedTokenProgram?: Address<TAccountAssociatedTokenProgram>
+  systemProgram?: Address<TAccountSystemProgram>
+  tokenProgram?: Address<TAccountTokenProgram>
+  eventAuthority?: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+  startTime: AdminUpdateTokenIncentivesInstructionDataArgs['startTime']
+  endTime: AdminUpdateTokenIncentivesInstructionDataArgs['endTime']
+  secondsInADay: AdminUpdateTokenIncentivesInstructionDataArgs['secondsInADay']
+  dayNumber: AdminUpdateTokenIncentivesInstructionDataArgs['dayNumber']
+  tokenSupplyPerDay: AdminUpdateTokenIncentivesInstructionDataArgs['tokenSupplyPerDay']
+}
 
 export async function getAdminUpdateTokenIncentivesInstructionAsync<
   TAccountAdmin extends string,
@@ -239,7 +224,7 @@ export async function getAdminUpdateTokenIncentivesInstructionAsync<
   >
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -262,14 +247,11 @@ export async function getAdminUpdateTokenIncentivesInstructionAsync<
     tokenProgram: { value: input.tokenProgram ?? null, isWritable: false },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Original args.
-  const args = { ...input };
+  const args = { ...input }
 
   // Resolve default values.
   if (!accounts.globalConfig.value) {
@@ -277,12 +259,10 @@ export async function getAdminUpdateTokenIncentivesInstructionAsync<
       programAddress,
       seeds: [
         getBytesEncoder().encode(
-          new Uint8Array([
-            103, 108, 111, 98, 97, 108, 95, 99, 111, 110, 102, 105, 103,
-          ])
+          new Uint8Array([103, 108, 111, 98, 97, 108, 95, 99, 111, 110, 102, 105, 103])
         ),
       ],
-    });
+    })
   }
   if (!accounts.globalVolumeAccumulator.value) {
     accounts.globalVolumeAccumulator.value = await getProgramDerivedAddress({
@@ -290,41 +270,35 @@ export async function getAdminUpdateTokenIncentivesInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            103, 108, 111, 98, 97, 108, 95, 118, 111, 108, 117, 109, 101, 95,
-            97, 99, 99, 117, 109, 117, 108, 97, 116, 111, 114,
+            103, 108, 111, 98, 97, 108, 95, 118, 111, 108, 117, 109, 101, 95, 97, 99, 99, 117, 109,
+            117, 108, 97, 116, 111, 114,
           ])
         ),
       ],
-    });
+    })
   }
   if (!accounts.tokenProgram.value) {
     accounts.tokenProgram.value =
-      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>;
+      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>
   }
   if (!accounts.globalIncentiveTokenAccount.value) {
-    accounts.globalIncentiveTokenAccount.value = await getProgramDerivedAddress(
-      {
-        programAddress:
-          'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL' as Address<'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'>,
-        seeds: [
-          getAddressEncoder().encode(
-            expectAddress(accounts.globalVolumeAccumulator.value)
-          ),
-          getAddressEncoder().encode(
-            expectAddress(accounts.tokenProgram.value)
-          ),
-          getAddressEncoder().encode(expectAddress(accounts.mint.value)),
-        ],
-      }
-    );
+    accounts.globalIncentiveTokenAccount.value = await getProgramDerivedAddress({
+      programAddress:
+        'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL' as Address<'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'>,
+      seeds: [
+        getAddressEncoder().encode(expectAddress(accounts.globalVolumeAccumulator.value)),
+        getAddressEncoder().encode(expectAddress(accounts.tokenProgram.value)),
+        getAddressEncoder().encode(expectAddress(accounts.mint.value)),
+      ],
+    })
   }
   if (!accounts.associatedTokenProgram.value) {
     accounts.associatedTokenProgram.value =
-      'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL' as Address<'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'>;
+      'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL' as Address<'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'>
   }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
-      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
+      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>
   }
   if (!accounts.eventAuthority.value) {
     accounts.eventAuthority.value = await getProgramDerivedAddress({
@@ -332,15 +306,14 @@ export async function getAdminUpdateTokenIncentivesInstructionAsync<
       seeds: [
         getBytesEncoder().encode(
           new Uint8Array([
-            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114,
-            105, 116, 121,
+            95, 95, 101, 118, 101, 110, 116, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121,
           ])
         ),
       ],
-    });
+    })
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.admin),
@@ -370,9 +343,9 @@ export async function getAdminUpdateTokenIncentivesInstructionAsync<
     TAccountTokenProgram,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type AdminUpdateTokenIncentivesInput<
@@ -387,22 +360,22 @@ export type AdminUpdateTokenIncentivesInput<
   TAccountEventAuthority extends string = string,
   TAccountProgram extends string = string,
 > = {
-  admin: TransactionSigner<TAccountAdmin>;
-  globalConfig: Address<TAccountGlobalConfig>;
-  globalVolumeAccumulator: Address<TAccountGlobalVolumeAccumulator>;
-  mint: Address<TAccountMint>;
-  globalIncentiveTokenAccount: Address<TAccountGlobalIncentiveTokenAccount>;
-  associatedTokenProgram?: Address<TAccountAssociatedTokenProgram>;
-  systemProgram?: Address<TAccountSystemProgram>;
-  tokenProgram?: Address<TAccountTokenProgram>;
-  eventAuthority: Address<TAccountEventAuthority>;
-  program: Address<TAccountProgram>;
-  startTime: AdminUpdateTokenIncentivesInstructionDataArgs['startTime'];
-  endTime: AdminUpdateTokenIncentivesInstructionDataArgs['endTime'];
-  secondsInADay: AdminUpdateTokenIncentivesInstructionDataArgs['secondsInADay'];
-  dayNumber: AdminUpdateTokenIncentivesInstructionDataArgs['dayNumber'];
-  tokenSupplyPerDay: AdminUpdateTokenIncentivesInstructionDataArgs['tokenSupplyPerDay'];
-};
+  admin: TransactionSigner<TAccountAdmin>
+  globalConfig: Address<TAccountGlobalConfig>
+  globalVolumeAccumulator: Address<TAccountGlobalVolumeAccumulator>
+  mint: Address<TAccountMint>
+  globalIncentiveTokenAccount: Address<TAccountGlobalIncentiveTokenAccount>
+  associatedTokenProgram?: Address<TAccountAssociatedTokenProgram>
+  systemProgram?: Address<TAccountSystemProgram>
+  tokenProgram?: Address<TAccountTokenProgram>
+  eventAuthority: Address<TAccountEventAuthority>
+  program: Address<TAccountProgram>
+  startTime: AdminUpdateTokenIncentivesInstructionDataArgs['startTime']
+  endTime: AdminUpdateTokenIncentivesInstructionDataArgs['endTime']
+  secondsInADay: AdminUpdateTokenIncentivesInstructionDataArgs['secondsInADay']
+  dayNumber: AdminUpdateTokenIncentivesInstructionDataArgs['dayNumber']
+  tokenSupplyPerDay: AdminUpdateTokenIncentivesInstructionDataArgs['tokenSupplyPerDay']
+}
 
 export function getAdminUpdateTokenIncentivesInstruction<
   TAccountAdmin extends string,
@@ -444,7 +417,7 @@ export function getAdminUpdateTokenIncentivesInstruction<
   TAccountProgram
 > {
   // Program address.
-  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS;
+  const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS
 
   // Original accounts.
   const originalAccounts = {
@@ -467,30 +440,27 @@ export function getAdminUpdateTokenIncentivesInstruction<
     tokenProgram: { value: input.tokenProgram ?? null, isWritable: false },
     eventAuthority: { value: input.eventAuthority ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
+  }
+  const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
   // Original args.
-  const args = { ...input };
+  const args = { ...input }
 
   // Resolve default values.
   if (!accounts.tokenProgram.value) {
     accounts.tokenProgram.value =
-      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>;
+      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>
   }
   if (!accounts.associatedTokenProgram.value) {
     accounts.associatedTokenProgram.value =
-      'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL' as Address<'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'>;
+      'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL' as Address<'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'>
   }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
-      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
+      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>
   }
 
-  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
     accounts: [
       getAccountMeta(accounts.admin),
@@ -520,30 +490,30 @@ export function getAdminUpdateTokenIncentivesInstruction<
     TAccountTokenProgram,
     TAccountEventAuthority,
     TAccountProgram
-  >;
+  >
 
-  return instruction;
+  return instruction
 }
 
 export type ParsedAdminUpdateTokenIncentivesInstruction<
   TProgram extends string = typeof PUMP_AMM_PROGRAM_ADDRESS,
   TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[],
 > = {
-  programAddress: Address<TProgram>;
+  programAddress: Address<TProgram>
   accounts: {
-    admin: TAccountMetas[0];
-    globalConfig: TAccountMetas[1];
-    globalVolumeAccumulator: TAccountMetas[2];
-    mint: TAccountMetas[3];
-    globalIncentiveTokenAccount: TAccountMetas[4];
-    associatedTokenProgram: TAccountMetas[5];
-    systemProgram: TAccountMetas[6];
-    tokenProgram: TAccountMetas[7];
-    eventAuthority: TAccountMetas[8];
-    program: TAccountMetas[9];
-  };
-  data: AdminUpdateTokenIncentivesInstructionData;
-};
+    admin: TAccountMetas[0]
+    globalConfig: TAccountMetas[1]
+    globalVolumeAccumulator: TAccountMetas[2]
+    mint: TAccountMetas[3]
+    globalIncentiveTokenAccount: TAccountMetas[4]
+    associatedTokenProgram: TAccountMetas[5]
+    systemProgram: TAccountMetas[6]
+    tokenProgram: TAccountMetas[7]
+    eventAuthority: TAccountMetas[8]
+    program: TAccountMetas[9]
+  }
+  data: AdminUpdateTokenIncentivesInstructionData
+}
 
 export function parseAdminUpdateTokenIncentivesInstruction<
   TProgram extends string,
@@ -555,14 +525,14 @@ export function parseAdminUpdateTokenIncentivesInstruction<
 ): ParsedAdminUpdateTokenIncentivesInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 10) {
     // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new Error('Not enough accounts')
   }
-  let accountIndex = 0;
+  let accountIndex = 0
   const getNextAccount = () => {
-    const accountMeta = instruction.accounts![accountIndex]!;
-    accountIndex += 1;
-    return accountMeta;
-  };
+    const accountMeta = instruction.accounts![accountIndex]!
+    accountIndex += 1
+    return accountMeta
+  }
   return {
     programAddress: instruction.programAddress,
     accounts: {
@@ -577,8 +547,6 @@ export function parseAdminUpdateTokenIncentivesInstruction<
       eventAuthority: getNextAccount(),
       program: getNextAccount(),
     },
-    data: getAdminUpdateTokenIncentivesInstructionDataDecoder().decode(
-      instruction.data
-    ),
-  };
+    data: getAdminUpdateTokenIncentivesInstructionDataDecoder().decode(instruction.data),
+  }
 }

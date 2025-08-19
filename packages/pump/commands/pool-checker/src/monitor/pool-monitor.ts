@@ -1,4 +1,5 @@
 import { SYSTEM_PROGRAM_ADDRESS } from '@solana-program/system'
+import { findAssociatedTokenPda, TOKEN_PROGRAM_ADDRESS } from '@solana-program/token'
 import { address } from '@solana/addresses'
 import {
   catchError,
@@ -18,7 +19,6 @@ import {
   PUMP_AMM_PROGRAM_ADDRESS,
   type PoolKeys,
 } from '@solana-kit-bot/pumpswap'
-import { findAssociatedTokenPda, TOKEN_PROGRAM_ADDRESS } from '@solana-program/token'
 import type { PoolService } from '~/services'
 
 type PoolEvent = PoolKeys & { timestamp: bigint }

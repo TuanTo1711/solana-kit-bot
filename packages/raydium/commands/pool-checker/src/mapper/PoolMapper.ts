@@ -29,20 +29,21 @@ export class PoolMapper {
       configAddress: entity.configAddress,
       observationKey: entity.observationKey,
       isActive: entity.isActive,
-      transactions: entity.transactions?.map(tx => ({
-        id: tx.id,
-        poolId: tx.poolId,
-        signature: tx.signature,
-        type: tx.type,
-        amountIn: tx.amountIn,
-        amountOut: tx.amountOut,
-        priceImpact: tx.priceImpact,
-        fee: tx.fee,
-        tip: tx.tip,
-        timestamp: tx.timestamp,
-        buyer: tx.buyer,
-        status: tx.status,
-      })) || [],
+      transactions:
+        entity.transactions?.map(tx => ({
+          id: tx.id,
+          poolId: tx.poolId,
+          signature: tx.signature,
+          type: tx.type,
+          amountIn: tx.amountIn,
+          amountOut: tx.amountOut,
+          priceImpact: tx.priceImpact,
+          fee: tx.fee,
+          tip: tx.tip,
+          timestamp: tx.timestamp,
+          buyer: tx.buyer,
+          status: tx.status,
+        })) || [],
     }
   }
-} 
+}

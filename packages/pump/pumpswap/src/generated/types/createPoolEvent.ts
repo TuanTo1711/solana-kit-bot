@@ -24,53 +24,53 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit';
+} from '@solana/kit'
 
 export type CreatePoolEvent = {
-  timestamp: bigint;
-  index: number;
-  creator: Address;
-  baseMint: Address;
-  quoteMint: Address;
-  baseMintDecimals: number;
-  quoteMintDecimals: number;
-  baseAmountIn: bigint;
-  quoteAmountIn: bigint;
-  poolBaseAmount: bigint;
-  poolQuoteAmount: bigint;
-  minimumLiquidity: bigint;
-  initialLiquidity: bigint;
-  lpTokenAmountOut: bigint;
-  poolBump: number;
-  pool: Address;
-  lpMint: Address;
-  userBaseTokenAccount: Address;
-  userQuoteTokenAccount: Address;
-  coinCreator: Address;
-};
+  timestamp: bigint
+  index: number
+  creator: Address
+  baseMint: Address
+  quoteMint: Address
+  baseMintDecimals: number
+  quoteMintDecimals: number
+  baseAmountIn: bigint
+  quoteAmountIn: bigint
+  poolBaseAmount: bigint
+  poolQuoteAmount: bigint
+  minimumLiquidity: bigint
+  initialLiquidity: bigint
+  lpTokenAmountOut: bigint
+  poolBump: number
+  pool: Address
+  lpMint: Address
+  userBaseTokenAccount: Address
+  userQuoteTokenAccount: Address
+  coinCreator: Address
+}
 
 export type CreatePoolEventArgs = {
-  timestamp: number | bigint;
-  index: number;
-  creator: Address;
-  baseMint: Address;
-  quoteMint: Address;
-  baseMintDecimals: number;
-  quoteMintDecimals: number;
-  baseAmountIn: number | bigint;
-  quoteAmountIn: number | bigint;
-  poolBaseAmount: number | bigint;
-  poolQuoteAmount: number | bigint;
-  minimumLiquidity: number | bigint;
-  initialLiquidity: number | bigint;
-  lpTokenAmountOut: number | bigint;
-  poolBump: number;
-  pool: Address;
-  lpMint: Address;
-  userBaseTokenAccount: Address;
-  userQuoteTokenAccount: Address;
-  coinCreator: Address;
-};
+  timestamp: number | bigint
+  index: number
+  creator: Address
+  baseMint: Address
+  quoteMint: Address
+  baseMintDecimals: number
+  quoteMintDecimals: number
+  baseAmountIn: number | bigint
+  quoteAmountIn: number | bigint
+  poolBaseAmount: number | bigint
+  poolQuoteAmount: number | bigint
+  minimumLiquidity: number | bigint
+  initialLiquidity: number | bigint
+  lpTokenAmountOut: number | bigint
+  poolBump: number
+  pool: Address
+  lpMint: Address
+  userBaseTokenAccount: Address
+  userQuoteTokenAccount: Address
+  coinCreator: Address
+}
 
 export function getCreatePoolEventEncoder(): FixedSizeEncoder<CreatePoolEventArgs> {
   return getStructEncoder([
@@ -94,7 +94,7 @@ export function getCreatePoolEventEncoder(): FixedSizeEncoder<CreatePoolEventArg
     ['userBaseTokenAccount', getAddressEncoder()],
     ['userQuoteTokenAccount', getAddressEncoder()],
     ['coinCreator', getAddressEncoder()],
-  ]);
+  ])
 }
 
 export function getCreatePoolEventDecoder(): FixedSizeDecoder<CreatePoolEvent> {
@@ -119,12 +119,9 @@ export function getCreatePoolEventDecoder(): FixedSizeDecoder<CreatePoolEvent> {
     ['userBaseTokenAccount', getAddressDecoder()],
     ['userQuoteTokenAccount', getAddressDecoder()],
     ['coinCreator', getAddressDecoder()],
-  ]);
+  ])
 }
 
-export function getCreatePoolEventCodec(): FixedSizeCodec<
-  CreatePoolEventArgs,
-  CreatePoolEvent
-> {
-  return combineCodec(getCreatePoolEventEncoder(), getCreatePoolEventDecoder());
+export function getCreatePoolEventCodec(): FixedSizeCodec<CreatePoolEventArgs, CreatePoolEvent> {
+  return combineCodec(getCreatePoolEventEncoder(), getCreatePoolEventDecoder())
 }

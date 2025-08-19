@@ -105,18 +105,18 @@ export class DexScreenerAPI {
     tokenProfiles: Date.now(),
     pairs: Date.now(),
   }
-  
+
   // Enhanced caching system
   private cache = new Map<string, { data: any; timestamp: number; expiry: number }>()
   private pendingRequests = new Map<string, Promise<any>>()
-  
+
   // Cache expiry times in milliseconds
   private readonly cacheExpiry = {
-    tokenInfo: 5 * 60 * 1000,      // 5 minutes for token info
-    tokenPairs: 2 * 60 * 1000,     // 2 minutes for pairs
-    tokenPrice: 30 * 1000,         // 30 seconds for price data
-    tokenBoosts: 10 * 60 * 1000,   // 10 minutes for boost data
-    search: 60 * 1000,             // 1 minute for search results
+    tokenInfo: 5 * 60 * 1000, // 5 minutes for token info
+    tokenPairs: 2 * 60 * 1000, // 2 minutes for pairs
+    tokenPrice: 30 * 1000, // 30 seconds for price data
+    tokenBoosts: 10 * 60 * 1000, // 10 minutes for boost data
+    search: 60 * 1000, // 1 minute for search results
   }
 
   /**
@@ -153,12 +153,12 @@ export class DexScreenerAPI {
     if (cached && Date.now() < cached.expiry) {
       return cached.data as T
     }
-    
+
     // Clean up expired cache entry
     if (cached) {
       this.cache.delete(key)
     }
-    
+
     return null
   }
 
@@ -170,9 +170,9 @@ export class DexScreenerAPI {
     this.cache.set(key, {
       data,
       timestamp: now,
-      expiry: now + expiryMs
+      expiry: now + expiryMs,
     })
-    
+
     // Periodic cache cleanup (every 100 entries)
     if (this.cache.size % 100 === 0) {
       this.cleanupCache()
@@ -185,15 +185,15 @@ export class DexScreenerAPI {
   private cleanupCache(): void {
     const now = Date.now()
     const expiredKeys: string[] = []
-    
+
     this.cache.forEach((value, key) => {
       if (now >= value.expiry) {
         expiredKeys.push(key)
       }
     })
-    
+
     expiredKeys.forEach(key => this.cache.delete(key))
-    
+
     if (expiredKeys.length > 0) {
       console.log(`🧹 DexScreener cache: cleaned up ${expiredKeys.length} expired entries`)
     }
@@ -203,7 +203,7 @@ export class DexScreenerAPI {
    * Make API request with caching and deduplication
    */
   private async makeRequest<T>(
-    endpoint: string, 
+    endpoint: string,
     type: 'tokenProfiles' | 'pairs',
     cacheKey?: string,
     cacheExpiryMs?: number
@@ -214,7 +214,7 @@ export class DexScreenerAPI {
       if (cached) {
         return cached
       }
-      
+
       // Check for pending request to avoid duplicate calls
       const pendingRequest = this.pendingRequests.get(cacheKey)
       if (pendingRequest) {
@@ -223,7 +223,7 @@ export class DexScreenerAPI {
     }
 
     const requestPromise = this.executeRequest<T>(endpoint, type)
-    
+
     // Store pending request to prevent duplicates
     if (cacheKey) {
       this.pendingRequests.set(cacheKey, requestPromise)
@@ -231,12 +231,12 @@ export class DexScreenerAPI {
 
     try {
       const result = await requestPromise
-      
+
       // Cache the result if key and expiry provided
       if (cacheKey && cacheExpiryMs) {
         this.setCachedData(cacheKey, result, cacheExpiryMs)
       }
-      
+
       return result
     } finally {
       // Clean up pending request
@@ -256,21 +256,21 @@ export class DexScreenerAPI {
       // Create fetch with timeout using AbortController
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
-      
+
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
         headers: {
-          'Accept': 'application/json',
-          'User-Agent': 'SolanaKitBot/1.0'
+          Accept: 'application/json',
+          'User-Agent': 'SolanaKitBot/1.0',
         },
-        signal: controller.signal
+        signal: controller.signal,
       })
-      
+
       clearTimeout(timeoutId)
 
       if (!response.ok) {
         throw new Error(`DexScreener API error: ${response.status} ${response.statusText}`)
       }
-      
+
       const json = await response.json()
       return json as T
     } catch (error) {
@@ -284,7 +284,7 @@ export class DexScreenerAPI {
    */
   async getLatestTokenProfiles(): Promise<TokenProfile[]> {
     return this.makeRequest<TokenProfile[]>(
-      '/token-profiles/latest/v1', 
+      '/token-profiles/latest/v1',
       'tokenProfiles',
       'latest_profiles',
       this.cacheExpiry.search
@@ -479,14 +479,14 @@ export class DexScreenerAPI {
   }> {
     try {
       const cacheKey = `token_info_${tokenAddress}`
-      
+
       // Check cache first
       const cached = this.getCachedData<{
         metadata: any
         hasActiveBoosts: boolean
         totalBoostAmount: number
       }>(cacheKey)
-      
+
       if (cached) {
         return cached
       }
@@ -499,7 +499,7 @@ export class DexScreenerAPI {
           hasActiveBoosts: false,
           totalBoostAmount: 0,
         }
-        
+
         // Cache negative result for shorter time
         this.setCachedData(cacheKey, result, 30 * 1000) // 30 seconds
         return result
@@ -536,10 +536,10 @@ export class DexScreenerAPI {
         hasActiveBoosts,
         totalBoostAmount,
       }
-      
+
       // Cache result
       this.setCachedData(cacheKey, result, this.cacheExpiry.tokenInfo)
-      
+
       return result
     } catch (error) {
       console.error(`❌ Failed to get token info: ${tokenAddress}`, error)
@@ -604,7 +604,7 @@ export class DexScreenerAPI {
     const now = Date.now()
     let validEntries = 0
     let expiredEntries = 0
-    
+
     this.cache.forEach(value => {
       if (now < value.expiry) {
         validEntries++
@@ -612,12 +612,12 @@ export class DexScreenerAPI {
         expiredEntries++
       }
     })
-    
+
     return {
       total: this.cache.size,
       valid: validEntries,
       expired: expiredEntries,
-      pending: this.pendingRequests.size
+      pending: this.pendingRequests.size,
     }
   }
 

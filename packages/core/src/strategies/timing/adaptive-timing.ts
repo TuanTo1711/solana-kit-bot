@@ -86,14 +86,15 @@ export class AdaptiveTiming implements TimingStrategy {
    */
   private updateExecutionStats(executionTime: number): void {
     this.executionTimes.push(executionTime)
-    
+
     // Keep only recent executions
     if (this.executionTimes.length > this.performanceWindow) {
       this.executionTimes.shift()
     }
 
     // Calculate rolling average
-    this.avgExecutionTime = this.executionTimes.reduce((sum, time) => sum + time, 0) / this.executionTimes.length
+    this.avgExecutionTime =
+      this.executionTimes.reduce((sum, time) => sum + time, 0) / this.executionTimes.length
   }
 
   shouldExecuteNow(_: ExecutionContext): boolean {

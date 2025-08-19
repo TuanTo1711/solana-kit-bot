@@ -39,56 +39,54 @@ import {
   type MaybeAccount,
   type MaybeEncodedAccount,
   type ReadonlyUint8Array,
-} from '@solana/kit';
+} from '@solana/kit'
 
-export const GLOBAL_DISCRIMINATOR = new Uint8Array([
-  167, 232, 232, 177, 200, 108, 114, 127,
-]);
+export const GLOBAL_DISCRIMINATOR = new Uint8Array([167, 232, 232, 177, 200, 108, 114, 127])
 
 export function getGlobalDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(GLOBAL_DISCRIMINATOR);
+  return fixEncoderSize(getBytesEncoder(), 8).encode(GLOBAL_DISCRIMINATOR)
 }
 
 export type Global = {
-  discriminator: ReadonlyUint8Array;
+  discriminator: ReadonlyUint8Array
   /** Unused */
-  initialized: boolean;
-  authority: Address;
-  feeRecipient: Address;
-  initialVirtualTokenReserves: bigint;
-  initialVirtualSolReserves: bigint;
-  initialRealTokenReserves: bigint;
-  tokenTotalSupply: bigint;
-  feeBasisPoints: bigint;
-  withdrawAuthority: Address;
+  initialized: boolean
+  authority: Address
+  feeRecipient: Address
+  initialVirtualTokenReserves: bigint
+  initialVirtualSolReserves: bigint
+  initialRealTokenReserves: bigint
+  tokenTotalSupply: bigint
+  feeBasisPoints: bigint
+  withdrawAuthority: Address
   /** Unused */
-  enableMigrate: boolean;
-  poolMigrationFee: bigint;
-  creatorFeeBasisPoints: bigint;
-  feeRecipients: Array<Address>;
-  setCreatorAuthority: Address;
-  adminSetCreatorAuthority: Address;
-};
+  enableMigrate: boolean
+  poolMigrationFee: bigint
+  creatorFeeBasisPoints: bigint
+  feeRecipients: Array<Address>
+  setCreatorAuthority: Address
+  adminSetCreatorAuthority: Address
+}
 
 export type GlobalArgs = {
   /** Unused */
-  initialized: boolean;
-  authority: Address;
-  feeRecipient: Address;
-  initialVirtualTokenReserves: number | bigint;
-  initialVirtualSolReserves: number | bigint;
-  initialRealTokenReserves: number | bigint;
-  tokenTotalSupply: number | bigint;
-  feeBasisPoints: number | bigint;
-  withdrawAuthority: Address;
+  initialized: boolean
+  authority: Address
+  feeRecipient: Address
+  initialVirtualTokenReserves: number | bigint
+  initialVirtualSolReserves: number | bigint
+  initialRealTokenReserves: number | bigint
+  tokenTotalSupply: number | bigint
+  feeBasisPoints: number | bigint
+  withdrawAuthority: Address
   /** Unused */
-  enableMigrate: boolean;
-  poolMigrationFee: number | bigint;
-  creatorFeeBasisPoints: number | bigint;
-  feeRecipients: Array<Address>;
-  setCreatorAuthority: Address;
-  adminSetCreatorAuthority: Address;
-};
+  enableMigrate: boolean
+  poolMigrationFee: number | bigint
+  creatorFeeBasisPoints: number | bigint
+  feeRecipients: Array<Address>
+  setCreatorAuthority: Address
+  adminSetCreatorAuthority: Address
+}
 
 export function getGlobalEncoder(): FixedSizeEncoder<GlobalArgs> {
   return transformEncoder(
@@ -110,8 +108,8 @@ export function getGlobalEncoder(): FixedSizeEncoder<GlobalArgs> {
       ['setCreatorAuthority', getAddressEncoder()],
       ['adminSetCreatorAuthority', getAddressEncoder()],
     ]),
-    (value) => ({ ...value, discriminator: GLOBAL_DISCRIMINATOR })
-  );
+    value => ({ ...value, discriminator: GLOBAL_DISCRIMINATOR })
+  )
 }
 
 export function getGlobalDecoder(): FixedSizeDecoder<Global> {
@@ -132,26 +130,23 @@ export function getGlobalDecoder(): FixedSizeDecoder<Global> {
     ['feeRecipients', getArrayDecoder(getAddressDecoder(), { size: 7 })],
     ['setCreatorAuthority', getAddressDecoder()],
     ['adminSetCreatorAuthority', getAddressDecoder()],
-  ]);
+  ])
 }
 
 export function getGlobalCodec(): FixedSizeCodec<GlobalArgs, Global> {
-  return combineCodec(getGlobalEncoder(), getGlobalDecoder());
+  return combineCodec(getGlobalEncoder(), getGlobalDecoder())
 }
 
 export function decodeGlobal<TAddress extends string = string>(
   encodedAccount: EncodedAccount<TAddress>
-): Account<Global, TAddress>;
+): Account<Global, TAddress>
 export function decodeGlobal<TAddress extends string = string>(
   encodedAccount: MaybeEncodedAccount<TAddress>
-): MaybeAccount<Global, TAddress>;
+): MaybeAccount<Global, TAddress>
 export function decodeGlobal<TAddress extends string = string>(
   encodedAccount: EncodedAccount<TAddress> | MaybeEncodedAccount<TAddress>
 ): Account<Global, TAddress> | MaybeAccount<Global, TAddress> {
-  return decodeAccount(
-    encodedAccount as MaybeEncodedAccount<TAddress>,
-    getGlobalDecoder()
-  );
+  return decodeAccount(encodedAccount as MaybeEncodedAccount<TAddress>, getGlobalDecoder())
 }
 
 export async function fetchGlobal<TAddress extends string = string>(
@@ -159,9 +154,9 @@ export async function fetchGlobal<TAddress extends string = string>(
   address: Address<TAddress>,
   config?: FetchAccountConfig
 ): Promise<Account<Global, TAddress>> {
-  const maybeAccount = await fetchMaybeGlobal(rpc, address, config);
-  assertAccountExists(maybeAccount);
-  return maybeAccount;
+  const maybeAccount = await fetchMaybeGlobal(rpc, address, config)
+  assertAccountExists(maybeAccount)
+  return maybeAccount
 }
 
 export async function fetchMaybeGlobal<TAddress extends string = string>(
@@ -169,8 +164,8 @@ export async function fetchMaybeGlobal<TAddress extends string = string>(
   address: Address<TAddress>,
   config?: FetchAccountConfig
 ): Promise<MaybeAccount<Global, TAddress>> {
-  const maybeAccount = await fetchEncodedAccount(rpc, address, config);
-  return decodeGlobal(maybeAccount);
+  const maybeAccount = await fetchEncodedAccount(rpc, address, config)
+  return decodeGlobal(maybeAccount)
 }
 
 export async function fetchAllGlobal(
@@ -178,9 +173,9 @@ export async function fetchAllGlobal(
   addresses: Array<Address>,
   config?: FetchAccountsConfig
 ): Promise<Account<Global>[]> {
-  const maybeAccounts = await fetchAllMaybeGlobal(rpc, addresses, config);
-  assertAccountsExist(maybeAccounts);
-  return maybeAccounts;
+  const maybeAccounts = await fetchAllMaybeGlobal(rpc, addresses, config)
+  assertAccountsExist(maybeAccounts)
+  return maybeAccounts
 }
 
 export async function fetchAllMaybeGlobal(
@@ -188,10 +183,10 @@ export async function fetchAllMaybeGlobal(
   addresses: Array<Address>,
   config?: FetchAccountsConfig
 ): Promise<MaybeAccount<Global>[]> {
-  const maybeAccounts = await fetchEncodedAccounts(rpc, addresses, config);
-  return maybeAccounts.map((maybeAccount) => decodeGlobal(maybeAccount));
+  const maybeAccounts = await fetchEncodedAccounts(rpc, addresses, config)
+  return maybeAccounts.map(maybeAccount => decodeGlobal(maybeAccount))
 }
 
 export function getGlobalSize(): number {
-  return 450;
+  return 450
 }

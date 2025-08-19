@@ -37,38 +37,34 @@ import {
   type MaybeAccount,
   type MaybeEncodedAccount,
   type ReadonlyUint8Array,
-} from '@solana/kit';
+} from '@solana/kit'
 
-export const BONDING_CURVE_DISCRIMINATOR = new Uint8Array([
-  23, 183, 248, 55, 96, 216, 172, 96,
-]);
+export const BONDING_CURVE_DISCRIMINATOR = new Uint8Array([23, 183, 248, 55, 96, 216, 172, 96])
 
 export function getBondingCurveDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
-    BONDING_CURVE_DISCRIMINATOR
-  );
+  return fixEncoderSize(getBytesEncoder(), 8).encode(BONDING_CURVE_DISCRIMINATOR)
 }
 
 export type BondingCurve = {
-  discriminator: ReadonlyUint8Array;
-  virtualTokenReserves: bigint;
-  virtualSolReserves: bigint;
-  realTokenReserves: bigint;
-  realSolReserves: bigint;
-  tokenTotalSupply: bigint;
-  complete: boolean;
-  creator: Address;
-};
+  discriminator: ReadonlyUint8Array
+  virtualTokenReserves: bigint
+  virtualSolReserves: bigint
+  realTokenReserves: bigint
+  realSolReserves: bigint
+  tokenTotalSupply: bigint
+  complete: boolean
+  creator: Address
+}
 
 export type BondingCurveArgs = {
-  virtualTokenReserves: number | bigint;
-  virtualSolReserves: number | bigint;
-  realTokenReserves: number | bigint;
-  realSolReserves: number | bigint;
-  tokenTotalSupply: number | bigint;
-  complete: boolean;
-  creator: Address;
-};
+  virtualTokenReserves: number | bigint
+  virtualSolReserves: number | bigint
+  realTokenReserves: number | bigint
+  realSolReserves: number | bigint
+  tokenTotalSupply: number | bigint
+  complete: boolean
+  creator: Address
+}
 
 export function getBondingCurveEncoder(): FixedSizeEncoder<BondingCurveArgs> {
   return transformEncoder(
@@ -82,8 +78,8 @@ export function getBondingCurveEncoder(): FixedSizeEncoder<BondingCurveArgs> {
       ['complete', getBooleanEncoder()],
       ['creator', getAddressEncoder()],
     ]),
-    (value) => ({ ...value, discriminator: BONDING_CURVE_DISCRIMINATOR })
-  );
+    value => ({ ...value, discriminator: BONDING_CURVE_DISCRIMINATOR })
+  )
 }
 
 export function getBondingCurveDecoder(): FixedSizeDecoder<BondingCurve> {
@@ -96,29 +92,23 @@ export function getBondingCurveDecoder(): FixedSizeDecoder<BondingCurve> {
     ['tokenTotalSupply', getU64Decoder()],
     ['complete', getBooleanDecoder()],
     ['creator', getAddressDecoder()],
-  ]);
+  ])
 }
 
-export function getBondingCurveCodec(): FixedSizeCodec<
-  BondingCurveArgs,
-  BondingCurve
-> {
-  return combineCodec(getBondingCurveEncoder(), getBondingCurveDecoder());
+export function getBondingCurveCodec(): FixedSizeCodec<BondingCurveArgs, BondingCurve> {
+  return combineCodec(getBondingCurveEncoder(), getBondingCurveDecoder())
 }
 
 export function decodeBondingCurve<TAddress extends string = string>(
   encodedAccount: EncodedAccount<TAddress>
-): Account<BondingCurve, TAddress>;
+): Account<BondingCurve, TAddress>
 export function decodeBondingCurve<TAddress extends string = string>(
   encodedAccount: MaybeEncodedAccount<TAddress>
-): MaybeAccount<BondingCurve, TAddress>;
+): MaybeAccount<BondingCurve, TAddress>
 export function decodeBondingCurve<TAddress extends string = string>(
   encodedAccount: EncodedAccount<TAddress> | MaybeEncodedAccount<TAddress>
 ): Account<BondingCurve, TAddress> | MaybeAccount<BondingCurve, TAddress> {
-  return decodeAccount(
-    encodedAccount as MaybeEncodedAccount<TAddress>,
-    getBondingCurveDecoder()
-  );
+  return decodeAccount(encodedAccount as MaybeEncodedAccount<TAddress>, getBondingCurveDecoder())
 }
 
 export async function fetchBondingCurve<TAddress extends string = string>(
@@ -126,9 +116,9 @@ export async function fetchBondingCurve<TAddress extends string = string>(
   address: Address<TAddress>,
   config?: FetchAccountConfig
 ): Promise<Account<BondingCurve, TAddress>> {
-  const maybeAccount = await fetchMaybeBondingCurve(rpc, address, config);
-  assertAccountExists(maybeAccount);
-  return maybeAccount;
+  const maybeAccount = await fetchMaybeBondingCurve(rpc, address, config)
+  assertAccountExists(maybeAccount)
+  return maybeAccount
 }
 
 export async function fetchMaybeBondingCurve<TAddress extends string = string>(
@@ -136,8 +126,8 @@ export async function fetchMaybeBondingCurve<TAddress extends string = string>(
   address: Address<TAddress>,
   config?: FetchAccountConfig
 ): Promise<MaybeAccount<BondingCurve, TAddress>> {
-  const maybeAccount = await fetchEncodedAccount(rpc, address, config);
-  return decodeBondingCurve(maybeAccount);
+  const maybeAccount = await fetchEncodedAccount(rpc, address, config)
+  return decodeBondingCurve(maybeAccount)
 }
 
 export async function fetchAllBondingCurve(
@@ -145,9 +135,9 @@ export async function fetchAllBondingCurve(
   addresses: Array<Address>,
   config?: FetchAccountsConfig
 ): Promise<Account<BondingCurve>[]> {
-  const maybeAccounts = await fetchAllMaybeBondingCurve(rpc, addresses, config);
-  assertAccountsExist(maybeAccounts);
-  return maybeAccounts;
+  const maybeAccounts = await fetchAllMaybeBondingCurve(rpc, addresses, config)
+  assertAccountsExist(maybeAccounts)
+  return maybeAccounts
 }
 
 export async function fetchAllMaybeBondingCurve(
@@ -155,10 +145,10 @@ export async function fetchAllMaybeBondingCurve(
   addresses: Array<Address>,
   config?: FetchAccountsConfig
 ): Promise<MaybeAccount<BondingCurve>[]> {
-  const maybeAccounts = await fetchEncodedAccounts(rpc, addresses, config);
-  return maybeAccounts.map((maybeAccount) => decodeBondingCurve(maybeAccount));
+  const maybeAccounts = await fetchEncodedAccounts(rpc, addresses, config)
+  return maybeAccounts.map(maybeAccount => decodeBondingCurve(maybeAccount))
 }
 
 export function getBondingCurveSize(): number {
-  return 81;
+  return 81
 }

@@ -6,20 +6,20 @@
  * @see https://github.com/codama-idl/codama
  */
 
-export * from './adminSetCreatorEvent';
-export * from './adminSetIdlAuthorityEvent';
-export * from './adminUpdateTokenIncentivesEvent';
-export * from './claimTokenIncentivesEvent';
-export * from './closeUserVolumeAccumulatorEvent';
-export * from './collectCreatorFeeEvent';
-export * from './completeEvent';
-export * from './completePumpAmmMigrationEvent';
-export * from './createEvent';
-export * from './extendAccountEvent';
-export * from './initUserVolumeAccumulatorEvent';
-export * from './setCreatorEvent';
-export * from './setMetaplexCreatorEvent';
-export * from './setParamsEvent';
-export * from './syncUserVolumeAccumulatorEvent';
-export * from './tradeEvent';
-export * from './updateGlobalAuthorityEvent';
+export * from './adminSetCreatorEvent'
+export * from './adminSetIdlAuthorityEvent'
+export * from './adminUpdateTokenIncentivesEvent'
+export * from './claimTokenIncentivesEvent'
+export * from './closeUserVolumeAccumulatorEvent'
+export * from './collectCreatorFeeEvent'
+export * from './completeEvent'
+export * from './completePumpAmmMigrationEvent'
+export * from './createEvent'
+export * from './extendAccountEvent'
+export * from './initUserVolumeAccumulatorEvent'
+export * from './setCreatorEvent'
+export * from './setMetaplexCreatorEvent'
+export * from './setParamsEvent'
+export * from './syncUserVolumeAccumulatorEvent'
+export * from './tradeEvent'
+export * from './updateGlobalAuthorityEvent'

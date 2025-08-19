@@ -22,45 +22,45 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit';
+} from '@solana/kit'
 
 export type TradeEvent = {
-  mint: Address;
-  solAmount: bigint;
-  tokenAmount: bigint;
-  isBuy: boolean;
-  user: Address;
-  timestamp: bigint;
-  virtualSolReserves: bigint;
-  virtualTokenReserves: bigint;
-  realSolReserves: bigint;
-  realTokenReserves: bigint;
-  feeRecipient: Address;
-  feeBasisPoints: bigint;
-  fee: bigint;
-  creator: Address;
-  creatorFeeBasisPoints: bigint;
-  creatorFee: bigint;
-};
+  mint: Address
+  solAmount: bigint
+  tokenAmount: bigint
+  isBuy: boolean
+  user: Address
+  timestamp: bigint
+  virtualSolReserves: bigint
+  virtualTokenReserves: bigint
+  realSolReserves: bigint
+  realTokenReserves: bigint
+  feeRecipient: Address
+  feeBasisPoints: bigint
+  fee: bigint
+  creator: Address
+  creatorFeeBasisPoints: bigint
+  creatorFee: bigint
+}
 
 export type TradeEventArgs = {
-  mint: Address;
-  solAmount: number | bigint;
-  tokenAmount: number | bigint;
-  isBuy: boolean;
-  user: Address;
-  timestamp: number | bigint;
-  virtualSolReserves: number | bigint;
-  virtualTokenReserves: number | bigint;
-  realSolReserves: number | bigint;
-  realTokenReserves: number | bigint;
-  feeRecipient: Address;
-  feeBasisPoints: number | bigint;
-  fee: number | bigint;
-  creator: Address;
-  creatorFeeBasisPoints: number | bigint;
-  creatorFee: number | bigint;
-};
+  mint: Address
+  solAmount: number | bigint
+  tokenAmount: number | bigint
+  isBuy: boolean
+  user: Address
+  timestamp: number | bigint
+  virtualSolReserves: number | bigint
+  virtualTokenReserves: number | bigint
+  realSolReserves: number | bigint
+  realTokenReserves: number | bigint
+  feeRecipient: Address
+  feeBasisPoints: number | bigint
+  fee: number | bigint
+  creator: Address
+  creatorFeeBasisPoints: number | bigint
+  creatorFee: number | bigint
+}
 
 export function getTradeEventEncoder(): FixedSizeEncoder<TradeEventArgs> {
   return getStructEncoder([
@@ -80,7 +80,7 @@ export function getTradeEventEncoder(): FixedSizeEncoder<TradeEventArgs> {
     ['creator', getAddressEncoder()],
     ['creatorFeeBasisPoints', getU64Encoder()],
     ['creatorFee', getU64Encoder()],
-  ]);
+  ])
 }
 
 export function getTradeEventDecoder(): FixedSizeDecoder<TradeEvent> {
@@ -101,12 +101,9 @@ export function getTradeEventDecoder(): FixedSizeDecoder<TradeEvent> {
     ['creator', getAddressDecoder()],
     ['creatorFeeBasisPoints', getU64Decoder()],
     ['creatorFee', getU64Decoder()],
-  ]);
+  ])
 }
 
-export function getTradeEventCodec(): FixedSizeCodec<
-  TradeEventArgs,
-  TradeEvent
-> {
-  return combineCodec(getTradeEventEncoder(), getTradeEventDecoder());
+export function getTradeEventCodec(): FixedSizeCodec<TradeEventArgs, TradeEvent> {
+  return combineCodec(getTradeEventEncoder(), getTradeEventDecoder())
 }

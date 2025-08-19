@@ -18,26 +18,26 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit';
+} from '@solana/kit'
 
 export type InitUserVolumeAccumulatorEvent = {
-  payer: Address;
-  user: Address;
-  timestamp: bigint;
-};
+  payer: Address
+  user: Address
+  timestamp: bigint
+}
 
 export type InitUserVolumeAccumulatorEventArgs = {
-  payer: Address;
-  user: Address;
-  timestamp: number | bigint;
-};
+  payer: Address
+  user: Address
+  timestamp: number | bigint
+}
 
 export function getInitUserVolumeAccumulatorEventEncoder(): FixedSizeEncoder<InitUserVolumeAccumulatorEventArgs> {
   return getStructEncoder([
     ['payer', getAddressEncoder()],
     ['user', getAddressEncoder()],
     ['timestamp', getI64Encoder()],
-  ]);
+  ])
 }
 
 export function getInitUserVolumeAccumulatorEventDecoder(): FixedSizeDecoder<InitUserVolumeAccumulatorEvent> {
@@ -45,7 +45,7 @@ export function getInitUserVolumeAccumulatorEventDecoder(): FixedSizeDecoder<Ini
     ['payer', getAddressDecoder()],
     ['user', getAddressDecoder()],
     ['timestamp', getI64Decoder()],
-  ]);
+  ])
 }
 
 export function getInitUserVolumeAccumulatorEventCodec(): FixedSizeCodec<
@@ -55,5 +55,5 @@ export function getInitUserVolumeAccumulatorEventCodec(): FixedSizeCodec<
   return combineCodec(
     getInitUserVolumeAccumulatorEventEncoder(),
     getInitUserVolumeAccumulatorEventDecoder()
-  );
+  )
 }

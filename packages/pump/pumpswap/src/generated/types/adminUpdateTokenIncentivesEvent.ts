@@ -20,27 +20,27 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit';
+} from '@solana/kit'
 
 export type AdminUpdateTokenIncentivesEvent = {
-  startTime: bigint;
-  endTime: bigint;
-  dayNumber: bigint;
-  tokenSupplyPerDay: bigint;
-  mint: Address;
-  secondsInADay: bigint;
-  timestamp: bigint;
-};
+  startTime: bigint
+  endTime: bigint
+  dayNumber: bigint
+  tokenSupplyPerDay: bigint
+  mint: Address
+  secondsInADay: bigint
+  timestamp: bigint
+}
 
 export type AdminUpdateTokenIncentivesEventArgs = {
-  startTime: number | bigint;
-  endTime: number | bigint;
-  dayNumber: number | bigint;
-  tokenSupplyPerDay: number | bigint;
-  mint: Address;
-  secondsInADay: number | bigint;
-  timestamp: number | bigint;
-};
+  startTime: number | bigint
+  endTime: number | bigint
+  dayNumber: number | bigint
+  tokenSupplyPerDay: number | bigint
+  mint: Address
+  secondsInADay: number | bigint
+  timestamp: number | bigint
+}
 
 export function getAdminUpdateTokenIncentivesEventEncoder(): FixedSizeEncoder<AdminUpdateTokenIncentivesEventArgs> {
   return getStructEncoder([
@@ -51,7 +51,7 @@ export function getAdminUpdateTokenIncentivesEventEncoder(): FixedSizeEncoder<Ad
     ['mint', getAddressEncoder()],
     ['secondsInADay', getI64Encoder()],
     ['timestamp', getI64Encoder()],
-  ]);
+  ])
 }
 
 export function getAdminUpdateTokenIncentivesEventDecoder(): FixedSizeDecoder<AdminUpdateTokenIncentivesEvent> {
@@ -63,7 +63,7 @@ export function getAdminUpdateTokenIncentivesEventDecoder(): FixedSizeDecoder<Ad
     ['mint', getAddressDecoder()],
     ['secondsInADay', getI64Decoder()],
     ['timestamp', getI64Decoder()],
-  ]);
+  ])
 }
 
 export function getAdminUpdateTokenIncentivesEventCodec(): FixedSizeCodec<
@@ -73,5 +73,5 @@ export function getAdminUpdateTokenIncentivesEventCodec(): FixedSizeCodec<
   return combineCodec(
     getAdminUpdateTokenIncentivesEventEncoder(),
     getAdminUpdateTokenIncentivesEventDecoder()
-  );
+  )
 }

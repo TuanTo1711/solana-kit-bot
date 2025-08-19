@@ -18,23 +18,23 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit';
+} from '@solana/kit'
 
 export type SetMetaplexCreatorEvent = {
-  timestamp: bigint;
-  mint: Address;
-  bondingCurve: Address;
-  metadata: Address;
-  creator: Address;
-};
+  timestamp: bigint
+  mint: Address
+  bondingCurve: Address
+  metadata: Address
+  creator: Address
+}
 
 export type SetMetaplexCreatorEventArgs = {
-  timestamp: number | bigint;
-  mint: Address;
-  bondingCurve: Address;
-  metadata: Address;
-  creator: Address;
-};
+  timestamp: number | bigint
+  mint: Address
+  bondingCurve: Address
+  metadata: Address
+  creator: Address
+}
 
 export function getSetMetaplexCreatorEventEncoder(): FixedSizeEncoder<SetMetaplexCreatorEventArgs> {
   return getStructEncoder([
@@ -43,7 +43,7 @@ export function getSetMetaplexCreatorEventEncoder(): FixedSizeEncoder<SetMetaple
     ['bondingCurve', getAddressEncoder()],
     ['metadata', getAddressEncoder()],
     ['creator', getAddressEncoder()],
-  ]);
+  ])
 }
 
 export function getSetMetaplexCreatorEventDecoder(): FixedSizeDecoder<SetMetaplexCreatorEvent> {
@@ -53,15 +53,12 @@ export function getSetMetaplexCreatorEventDecoder(): FixedSizeDecoder<SetMetaple
     ['bondingCurve', getAddressDecoder()],
     ['metadata', getAddressDecoder()],
     ['creator', getAddressDecoder()],
-  ]);
+  ])
 }
 
 export function getSetMetaplexCreatorEventCodec(): FixedSizeCodec<
   SetMetaplexCreatorEventArgs,
   SetMetaplexCreatorEvent
 > {
-  return combineCodec(
-    getSetMetaplexCreatorEventEncoder(),
-    getSetMetaplexCreatorEventDecoder()
-  );
+  return combineCodec(getSetMetaplexCreatorEventEncoder(), getSetMetaplexCreatorEventDecoder())
 }

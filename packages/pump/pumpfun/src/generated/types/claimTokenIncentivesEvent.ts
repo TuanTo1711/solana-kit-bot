@@ -20,21 +20,21 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit';
+} from '@solana/kit'
 
 export type ClaimTokenIncentivesEvent = {
-  user: Address;
-  mint: Address;
-  amount: bigint;
-  timestamp: bigint;
-};
+  user: Address
+  mint: Address
+  amount: bigint
+  timestamp: bigint
+}
 
 export type ClaimTokenIncentivesEventArgs = {
-  user: Address;
-  mint: Address;
-  amount: number | bigint;
-  timestamp: number | bigint;
-};
+  user: Address
+  mint: Address
+  amount: number | bigint
+  timestamp: number | bigint
+}
 
 export function getClaimTokenIncentivesEventEncoder(): FixedSizeEncoder<ClaimTokenIncentivesEventArgs> {
   return getStructEncoder([
@@ -42,7 +42,7 @@ export function getClaimTokenIncentivesEventEncoder(): FixedSizeEncoder<ClaimTok
     ['mint', getAddressEncoder()],
     ['amount', getU64Encoder()],
     ['timestamp', getI64Encoder()],
-  ]);
+  ])
 }
 
 export function getClaimTokenIncentivesEventDecoder(): FixedSizeDecoder<ClaimTokenIncentivesEvent> {
@@ -51,15 +51,12 @@ export function getClaimTokenIncentivesEventDecoder(): FixedSizeDecoder<ClaimTok
     ['mint', getAddressDecoder()],
     ['amount', getU64Decoder()],
     ['timestamp', getI64Decoder()],
-  ]);
+  ])
 }
 
 export function getClaimTokenIncentivesEventCodec(): FixedSizeCodec<
   ClaimTokenIncentivesEventArgs,
   ClaimTokenIncentivesEvent
 > {
-  return combineCodec(
-    getClaimTokenIncentivesEventEncoder(),
-    getClaimTokenIncentivesEventDecoder()
-  );
+  return combineCodec(getClaimTokenIncentivesEventEncoder(), getClaimTokenIncentivesEventDecoder())
 }

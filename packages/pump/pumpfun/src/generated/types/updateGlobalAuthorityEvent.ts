@@ -18,21 +18,21 @@ import {
   type FixedSizeCodec,
   type FixedSizeDecoder,
   type FixedSizeEncoder,
-} from '@solana/kit';
+} from '@solana/kit'
 
 export type UpdateGlobalAuthorityEvent = {
-  global: Address;
-  authority: Address;
-  newAuthority: Address;
-  timestamp: bigint;
-};
+  global: Address
+  authority: Address
+  newAuthority: Address
+  timestamp: bigint
+}
 
 export type UpdateGlobalAuthorityEventArgs = {
-  global: Address;
-  authority: Address;
-  newAuthority: Address;
-  timestamp: number | bigint;
-};
+  global: Address
+  authority: Address
+  newAuthority: Address
+  timestamp: number | bigint
+}
 
 export function getUpdateGlobalAuthorityEventEncoder(): FixedSizeEncoder<UpdateGlobalAuthorityEventArgs> {
   return getStructEncoder([
@@ -40,7 +40,7 @@ export function getUpdateGlobalAuthorityEventEncoder(): FixedSizeEncoder<UpdateG
     ['authority', getAddressEncoder()],
     ['newAuthority', getAddressEncoder()],
     ['timestamp', getI64Encoder()],
-  ]);
+  ])
 }
 
 export function getUpdateGlobalAuthorityEventDecoder(): FixedSizeDecoder<UpdateGlobalAuthorityEvent> {
@@ -49,7 +49,7 @@ export function getUpdateGlobalAuthorityEventDecoder(): FixedSizeDecoder<UpdateG
     ['authority', getAddressDecoder()],
     ['newAuthority', getAddressDecoder()],
     ['timestamp', getI64Decoder()],
-  ]);
+  ])
 }
 
 export function getUpdateGlobalAuthorityEventCodec(): FixedSizeCodec<
@@ -59,5 +59,5 @@ export function getUpdateGlobalAuthorityEventCodec(): FixedSizeCodec<
   return combineCodec(
     getUpdateGlobalAuthorityEventEncoder(),
     getUpdateGlobalAuthorityEventDecoder()
-  );
+  )
 }
