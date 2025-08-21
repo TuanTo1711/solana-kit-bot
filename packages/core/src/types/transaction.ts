@@ -6,6 +6,7 @@
  * and transaction management.
  */
 
+import type { PriorityLevel } from '@solana-kit-bot/provider'
 import type {
   Base64EncodedWireTransaction,
   Instruction,
@@ -32,35 +33,6 @@ export interface Bundle {
 }
 
 /**
- * Extended bundle configuration with metadata and options
- *
- * Provides additional configuration options for bundle execution,
- * including priority settings and retry policies.
- */
-export interface ExtendedBundle extends Bundle {
-  /** Bundle priority for ordering (higher = more urgent) */
-  priority?: number
-
-  /** Maximum retry attempts for this bundle */
-  maxRetries?: number
-
-  /** Custom retry delay in milliseconds */
-  retryDelay?: number
-
-  /** Bundle metadata for tracking and debugging */
-  metadata?: {
-    /** Unique identifier for this bundle */
-    bundleId: string
-    /** Bundle creation timestamp */
-    createdAt: number
-    /** Bundle description for logging */
-    description?: string
-    /** Custom tags for categorization */
-    tags?: string[]
-  }
-}
-
-/**
  * Options for building sender transactions
  *
  * Configuration options specific to sender-based transaction building,
@@ -72,6 +44,8 @@ export interface BuildSenderOptions {
 
   /** Unit Price in lamports per unit to expedite transaction processing */
   unitPrice?: number
+
+  priorityFeeLevel: PriorityLevel | 'recommended'
 
   /** Jito tip amount in lamports for MEV protection and faster inclusion */
   senderTip?: number
@@ -284,100 +258,4 @@ export interface TransactionManager {
       retryDelay?: number
     }
   ): Promise<{ confirmed: true; err?: never } | { confirmed: false; err?: Error | null }>
-}
-
-/**
- * Transaction status enumeration
- *
- * Represents the various states a transaction can be in during its lifecycle.
- */
-export enum TransactionStatus {
-  /** Transaction is being prepared */
-  PENDING = 'pending',
-  /** Transaction has been submitted to the network */
-  SUBMITTED = 'submitted',
-  /** Transaction has been confirmed by the network */
-  CONFIRMED = 'confirmed',
-  /** Transaction has been finalized */
-  FINALIZED = 'finalized',
-  /** Transaction failed to execute */
-  FAILED = 'failed',
-  /** Transaction was rejected by the network */
-  REJECTED = 'rejected',
-  /** Transaction timed out */
-  TIMEOUT = 'timeout',
-}
-
-/**
- * Transaction tracking information
- *
- * Contains metadata and status information for tracking transaction progress
- * throughout its lifecycle in the system.
- */
-export interface TransactionTracker {
-  /** Unique transaction identifier */
-  id: string
-
-  /** Transaction signature (available after submission) */
-  signature?: string
-
-  /** Current transaction status */
-  status: TransactionStatus
-
-  /** Transaction creation timestamp */
-  createdAt: number
-
-  /** Transaction submission timestamp */
-  submittedAt?: number
-
-  /** Transaction confirmation timestamp */
-  confirmedAt?: number
-
-  /** Number of retry attempts */
-  retryCount: number
-
-  /** Last error (if any) */
-  lastError?: Error
-
-  /** Transaction metadata */
-  metadata?: {
-    /** Transaction type description */
-    type: string
-    /** Associated bundle ID (if part of bundle) */
-    bundleId?: string
-    /** Custom tracking data */
-    customData?: Record<string, any>
-  }
-}
-
-/**
- * Batch transaction configuration
- *
- * Configuration for processing multiple transactions in batches,
- * useful for high-throughput scenarios with rate limiting and error handling.
- */
-export interface BatchTransactionConfig {
-  /** Maximum number of transactions per batch */
-  batchSize: number
-
-  /** Delay between batches in milliseconds */
-  batchDelay: number
-
-  /** Maximum concurrent batches */
-  maxConcurrentBatches: number
-
-  /** Whether to continue on batch failure */
-  continueOnError: boolean
-
-  /** Retry configuration for failed transactions */
-  retry: {
-    /** Maximum retry attempts per transaction */
-    maxRetries: number
-    /** Base delay between retries in milliseconds */
-    baseDelay: number
-    /** Exponential backoff multiplier */
-    backoffMultiplier: number
-    /** Maximum retry delay in milliseconds */
-    maxDelay: number
-  }
 }

@@ -19,9 +19,8 @@ const SOL_USD_POOL_BASE = 'DQyrAcCrDXQ7NeoqGgDCZwBvWDcYmFCjSb9JtteuvPpz'
 const SOL_USD_POOL_QUOTE = 'HLmqeL62xR1QoZ1HKKbXRrdN1p3phKpxRMb2VVopvBBz'
 const LAMPORTS_PER_SOL = 10 ** 9
 const TOKEN_DECIMALS = 10 ** 6
-const MAX_TRANSACTION_RETRIES = 10
-const CONFIRMATION_RETRIES = 5
-const CONFIRMATION_RETRY_DELAY = 400
+const CONFIRMATION_RETRIES = 2
+const CONFIRMATION_RETRY_DELAY = 1000
 const POOL_WATCH_DELAY = 1000
 
 /**
@@ -44,11 +43,14 @@ interface PoolData {
   marketCap: Decimal
 }
 
+type PriorityFee = 'recommended' | 'Min' | 'Low' | 'Medium' | 'High' | 'VeryHigh'
+
 export type PumpswapLimitOrderConfig = {
   pool: string
   target: bigint
   amount: bigint
   slippage: number
+  priorityFeeLevel: PriorityFee
   jitoTip: number
   expired: number
 }
@@ -90,6 +92,40 @@ export class PumpswapLimitOrderCommand extends Command<BaseContext & SolanaBotCo
         name: 'slippage',
         message: 'Nhập độ trượt giá: ',
         min: 1,
+        default: 10,
+      },
+      {
+        type: 'select',
+        name: 'priorityFeeLevel',
+        message: 'Chọn mức phí ưu tiên: ',
+        default: 'recommended',
+        choices: [
+          {
+            name: 'Tự động (tối ưu)',
+            value: 'recommended',
+          },
+          {
+            name: 'Thấp nhất',
+            value: 'Min',
+          },
+          {
+            name: 'Thấp',
+            value: 'Low',
+          },
+          {
+            name: 'Trung bình',
+            value: 'Medium',
+          },
+          {
+            name: 'Cao',
+            value: 'High',
+          },
+          {
+            name: 'Rất cao',
+            value: 'VeryHigh',
+          },
+        ],
+        filter: (value: string) => value as PriorityFee,
       },
       {
         type: 'input',
@@ -108,6 +144,7 @@ export class PumpswapLimitOrderCommand extends Command<BaseContext & SolanaBotCo
         type: 'input',
         name: 'jitoTip',
         message: 'Nhập jito tip: ',
+        default: '0.001',
         transformer: value => value.trim(),
         validate: (value: string) =>
           isNaN(parseFloat(value)) || Number(value) < 0
@@ -401,6 +438,7 @@ export class PumpswapLimitOrderCommand extends Command<BaseContext & SolanaBotCo
             'Token pool hiện tại': `${Decimal(baseAmount.toString())} | ${formatUnits(
               baseAmount / BigInt(TOKEN_DECIMALS)
             )}`,
+            'Ví trả phí': payer.address,
             Tip: `${tip} SOL`,
             'Token pool cao nhất': `${Decimal(maxBase.toString())} | ${formatUnits(
               maxBase / BigInt(TOKEN_DECIMALS)
@@ -411,31 +449,34 @@ export class PumpswapLimitOrderCommand extends Command<BaseContext & SolanaBotCo
       )
       .subscribe({
         next: async ({ baseAmount, quoteAmount, tip }) => {
-          console.log('🎯 Đạt giá mục tiêu! Thực hiện giao dịch...')
+          this.stop$.next(true)
 
-          const { base, maxQuote } = computeBuyQuoteIn({
-            quote: config.amount,
-            baseReserve: baseAmount,
-            quoteReserve: quoteAmount,
-            coinCreator: poolKeys.coinCreator,
-            slippage: config.slippage,
-          })
-          const buyInstructions = await pumpswapClient.createBuyInstructions(
-            {
-              maxAmountIn: maxQuote,
-              amountOut: base,
-              buyer: payer,
-              poolKeys,
-            },
-            { hasBaseAta: false, hasQuoteAta: false }
-          )
+          try {
+            console.log('🎯 Đạt giá mục tiêu! Thực hiện giao dịch...')
 
-          for (let index = 0; index < MAX_TRANSACTION_RETRIES; index++) {
+            const { base, maxQuote } = computeBuyQuoteIn({
+              quote: config.amount,
+              baseReserve: baseAmount,
+              quoteReserve: quoteAmount,
+              coinCreator: poolKeys.coinCreator,
+              slippage: config.slippage,
+            })
+            const buyInstructions = await pumpswapClient.createBuyInstructions(
+              {
+                maxAmountIn: maxQuote,
+                amountOut: base,
+                buyer: payer,
+                poolKeys,
+              },
+              { hasBaseAta: false, hasQuoteAta: false }
+            )
+
             const transaction = await transactionManager.buildSenderTransaction(
               buyInstructions,
               payer,
               {
                 senderTip: Math.max(config.jitoTip, tip),
+                priorityFeeLevel: config.priorityFeeLevel,
               }
             )
             const signature = await transactionManager.sendSenderTransaction(transaction)
@@ -450,9 +491,11 @@ export class PumpswapLimitOrderCommand extends Command<BaseContext & SolanaBotCo
               this.stop$.next(true)
               return
             }
-          }
 
-          console.log('❌ Giao dịch thất bại sau tất cả các lần thử')
+            console.log('❌ Giao dịch thất bại sau tất cả các lần thử')
+          } catch (error) {
+            console.error('❌ Lỗi khi gửi giao dịch:', error)
+          }
         },
         error: error => {
           console.error('❌ Lỗi khi theo dõi pool:', error)

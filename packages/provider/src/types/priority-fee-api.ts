@@ -83,6 +83,18 @@ export type PriorityFeeApi = {
   ): SingleEstimateResponse
 
   /**
+   * Get a single priority fee estimate for a transaction with custom options.
+   * @param params - Parameters containing the transaction and options
+   * @returns Single priority fee estimate
+   */
+  getPriorityFeeEstimate(
+    params: PriorityFeeParamsWithTransaction & {
+      options?: { includeAllPriorityFeeLevels: false } & CommonPriorityFeeOptions &
+        AdvancedPriorityFeeOptions
+    }
+  ): SingleEstimateResponse
+
+  /**
    * Get priority fee estimates for all levels for a transaction.
    * @param params - Parameters containing the transaction and options
    * @returns Priority fee estimates for all levels
@@ -102,6 +114,18 @@ export type PriorityFeeApi = {
   getPriorityFeeEstimate(
     params: PriorityFeeParamsWithAccountKeys & {
       options?: { recommended: true } & CommonPriorityFeeOptions
+    }
+  ): SingleEstimateResponse
+
+  /**
+   * Get a single priority fee estimate for account keys with custom options.
+   * @param params - Parameters containing the account keys and options
+   * @returns Single priority fee estimate
+   */
+  getPriorityFeeEstimate(
+    params: PriorityFeeParamsWithAccountKeys & {
+      options?: { includeAllPriorityFeeLevels: false } & CommonPriorityFeeOptions &
+        AdvancedPriorityFeeOptions
     }
   ): SingleEstimateResponse
 

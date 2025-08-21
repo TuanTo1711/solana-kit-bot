@@ -7,7 +7,7 @@ import {
   type RpcTransport,
 } from '@solana/kit'
 import { randomUUID } from 'crypto'
-import { catchError, map, of, shareReplay, startWith } from 'rxjs'
+import { catchError, map, of, shareReplay, startWith, type Observable } from 'rxjs'
 import { WebSocketSubject } from 'rxjs/webSocket'
 
 import {
@@ -52,6 +52,8 @@ export const createJitoRpc = (
   const values = Object.values(BLOCK_ENGINE_URL)
 
   const randomUrl = () => values[Math.floor(Math.random() * values.length)]!
+
+  let cachedTipStream: Observable<TipFloorResponse> | null = null
 
   /**
    * Creates a transport for the specified RPC method.
@@ -145,16 +147,24 @@ export const createJitoRpc = (
     },
 
     async tipStream() {
-      const wsUrl = 'wss://bundles.jito.wtf/api/v1/bundles/tip_stream' as const
+      // Nếu đã có cached stream, trả về ngay
+      if (cachedTipStream) {
+        return cachedTipStream
+      }
+
+      // Tạo stream mới và cache lại
       const initialTipFloor = await this.getTipFloor()
+      const wsUrl = 'wss://bundles.jito.wtf/api/v1/bundles/tip_stream' as const
       const ws = new WebSocketSubject<[TipFloorResponse]>(wsUrl)
 
-      return ws.pipe(
+      cachedTipStream = ws.pipe(
         map(data => data[0]),
         startWith(initialTipFloor),
         catchError(() => of(initialTipFloor)),
         shareReplay(1)
       )
+
+      return cachedTipStream
     },
     async sendShakingBundle(transaction, config) {
       const requests = values.map(async endpoint => {

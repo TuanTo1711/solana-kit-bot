@@ -166,7 +166,7 @@ class TransactionManagerImpl implements TransactionManager {
   async buildSenderTransaction(
     instructions: Instruction[],
     feePayer: TransactionSigner,
-    options: BuildSenderOptions
+    options: BuildSenderOptions = { priorityFeeLevel: 'recommended' }
   ): Promise<Base64EncodedWireTransaction> {
     let { unitLimit, unitPrice, senderTip } = options
     const blockhash = await this.getBlockhash()
@@ -215,19 +215,32 @@ class TransactionManagerImpl implements TransactionManager {
       try {
         const transaction = await signTransactionMessageWithSigners(message)
         const serializeTransaction = getBase64EncodedWireTransaction(transaction)
-        const { priorityFeeEstimate } = await this.provider.rpc
-          .getPriorityFeeEstimate({
-            transaction: serializeTransaction,
-            options: {
-              recommended: true,
-              transactionEncoding: 'base64',
-            },
-          })
-          .send()
+
+        const { priorityFeeEstimate } =
+          options.priorityFeeLevel === 'recommended'
+            ? await this.provider.rpc
+                .getPriorityFeeEstimate({
+                  transaction: serializeTransaction,
+                  options: {
+                    recommended: true,
+                    transactionEncoding: 'base64',
+                  },
+                })
+                .send()
+            : await this.provider.rpc
+                .getPriorityFeeEstimate({
+                  transaction: serializeTransaction,
+                  options: {
+                    includeAllPriorityFeeLevels: false,
+                    priorityLevel: options.priorityFeeLevel,
+                    transactionEncoding: 'base64',
+                  },
+                })
+                .send()
         const ceil = Math.ceil(Number(priorityFeeEstimate) * 1.2)
         unitPrice = Number(ceil.toFixed(0))
       } catch (error) {
-        unitPrice = 50_000
+        unitPrice = 5_000_000
       }
     }
 
