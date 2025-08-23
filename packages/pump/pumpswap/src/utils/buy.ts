@@ -179,12 +179,16 @@ export function computeBuyQuoteIn({
 
   const baseAmountOut = numerator / denominator
 
-  // Calculate price impact
-  const currentPrice = (quoteReserve * 1_000_000n) / baseReserve // Price with 6 decimal precision
-  const newQuoteReserve = quoteReserve + effectiveQuote
-  const newBaseReserve = baseReserve - baseAmountOut
-  const newPrice = (newQuoteReserve * 1_000_000n) / newBaseReserve
-  const priceImpact = Number(((newPrice - currentPrice) * 10_000n) / currentPrice) / 100
+  // Calculate price impact using market price vs execution price method
+  // Market price = current quote/base ratio
+  const marketPrice = (quoteReserve * 1_000_000_000n) / baseReserve
+  
+  // Execution price = actual quote paid per base token received
+  const executionPrice = baseAmountOut > 0n ? (effectiveQuote * 1_000_000_000n) / baseAmountOut : 0n
+  
+  // Price impact = (execution_price - market_price) / market_price * 100
+  const priceImpact = marketPrice > 0n ? 
+    Number(((executionPrice - marketPrice) * 10_000n) / marketPrice) / 100 : 0
 
   // Calculate effective price (how much quote per unit base)
   const effectivePrice = baseAmountOut > 0n ? (effectiveQuote * 1_000_000n) / baseAmountOut : 0n
