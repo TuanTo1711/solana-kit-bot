@@ -13,6 +13,7 @@ import { PoolCheckerCommand } from '@solana-kit-bot/raydium-launchlab-pool-check
 import { VirtualTradingCommand } from '@solana-kit-bot/raydium-launchlab-virtual-trading'
 import { PumpswapPoolCheckerCommand } from '@solana-kit-bot/pumpswap-pool-checker'
 import { PumpswapLimitOrderCommand } from '@solana-kit-bot/pumpswap-limit-order'
+import { PumpfunSniperBumpCommand } from '@solana-kit-bot/pumpfun-sniper-bump'
 
 import { ConfigCommand } from './commands/config'
 import { PumpswapCommand } from './commands/pumpswap'
@@ -68,6 +69,7 @@ class Application {
     this.cli.register(PumpswapCommand)
     this.cli.register(PumpswapVirtualTradingCommand)
     this.cli.register(PumpswapLimitOrderCommand)
+    this.cli.register(PumpfunSniperBumpCommand)
 
     this.cli.register(VirtualTradingCommand)
     this.cli.register(PoolCheckerCommand)

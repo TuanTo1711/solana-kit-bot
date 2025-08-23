@@ -108,6 +108,10 @@ export class PumpswapCommand extends Command<BaseContext & SolanaBotContext> {
         name: `📈 Đặt lệnh mua tự động ${chalk.gray('- Limit Order Buy')}`,
         value: () => this.getCommand('pumpswap limit-order'),
       },
+      {
+        name: `🔍 Sniper token tăng mạnh ${chalk.gray('- Pumpfun Sniper Bump')}`,
+        value: () => this.getCommand('pumpfun sniper-bump'),
+      },
     ]
   }
 
