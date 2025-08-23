@@ -97,7 +97,7 @@ export class PumpwapFastPumpCommand extends Command<BaseContext & SolanaBotConte
           slippage: impact === 0 ? slippage : Math.floor(impact),
         })
 
-        const { base, maxQuote, internalQuoteWithoutFees, priceImpact } = buyResult
+        const { base, maxQuote, priceImpact } = buyResult
         impact = priceImpact
         const signer = await createKeyPairSignerFromBytes(getBase58Codec().encode(keypair))
         const buyInstructions = await pumpswapClient.createBuyInstructions(
@@ -124,7 +124,7 @@ export class PumpwapFastPumpCommand extends Command<BaseContext & SolanaBotConte
         })
 
         baseTokenBalance -= base
-        quoteTokenBalance += internalQuoteWithoutFees
+        quoteTokenBalance += maxQuote
       }
 
       bundle.push({
@@ -134,15 +134,11 @@ export class PumpwapFastPumpCommand extends Command<BaseContext & SolanaBotConte
       })
     }
 
-    const bundled = await transactionManager.buildBundle(bundle, jitoTip)
-    const tx = await transactionManager.sendBundleWithRetry(bundled, {
-      maxRetries: 10,
-      retryDelay: 500,
-      statusCheckTimeout: 3000,
-      statusCheckInterval: 1000,
-    })
-
-    console.log(`✅ Bundle đã được gửi và xác nhận thành công: ${tx}`)
+    for (let index = 0; index < 10; index++) {
+      const bundled = await transactionManager.buildBundle(bundle, jitoTip)
+      const tx = await transactionManager.sendBundle(bundled)
+      console.log(tx)
+    }
   }
 
   private chunk<T>(array: T[], size: number) {
