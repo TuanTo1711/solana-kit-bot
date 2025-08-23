@@ -85,7 +85,6 @@ export class PumpwapFastPumpCommand extends Command<BaseContext & SolanaBotConte
     for (const pumpers of chunked) {
       const instructions: Instruction[] = []
       const signers: KeyPairSigner[] = []
-      let impact = 0
       for (const pumper of pumpers) {
         const { amount, keypair } = pumper
 
@@ -94,11 +93,10 @@ export class PumpwapFastPumpCommand extends Command<BaseContext & SolanaBotConte
           baseReserve: baseTokenBalance,
           quoteReserve: quoteTokenBalance,
           coinCreator: poolKeys.coinCreator,
-          slippage: impact === 0 ? slippage : Math.floor(impact),
+          slippage: slippage,
         })
 
         const { base, maxQuote, priceImpact } = buyResult
-        impact = priceImpact
         const signer = await createKeyPairSignerFromBytes(getBase58Codec().encode(keypair))
         const buyInstructions = await pumpswapClient.createBuyInstructions(
           {
