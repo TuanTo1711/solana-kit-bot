@@ -70,7 +70,6 @@ export class PumpwapFastPumpCommand extends Command<BaseContext & SolanaBotConte
     const { provider, transactionManager } = this.context
     const pumpswapClient = createPumpswapClient(provider.rpc)
     const bundle: Bundle[] = []
-    const chunked = this.chunk(pumpers, 2)
 
     console.log('Đang tải thông tin pool: ')
     const poolKeys = await pumpswapClient.fetchPoolKeys(pool)
@@ -81,72 +80,64 @@ export class PumpwapFastPumpCommand extends Command<BaseContext & SolanaBotConte
       this.getBalance(poolBaseTokenAccount),
       this.getBalance(poolQuoteTokenAccount),
     ])
+    let impact = 0
+    for (const pumper of pumpers) {
+      const { amount, keypair } = pumper
 
-    for (const pumpers of chunked) {
-      const instructions: Instruction[] = []
-      const signers: KeyPairSigner[] = []
-      for (const pumper of pumpers) {
-        const { amount, keypair } = pumper
+      const buyResult = computeBuyQuoteIn({
+        quote: amount,
+        baseReserve: baseTokenBalance,
+        quoteReserve: quoteTokenBalance,
+        coinCreator: poolKeys.coinCreator,
+        slippage: impact === 0 ? slippage : Number(impact.toFixed(0)),
+      })
 
-        const buyResult = computeBuyQuoteIn({
-          quote: amount,
-          baseReserve: baseTokenBalance,
-          quoteReserve: quoteTokenBalance,
-          coinCreator: poolKeys.coinCreator,
-          slippage: slippage,
-        })
+      const { base, maxQuote, priceImpact } = buyResult
+      const signer = await createKeyPairSignerFromBytes(getBase58Codec().encode(keypair))
+      const buyInstructions = await pumpswapClient.createBuyInstructions(
+        {
+          maxAmountIn: amount,
+          amountOut: base,
+          buyer: signer,
+          poolKeys,
+        },
+        { hasBaseAta: false, hasQuoteAta: false }
+      )
 
-        const { base, maxQuote, priceImpact } = buyResult
-        const signer = await createKeyPairSignerFromBytes(getBase58Codec().encode(keypair))
-        const buyInstructions = await pumpswapClient.createBuyInstructions(
-          {
-            maxAmountIn: amount,
-            amountOut: base,
-            buyer: signer,
-            poolKeys,
-          },
-          { hasBaseAta: false, hasQuoteAta: false }
-        )
+      console.log({
+        wallet: signer.address,
+        amount: amount.toString(),
+        base: base.toString(),
+        maxQuote: maxQuote.toString(),
+        priceImpact: `${priceImpact.toFixed(3)}%`,
+        baseTokenBalance: baseTokenBalance.toString(),
+        quoteTokenBalance: quoteTokenBalance.toString(),
+      })
 
-        instructions.push(...buyInstructions)
-        signers.push(signer)
-
-        console.log({
-          wallet: signer.address,
-          amount: amount.toString(),
-          base: base.toString(),
-          maxQuote: maxQuote.toString(),
-          priceImpact: `${priceImpact.toFixed(3)}%`,
-          baseTokenBalance: baseTokenBalance.toString(),
-          quoteTokenBalance: quoteTokenBalance.toString(),
-        })
-
-        baseTokenBalance -= base
-        quoteTokenBalance += maxQuote
-      }
+      baseTokenBalance -= base
+      quoteTokenBalance += maxQuote
+      impact = priceImpact
 
       bundle.push({
-        instructions,
-        payer: signers[0]!,
-        additionalSigner: signers,
+        instructions: buyInstructions,
+        payer: signer,
+        additionalSigner: [signer],
       })
     }
 
     const chunk = this.chunk(bundle, 5)
     for (const bundler of chunk) {
-      for (let i = 0; i < 10; i++) {
-        try {
-          const bundled = await transactionManager.buildBundle(bundler, jitoTip)
-          const id = await transactionManager.sendBundleWithRetry(bundled, {
-            maxRetries: 10,
-            retryDelay: 500,
-            statusCheckTimeout: 5000,
-            statusCheckInterval: 500,
-          })
-          console.log(id)
-        } catch (error) {
-          console.error(error)
-        }
+      try {
+        const bundled = await transactionManager.buildBundle(bundler, jitoTip)
+        const id = await transactionManager.sendBundleWithRetry(bundled, {
+          maxRetries: 10,
+          retryDelay: 500,
+          statusCheckTimeout: 5000,
+          statusCheckInterval: 500,
+        })
+        console.log(id)
+      } catch (error) {
+        console.error(error)
       }
     }
   }
