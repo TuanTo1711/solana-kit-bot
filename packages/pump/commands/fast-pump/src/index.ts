@@ -1,10 +1,5 @@
 import type { Address } from '@solana/addresses'
-import {
-  createKeyPairSignerFromBytes,
-  getBase58Codec,
-  type Instruction,
-  type KeyPairSigner,
-} from '@solana/kit'
+import { createKeyPairSignerFromBytes, getBase58Codec } from '@solana/kit'
 import { Command, type BaseContext } from 'clipanion'
 import type { DistinctQuestion } from 'inquirer'
 
@@ -70,7 +65,6 @@ export class PumpwapFastPumpCommand extends Command<BaseContext & SolanaBotConte
     const { provider, transactionManager } = this.context
     const pumpswapClient = createPumpswapClient(provider.rpc)
     const bundle: Bundle[] = []
-    const chunked = this.chunk(pumpers, 2)
 
     console.log('Đang tải thông tin pool: ')
     const poolKeys = await pumpswapClient.fetchPoolKeys(pool)
@@ -82,73 +76,51 @@ export class PumpwapFastPumpCommand extends Command<BaseContext & SolanaBotConte
       this.getBalance(poolQuoteTokenAccount),
     ])
 
-    for (const pumpers of chunked) {
-      const instructions: Instruction[] = []
-      const signers: KeyPairSigner[] = []
-      for (const pumper of pumpers) {
-        const { amount, keypair } = pumper
+    for (const pumper of pumpers) {
+      const { amount, keypair } = pumper
 
-        const buyResult = computeBuyQuoteIn({
-          quote: amount,
-          baseReserve: baseTokenBalance,
-          quoteReserve: quoteTokenBalance,
-          coinCreator: poolKeys.coinCreator,
-          slippage: slippage,
-        })
+      const buyResult = computeBuyQuoteIn({
+        quote: amount,
+        baseReserve: baseTokenBalance,
+        quoteReserve: quoteTokenBalance,
+        coinCreator: poolKeys.coinCreator,
+        slippage: slippage,
+      })
 
-        const { base, maxQuote, priceImpact } = buyResult
-        const signer = await createKeyPairSignerFromBytes(getBase58Codec().encode(keypair))
-        const buyInstructions = await pumpswapClient.createBuyInstructions(
-          {
-            maxAmountIn: maxQuote,
-            amountOut: base,
-            buyer: signer,
-            poolKeys,
-          },
-          { hasBaseAta: false, hasQuoteAta: false }
-        )
-
-        instructions.push(...buyInstructions)
-        signers.push(signer)
-
-        console.log({
-          wallet: signer.address,
-          amount: amount.toString(),
-          base: base.toString(),
-          maxQuote: maxQuote.toString(),
-          priceImpact: `${priceImpact.toFixed(3)}%`,
-          baseTokenBalance: baseTokenBalance.toString(),
-          quoteTokenBalance: quoteTokenBalance.toString(),
-        })
-
-        baseTokenBalance -= base
-        quoteTokenBalance += maxQuote
-      }
-
-      const transaction = await transactionManager.buildSimpleTransaction(
-        instructions,
-        signers[0]!,
-        undefined,
-        signers
+      const { base, maxQuote, priceImpact } = buyResult
+      const signer = await createKeyPairSignerFromBytes(getBase58Codec().encode(keypair))
+      const buyInstructions = await pumpswapClient.createBuyInstructions(
+        {
+          maxAmountIn: maxQuote,
+          amountOut: base,
+          buyer: signer,
+          poolKeys,
+        },
+        { hasBaseAta: false, hasQuoteAta: false }
       )
 
-      const simulate = await provider.rpc
-        .simulateTransaction(transaction, { encoding: 'base64' })
-        .send()
-      console.log(simulate)
+      console.log({
+        wallet: signer.address,
+        amount: amount.toString(),
+        base: base.toString(),
+        maxQuote: maxQuote.toString(),
+        priceImpact: `${priceImpact.toFixed(3)}%`,
+        baseTokenBalance: baseTokenBalance.toString(),
+        quoteTokenBalance: quoteTokenBalance.toString(),
+      })
 
+      baseTokenBalance -= base
+      quoteTokenBalance += maxQuote
       bundle.push({
-        instructions,
-        payer: signers[0]!,
-        additionalSigner: signers,
+        instructions: buyInstructions,
+        payer: signer,
+        additionalSigner: [],
       })
     }
-  }
+    const bundled = await transactionManager.buildBundle(bundle, jitoTip)
+    const id = await transactionManager.sendBundle(bundled)
 
-  private chunk<T>(array: T[], size: number) {
-    return Array.from({ length: Math.ceil(array.length / size) }, (_, i) =>
-      array.slice(i * size, (i + 1) * size)
-    )
+    console.log(id)
   }
 
   private async getBalance(address: Address) {
