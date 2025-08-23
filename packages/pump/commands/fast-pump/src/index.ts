@@ -125,17 +125,23 @@ export class PumpwapFastPumpCommand extends Command<BaseContext & SolanaBotConte
         quoteTokenBalance += maxQuote
       }
 
+      const transaction = await transactionManager.buildSimpleTransaction(
+        instructions,
+        signers[0]!,
+        undefined,
+        signers
+      )
+
+      const simulate = await provider.rpc
+        .simulateTransaction(transaction, { encoding: 'base64' })
+        .send()
+      console.log(simulate)
+
       bundle.push({
         instructions,
         payer: signers[0]!,
         additionalSigner: signers,
       })
-    }
-
-    for (let index = 0; index < 10; index++) {
-      const bundled = await transactionManager.buildBundle(bundle, jitoTip)
-      const tx = await transactionManager.sendBundle(bundled)
-      console.log(tx)
     }
   }
 
