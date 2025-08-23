@@ -1,10 +1,5 @@
 import type { Address } from '@solana/addresses'
-import {
-  createKeyPairSignerFromBytes,
-  getBase58Codec,
-  type Instruction,
-  type KeyPairSigner,
-} from '@solana/kit'
+import { createKeyPairSignerFromBytes, getBase58Codec } from '@solana/kit'
 import { Command, type BaseContext } from 'clipanion'
 import type { DistinctQuestion } from 'inquirer'
 
