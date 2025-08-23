@@ -110,7 +110,7 @@ export class PumpwapFastPumpCommand extends Command<BaseContext & SolanaBotConte
         signers.push(signer)
 
         baseTokenBalance -= base
-        quoteTokenBalance -= amount
+        quoteTokenBalance += amount
       }
 
       bundle.push({
