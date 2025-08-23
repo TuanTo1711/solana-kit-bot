@@ -118,7 +118,12 @@ export class PumpwapFastPumpCommand extends Command<BaseContext & SolanaBotConte
       })
     }
     const bundled = await transactionManager.buildBundle(bundle, jitoTip)
-    const id = await transactionManager.sendBundle(bundled)
+    const id = await transactionManager.sendBundleWithRetry(bundled, {
+      maxRetries: 5,
+      retryDelay: 500,
+      statusCheckTimeout: 3000,
+      statusCheckInterval: 1000,
+    })
 
     console.log(id)
   }
