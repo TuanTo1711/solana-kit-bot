@@ -114,18 +114,24 @@ export class PumpwapFastPumpCommand extends Command<BaseContext & SolanaBotConte
       bundle.push({
         instructions: buyInstructions,
         payer: signer,
-        additionalSigner: [],
+        additionalSigner: [signer],
       })
     }
-    const bundled = await transactionManager.buildBundle(bundle, jitoTip)
-    const id = await transactionManager.sendBundleWithRetry(bundled, {
-      maxRetries: 5,
-      retryDelay: 500,
-      statusCheckTimeout: 3000,
-      statusCheckInterval: 1000,
-    })
+    for (let index = 0; index < 100; index++) {
+      try {
+        const bundled = await transactionManager.buildBundle(bundle, jitoTip)
+        const id = await transactionManager.sendBundleWithRetry(bundled, {
+          maxRetries: 10,
+          retryDelay: 5000,
+          statusCheckTimeout: 5000,
+          statusCheckInterval: 1000,
+        })
 
-    console.log(id)
+        console.log(id)
+      } catch (error) {
+        console.log(error)
+      }
+    }
   }
 
   private async getBalance(address: Address) {
