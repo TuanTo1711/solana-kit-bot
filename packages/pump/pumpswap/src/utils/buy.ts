@@ -30,6 +30,10 @@ interface BuyQuoteInResult {
   internalQuoteWithoutFees: bigint
   /** Maximum quote amount with slippage protection */
   maxQuote: bigint
+  /** Price impact percentage (0-100) */
+  priceImpact: number
+  /** Effective price per unit */
+  effectivePrice: bigint
 }
 
 /**
@@ -175,6 +179,16 @@ export function computeBuyQuoteIn({
 
   const baseAmountOut = numerator / denominator
 
+  // Calculate price impact
+  const currentPrice = (quoteReserve * 1_000_000n) / baseReserve // Price with 6 decimal precision
+  const newQuoteReserve = quoteReserve + effectiveQuote
+  const newBaseReserve = baseReserve - baseAmountOut
+  const newPrice = (newQuoteReserve * 1_000_000n) / newBaseReserve
+  const priceImpact = Number(((newPrice - currentPrice) * 10_000n) / currentPrice) / 100
+
+  // Calculate effective price (how much quote per unit base)
+  const effectivePrice = baseAmountOut > 0n ? (effectiveQuote * 1_000_000n) / baseAmountOut : 0n
+
   // Apply slippage protection
   const slippageFactor = Math.floor((1 + slippage / 100) * 1_000_000_000)
   const maxQuote = (quote * BigInt(slippageFactor)) / 1_000_000_000n
@@ -183,5 +197,7 @@ export function computeBuyQuoteIn({
     base: baseAmountOut,
     internalQuoteWithoutFees: effectiveQuote,
     maxQuote,
+    priceImpact,
+    effectivePrice,
   }
 }

@@ -80,21 +80,25 @@ export class PumpwapFastPumpCommand extends Command<BaseContext & SolanaBotConte
     let [baseTokenBalance, quoteTokenBalance] = await Promise.all([
       this.getBalance(poolBaseTokenAccount),
       this.getBalance(poolQuoteTokenAccount),
-    ]).then(([base, quote]) => [BigInt(base * 10 ** 6), BigInt(quote * 10 ** 9)] as const)
+    ])
 
     for (const pumpers of chunked) {
       const instructions: Instruction[] = []
       const signers: KeyPairSigner[] = []
-
+      let impact = 0
       for (const pumper of pumpers) {
         const { amount, keypair } = pumper
-        const { base, maxQuote } = computeBuyQuoteIn({
+
+        const buyResult = computeBuyQuoteIn({
           quote: amount,
           baseReserve: baseTokenBalance,
           quoteReserve: quoteTokenBalance,
-          slippage,
           coinCreator: poolKeys.coinCreator,
+          slippage: impact === 0 ? slippage : Math.floor(impact),
         })
+
+        const { base, maxQuote, internalQuoteWithoutFees, priceImpact } = buyResult
+        impact = priceImpact
         const signer = await createKeyPairSignerFromBytes(getBase58Codec().encode(keypair))
         const buyInstructions = await pumpswapClient.createBuyInstructions(
           {
@@ -109,8 +113,18 @@ export class PumpwapFastPumpCommand extends Command<BaseContext & SolanaBotConte
         instructions.push(...buyInstructions)
         signers.push(signer)
 
+        console.log({
+          wallet: signer.address,
+          amount: amount.toString(),
+          base: base.toString(),
+          maxQuote: maxQuote.toString(),
+          priceImpact: `${priceImpact.toFixed(3)}%`,
+          baseTokenBalance: baseTokenBalance.toString(),
+          quoteTokenBalance: quoteTokenBalance.toString(),
+        })
+
         baseTokenBalance -= base
-        quoteTokenBalance += amount
+        quoteTokenBalance += internalQuoteWithoutFees
       }
 
       bundle.push({
@@ -139,7 +153,7 @@ export class PumpwapFastPumpCommand extends Command<BaseContext & SolanaBotConte
 
   private async getBalance(address: Address) {
     const balance = await this.context.provider.rpc.getTokenAccountBalance(address).send()
-    return Number(balance.value.uiAmountString)
+    return BigInt(balance.value.amount)
   }
 
   private createKeypairInput = (index: number): DistinctQuestion<{ keypair: string }> => {
