@@ -150,7 +150,7 @@ export type GetBundleStatusesApi = {
    * @param bundleIds - Array of bundle identifiers to query
    * @returns RPC response containing bundle status information
    */
-  getBundleStatuses(bundleIds: string[]): SolanaRpcResponse<BundleStatus>
+  getBundleStatuses(bundleIds: string[]): SolanaRpcResponse<BundleStatus> | null
 }
 
 /**
@@ -248,8 +248,8 @@ export type JitoApi = JitoSendTransactionApi &
 
 export type JitoRpc = RpcApi<JitoApi>
 
-const responseTransformer = (res: unknown) => {
-  const response = res as RpcResponseData<GetTipAccountsApi>
+const responseTransformer = <T>(res: unknown) => {
+  const response = res as RpcResponseData<T>
   if ('error' in response) {
     return response.error
   }

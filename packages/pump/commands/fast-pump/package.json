@@ -1,0 +1,46 @@
+{
+  "name": "@solana-kit-bot/pumpswap-fast-pump",
+  "version": "1.0.0",
+  "description": "Fast pump command for PumpSwap",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "update": "pnpm update",
+    "build": "tsup",
+    "check-types": "npx tsc --noEmit",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "pumpswap",
+    "solana",
+    "bot"
+  ],
+  "author": "Yuuta - To Hoang Tuan",
+  "license": "ISC",
+  "packageManager": "pnpm@10.13.1",
+  "dependencies": {
+    "@solana-kit-bot/core": "workspace:*",
+    "@solana-kit-bot/pumpswap": "workspace:*",
+    "@solana-program/system": "^0.7.0",
+    "@solana-program/token": "^0.5.1",
+    "@solana/addresses": "^2.3.0",
+    "@solana/codecs": "^2.3.0",
+    "@solana/kit": "^2.3.0",
+    "chalk": "^5.6.0",
+    "cli-table3": "^0.6.5",
+    "clipanion": "4.0.0-rc.4",
+    "decimal.js": "^10.6.0",
+    "figlet": "^1.8.2",
+    "gradient-string": "^3.0.0",
+    "inquirer": "^12.9.3",
+    "rxjs": "^7.8.2",
+    "zod": "^4.0.17"
+  },
+  "devDependencies": {
+    "@types/figlet": "^1.7.0",
+    "prisma": "^6.14.0",
+    "rimraf": "^6.0.1",
+    "tsup": "^8.5.0"
+  }
+}

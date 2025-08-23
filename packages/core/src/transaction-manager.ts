@@ -32,8 +32,14 @@ import {
   type TransactionSigner,
 } from '@solana/kit'
 
-import { randomSenderAccount, type Provider } from '@solana-kit-bot/provider'
-import type { BuildSenderOptions, Bundle, TransactionManager } from '~/types'
+import { randomSenderAccount, type Provider, InflightBundleStatus } from '@solana-kit-bot/provider'
+import type {
+  BuildSenderOptions,
+  Bundle,
+  TransactionManager,
+  RetryBundleOptions,
+  BundleStatusResult,
+} from '~/types'
 
 /**
  * Jito tip accounts for MEV protection
@@ -140,11 +146,12 @@ class TransactionManagerImpl implements TransactionManager {
   async buildSimpleTransaction(
     instructions: Instruction[],
     feePayer: TransactionSigner,
-    minContextSlot?: Slot
+    minContextSlot?: Slot,
+    additionalSigners?: TransactionSigner[]
   ): Promise<Base64EncodedWireTransaction> {
     try {
       const blockhash = await this.getBlockhash(minContextSlot)
-      const message = this.createBaseMessage(blockhash, instructions, feePayer)
+      const message = this.createBaseMessage(blockhash, instructions, feePayer, additionalSigners)
       const transaction = await signTransactionMessageWithSigners(message)
       return getBase64EncodedWireTransaction(transaction)
     } catch (error) {
@@ -287,7 +294,6 @@ class TransactionManagerImpl implements TransactionManager {
             this.createBaseMessage(blockhash, instructions, payer)
           )
 
-          // Add tip to first transaction
           if (index === 0 && tip > 0n) {
             message = appendTransactionMessageInstruction(
               getTransferSolInstruction({
@@ -375,6 +381,147 @@ class TransactionManagerImpl implements TransactionManager {
         `Failed to send bundle: ${error instanceof Error ? error.message : String(error)}`
       )
     }
+  }
+
+  /**
+   * Checks the status of a bundle using Jito's getBundleStatuses API
+   *
+   * @param bundleId - Bundle identifier to check
+   * @returns Promise resolving to bundle status result
+   */
+  async checkBundleStatus(bundleId: string): Promise<BundleStatusResult> {
+    try {
+      const { jito } = this.provider
+
+      // First try getBundleStatuses for historical/landed bundles
+      const bundleStatusResponse = await jito.getBundleStatuses([bundleId]).send()
+
+      if (
+        bundleStatusResponse?.value &&
+        Array.isArray(bundleStatusResponse.value) &&
+        bundleStatusResponse.value.length > 0
+      ) {
+        const status = bundleStatusResponse.value[0]
+        if (status) {
+          return {
+            landed: !!status.confirmation_status && !status.err,
+            failed: !!status.err,
+            pending: false,
+            status: status,
+          }
+        }
+      }
+
+      // If not found in bundle statuses, check in-flight bundles
+      const inflightStatusResponse = await jito.getInflightBundleStatuses([bundleId]).send()
+
+      if (
+        inflightStatusResponse?.value &&
+        Array.isArray(inflightStatusResponse.value) &&
+        inflightStatusResponse.value.length > 0
+      ) {
+        const status = inflightStatusResponse.value[0]
+        if (status) {
+          return {
+            landed: status.status === InflightBundleStatus.Landed,
+            failed: status.status === InflightBundleStatus.Failed,
+            pending: status.status === InflightBundleStatus.Pending,
+            status: status,
+          }
+        }
+      }
+
+      // Bundle not found
+      return {
+        landed: false,
+        failed: false,
+        pending: false,
+        error: new Error('Bundle not found in system'),
+      }
+    } catch (error) {
+      return {
+        landed: false,
+        failed: false,
+        pending: false,
+        error: error instanceof Error ? error : new Error(String(error)),
+      }
+    }
+  }
+
+  /**
+   * Sends a bundle with retry mechanism and status monitoring
+   *
+   * @param bundles - Array of base64-encoded wire transactions
+   * @param options - Retry configuration options
+   * @returns Promise resolving to bundle ID
+   * @throws Error if all retry attempts fail or bundle definitively fails
+   */
+  async sendBundleWithRetry(
+    bundles: Base64EncodedWireTransaction[],
+    options: RetryBundleOptions = {}
+  ): Promise<string> {
+    const {
+      maxRetries = 3,
+      retryDelay = 2000,
+      statusCheckTimeout = 30000,
+      statusCheckInterval = 1000,
+    } = options
+
+    let lastError: Error | null = null
+    let bundleId: string | null = null
+
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        // Attempt to send bundle
+        bundleId = await this.sendBundle(bundles)
+
+        console.log(`Bundle sent (attempt ${attempt + 1}/${maxRetries}): ${bundleId}`)
+
+        // Monitor bundle status
+        const startTime = Date.now()
+        while (Date.now() - startTime < statusCheckTimeout) {
+          const statusResult = await this.checkBundleStatus(bundleId)
+
+          if (statusResult.landed) {
+            console.log(`Bundle ${bundleId} successfully landed!`)
+            return bundleId
+          }
+
+          if (statusResult.failed) {
+            throw new Error(`Bundle ${bundleId} failed permanently`)
+          }
+
+          // Continue checking if still pending
+          if (statusResult.pending) {
+            console.log(`Bundle ${bundleId} still pending...`)
+            await new Promise(resolve => setTimeout(resolve, statusCheckInterval))
+            continue
+          }
+
+          // If status is unclear, wait a bit and check again
+          await new Promise(resolve => setTimeout(resolve, statusCheckInterval))
+        }
+
+        // Timeout reached, consider this attempt failed
+        throw new Error(`Bundle ${bundleId} status check timeout after ${statusCheckTimeout}ms`)
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error))
+        console.log(`Bundle attempt ${attempt + 1} failed: ${lastError.message}`)
+
+        // If this was the last attempt, throw the error
+        if (attempt === maxRetries - 1) {
+          break
+        }
+
+        // Wait before retrying
+        console.log(`Waiting ${retryDelay}ms before retry...`)
+        await new Promise(resolve => setTimeout(resolve, retryDelay))
+      }
+    }
+
+    throw new Error(
+      `Failed to send bundle after ${maxRetries} attempts. Last error: ${lastError?.message}`
+    )
   }
 
   /**

@@ -22,6 +22,7 @@
     "@solana-kit-bot/core": "workspace:*",
     "@solana-kit-bot/provider": "workspace:*",
     "@solana-kit-bot/pumpswap-limit-order": "workspace:*",
+    "@solana-kit-bot/pumpswap-fast-pump": "workspace:*",
     "@solana-kit-bot/pumpfun-sniper-bump": "workspace:*",
     "@solana-kit-bot/pumpswap-pool-checker": "workspace:*",
     "@solana-kit-bot/pumpswap-virtual-trading": "workspace:*",

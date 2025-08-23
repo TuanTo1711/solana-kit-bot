@@ -109,14 +109,18 @@ export class PumpswapCommand extends Command<BaseContext & SolanaBotContext> {
         value: () => this.getCommand('pumpswap limit-order'),
       },
       {
+        name: `🚀 Mua bơm nhanh ${chalk.gray('- Fast Pump')}`,
+        value: () => this.getCommand('pumpswap fast-pump'),
+      },
+      {
         name: `🔍 Sniper token tăng mạnh ${chalk.gray('- Pumpfun Sniper Bump')}`,
         value: () => this.getCommand('pumpfun sniper-bump'),
+        disabled: ' - Đang phát triển',
       },
     ]
   }
 
   private async getCommand(name: string, commandArgs: string = '') {
-    // Clear screen using stdout
     this.context.stdout.write('\x1b[2J\x1b[0f')
     const figlet = (await import('figlet')).default
     const gradient = (await import('gradient-string')).default

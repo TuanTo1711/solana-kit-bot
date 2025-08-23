@@ -33,6 +33,46 @@ export interface Bundle {
 }
 
 /**
+ * Options for retrying bundle sending with status monitoring
+ *
+ * Configuration options for the retry mechanism when sending bundles,
+ * providing control over retry attempts, delays, and status checking behavior.
+ */
+export interface RetryBundleOptions {
+  /** Maximum number of retry attempts (default: 3) */
+  maxRetries?: number
+
+  /** Delay between retry attempts in milliseconds (default: 2000) */
+  retryDelay?: number
+
+  /** Timeout for status checking in milliseconds (default: 30000) */
+  statusCheckTimeout?: number
+
+  /** Interval for checking bundle status in milliseconds (default: 1000) */
+  statusCheckInterval?: number
+}
+
+/**
+ * Result of bundle status check operation
+ */
+export interface BundleStatusResult {
+  /** Whether the bundle landed successfully */
+  landed: boolean
+
+  /** Whether the bundle failed */
+  failed: boolean
+
+  /** Whether the bundle is still pending */
+  pending: boolean
+
+  /** Raw bundle status response */
+  status?: any
+
+  /** Error information if any */
+  error?: Error
+}
+
+/**
  * Options for building sender transactions
  *
  * Configuration options specific to sender-based transaction building,
@@ -91,7 +131,8 @@ export interface TransactionManager {
   buildSimpleTransaction(
     instructions: Instruction[],
     feePayer: TransactionSigner,
-    minContextSlot?: Slot
+    minContextSlot?: Slot,
+    additionalSigners?: TransactionSigner[]
   ): Promise<Base64EncodedWireTransaction>
 
   /**
@@ -220,6 +261,64 @@ export interface TransactionManager {
    * ```
    */
   sendBundle(bundles: Base64EncodedWireTransaction[]): Promise<string>
+
+  /**
+   * Sends a bundle with retry mechanism and status monitoring
+   *
+   * Enhanced bundle sending that automatically retries failed submissions and
+   * monitors bundle status through Jito's getBundleStatuses API. Provides
+   * configurable retry logic and comprehensive status tracking.
+   *
+   * @param bundles - Array of base64-encoded wire transactions
+   * @param options - Retry configuration options
+   * @returns Promise resolving to bundle ID
+   *
+   * @throws Error if all retry attempts fail or bundle definitively fails
+   *
+   * @example
+   * ```typescript
+   * try {
+   *   const bundleId = await txManager.sendBundleWithRetry(
+   *     bundleTransactions,
+   *     {
+   *       maxRetries: 5,
+   *       retryDelay: 3000,
+   *       statusCheckTimeout: 45000
+   *     }
+   *   )
+   *   console.log('Bundle successfully submitted and monitored:', bundleId)
+   * } catch (error) {
+   *   console.error('Bundle definitively failed:', error.message)
+   * }
+   * ```
+   */
+  sendBundleWithRetry(
+    bundles: Base64EncodedWireTransaction[],
+    options?: RetryBundleOptions
+  ): Promise<string>
+
+  /**
+   * Checks the status of a bundle using Jito's getBundleStatuses API
+   *
+   * Queries bundle status and returns processed information about whether
+   * the bundle has landed, failed, or is still pending.
+   *
+   * @param bundleId - Bundle identifier to check
+   * @returns Promise resolving to bundle status result
+   *
+   * @example
+   * ```typescript
+   * const statusResult = await txManager.checkBundleStatus(bundleId)
+   * if (statusResult.landed) {
+   *   console.log('Bundle successfully landed!')
+   * } else if (statusResult.failed) {
+   *   console.log('Bundle failed permanently')
+   * } else if (statusResult.pending) {
+   *   console.log('Bundle still pending...')
+   * }
+   * ```
+   */
+  checkBundleStatus(bundleId: string): Promise<BundleStatusResult>
 
   /**
    * Confirms transaction status with retry mechanism
