@@ -377,7 +377,9 @@ class TransactionManagerImpl implements TransactionManager {
       })
       return signature
     } catch (error) {
-      return await this.sendBundle(bundles)
+      throw new Error(
+        `Failed to send bundle: ${error instanceof Error ? error.message : String(error)}`
+      )
     }
   }
 
