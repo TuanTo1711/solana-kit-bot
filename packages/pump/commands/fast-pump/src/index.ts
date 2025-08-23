@@ -100,7 +100,7 @@ export class PumpwapFastPumpCommand extends Command<BaseContext & SolanaBotConte
         const signer = await createKeyPairSignerFromBytes(getBase58Codec().encode(keypair))
         const buyInstructions = await pumpswapClient.createBuyInstructions(
           {
-            maxAmountIn: maxQuote,
+            maxAmountIn: amount,
             amountOut: base,
             buyer: signer,
             poolKeys,
