@@ -1,5 +1,10 @@
 import type { Address } from '@solana/addresses'
-import { createKeyPairSignerFromBytes, getBase58Codec } from '@solana/kit'
+import {
+  createKeyPairSignerFromBytes,
+  getBase58Codec,
+  type Instruction,
+  type KeyPairSigner,
+} from '@solana/kit'
 import { Command, type BaseContext } from 'clipanion'
 import type { DistinctQuestion } from 'inquirer'
 
@@ -65,6 +70,7 @@ export class PumpwapFastPumpCommand extends Command<BaseContext & SolanaBotConte
     const { provider, transactionManager } = this.context
     const pumpswapClient = createPumpswapClient(provider.rpc)
     const bundle: Bundle[] = []
+    const chunked = this.chunk(pumpers, 2)
 
     console.log('Đang tải thông tin pool: ')
     const poolKeys = await pumpswapClient.fetchPoolKeys(pool)
@@ -76,64 +82,69 @@ export class PumpwapFastPumpCommand extends Command<BaseContext & SolanaBotConte
       this.getBalance(poolQuoteTokenAccount),
     ])
 
-    for (const pumper of pumpers) {
-      const { amount, keypair } = pumper
+    for (const pumpers of chunked) {
+      const instructions: Instruction[] = []
+      const signers: KeyPairSigner[] = []
+      for (const pumper of pumpers) {
+        const { amount, keypair } = pumper
 
-      const buyResult = computeBuyQuoteIn({
-        quote: amount,
-        baseReserve: baseTokenBalance,
-        quoteReserve: quoteTokenBalance,
-        coinCreator: poolKeys.coinCreator,
-        slippage: slippage,
-      })
+        const buyResult = computeBuyQuoteIn({
+          quote: amount,
+          baseReserve: baseTokenBalance,
+          quoteReserve: quoteTokenBalance,
+          coinCreator: poolKeys.coinCreator,
+          slippage: slippage,
+        })
 
-      const { base, maxQuote, priceImpact } = buyResult
-      const signer = await createKeyPairSignerFromBytes(getBase58Codec().encode(keypair))
-      const buyInstructions = await pumpswapClient.createBuyInstructions(
-        {
-          maxAmountIn: maxQuote,
-          amountOut: base,
-          buyer: signer,
-          poolKeys,
-        },
-        { hasBaseAta: false, hasQuoteAta: false }
-      )
+        const { base, maxQuote, priceImpact } = buyResult
+        const signer = await createKeyPairSignerFromBytes(getBase58Codec().encode(keypair))
+        const buyInstructions = await pumpswapClient.createBuyInstructions(
+          {
+            maxAmountIn: maxQuote,
+            amountOut: base,
+            buyer: signer,
+            poolKeys,
+          },
+          { hasBaseAta: false, hasQuoteAta: false }
+        )
 
-      console.log({
-        wallet: signer.address,
-        amount: amount.toString(),
-        base: base.toString(),
-        maxQuote: maxQuote.toString(),
-        priceImpact: `${priceImpact.toFixed(3)}%`,
-        baseTokenBalance: baseTokenBalance.toString(),
-        quoteTokenBalance: quoteTokenBalance.toString(),
-      })
+        instructions.push(...buyInstructions)
+        signers.push(signer)
 
-      baseTokenBalance -= base
-      quoteTokenBalance += maxQuote
+        console.log({
+          wallet: signer.address,
+          amount: amount.toString(),
+          base: base.toString(),
+          maxQuote: maxQuote.toString(),
+          priceImpact: `${priceImpact.toFixed(3)}%`,
+          baseTokenBalance: baseTokenBalance.toString(),
+          quoteTokenBalance: quoteTokenBalance.toString(),
+        })
+
+        baseTokenBalance -= base
+        quoteTokenBalance += maxQuote
+      }
+
       bundle.push({
-        instructions: buyInstructions,
-        payer: signer,
-        additionalSigner: [signer],
+        instructions,
+        payer: signers[0]!,
+        additionalSigner: signers,
       })
     }
 
-    const chunked = this.chunk(bundle, 5)
-
-    try {
-      for (const bundler of chunked) {
+    const chunk = this.chunk(bundle, 5)
+    for (const bundler of chunk) {
+      try {
         const bundled = await transactionManager.buildBundle(bundler, jitoTip)
-        const id = await transactionManager.sendBundleWithRetry(bundled, {
-          maxRetries: 4,
-          retryDelay: 500,
+        transactionManager.sendBundleWithRetry(bundled, {
+          maxRetries: 5,
+          retryDelay: 1000,
           statusCheckTimeout: 3000,
-          statusCheckInterval: 500,
+          statusCheckInterval: 1000,
         })
-
-        console.log(id)
+      } catch (error) {
+        console.error(error)
       }
-    } catch (error) {
-      console.log(error)
     }
   }
 
