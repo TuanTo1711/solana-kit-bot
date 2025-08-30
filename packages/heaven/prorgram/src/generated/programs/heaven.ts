@@ -40,7 +40,6 @@ import {
   type ParsedDeactivateProtocolLookupTableInstruction,
   type ParsedExtendProtocolLookupTableInstruction,
   type ParsedInitializeProtocolLendingInstruction,
-  type ParsedRemainingAccountsStubInstruction,
   type ParsedSellInstruction,
   type ParsedSetProtocolSlotFeesInstruction,
   type ParsedUpdateAllowCreatePoolInstruction,
@@ -148,7 +147,6 @@ export enum HeavenInstruction {
   DeactivateProtocolLookupTable,
   ExtendProtocolLookupTable,
   InitializeProtocolLending,
-  RemainingAccountsStub,
   Sell,
   SetProtocolSlotFees,
   UpdateAllowCreatePool,
@@ -450,17 +448,6 @@ export function identifyHeavenInstruction(
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([32, 143, 83, 94, 23, 34, 59, 239])
-      ),
-      0
-    )
-  ) {
-    return HeavenInstruction.RemainingAccountsStub
-  }
-  if (
-    containsBytes(
-      data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
         new Uint8Array([51, 230, 133, 164, 1, 127, 131, 173])
       ),
       0
@@ -596,9 +583,6 @@ export type ParsedHeavenInstruction<
   | ({
       instructionType: HeavenInstruction.InitializeProtocolLending
     } & ParsedInitializeProtocolLendingInstruction<TProgram>)
-  | ({
-      instructionType: HeavenInstruction.RemainingAccountsStub
-    } & ParsedRemainingAccountsStubInstruction<TProgram>)
   | ({
       instructionType: HeavenInstruction.Sell
     } & ParsedSellInstruction<TProgram>)

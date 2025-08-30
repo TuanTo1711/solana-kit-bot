@@ -1,11 +1,3 @@
-/**
- * @fileoverview Transaction Manager for building and sending Solana transactions and bundles
- *
- * This module provides a comprehensive transaction management system for Solana applications,
- * supporting various transaction types including simple transactions, bundles with tips,
- * and integration with Jito for MEV protection.
- */
-
 import {
   estimateComputeUnitLimitFactory,
   getSetComputeUnitLimitInstruction,
@@ -32,21 +24,25 @@ import {
   type TransactionSigner,
 } from '@solana/kit'
 
-import { randomSenderAccount, type Provider, InflightBundleStatus } from '@solana-kit-bot/provider'
+import { InflightBundleStatus, randomSenderAccount, type Provider } from '@solana-kit-bot/provider'
 import type {
   BuildSenderOptions,
   Bundle,
-  TransactionManager,
-  RetryBundleOptions,
   BundleStatusResult,
+  RetryBundleOptions,
+  TransactionManager,
 } from '~/types'
 
 /**
- * Jito tip accounts for MEV protection
+ * Jito tip accounts for MEV protection.
  *
- * These accounts are used to pay tips to Jito validators for transaction prioritization
- * and MEV (Maximal Extractable Value) protection. Tips are automatically distributed
- * among these accounts to improve transaction success rates.
+ * These validator accounts are used to pay tips for transaction prioritization
+ * and MEV (Maximal Extractable Value) protection. Tips are randomly distributed
+ * among these accounts to improve transaction success rates and reduce
+ * front-running risks.
+ *
+ * @constant
+ * @type {string[]}
  */
 export const JITO_TIP_ACCOUNTS: string[] = [
   '96gYZGLnJYVFmbjzopPSU6QiEV5fGqZNyN9nmNhvrZU5',
@@ -60,39 +56,56 @@ export const JITO_TIP_ACCOUNTS: string[] = [
 ]
 
 /**
- * Randomly selects a Jito tip account
+ * Randomly selects a Jito tip account from the available list.
  *
- * @returns A randomly selected Jito tip account address
+ * @returns {string} A randomly selected Jito tip account address
  */
 export const randomTipAccount = (): string =>
   JITO_TIP_ACCOUNTS[Math.floor(Math.random() * JITO_TIP_ACCOUNTS.length)]!
 
 /**
- * Implementation of the TransactionManager interface
+ * Implementation of the TransactionManager interface for Solana transactions.
  *
- * Provides methods for building and sending various types of Solana transactions,
- * including simple transactions, sender transactions, and bundles with Jito tips.
+ * Provides comprehensive transaction management including building and sending
+ * simple transactions, sender transactions with priority fees, and Jito bundles
+ * with MEV protection. Handles compute unit estimation, blockhash management,
+ * and transaction confirmation.
  *
- * @implements TransactionManager
+ * @implements {TransactionManager}
+ *
+ * @example
+ * ```typescript
+ * const txManager = createTransactionManager(provider)
+ *
+ * // Simple transaction
+ * const tx = await txManager.buildSimpleTransaction(instructions, feePayer)
+ * const signature = await txManager.sendSimpleTransaction(tx)
+ *
+ * // Bundle with tip
+ * const bundles = [{ instructions, payer, additionalSigner: [] }]
+ * const bundleTxs = await txManager.buildBundle(bundles, 1000000n)
+ * const bundleId = await txManager.sendBundle(bundleTxs)
+ * ```
  */
 class TransactionManagerImpl implements TransactionManager {
   private readonly estimatCUs: ReturnType<typeof estimateComputeUnitLimitFactory>
 
   /**
-   * Creates a new TransactionManager instance
+   * Creates a new TransactionManager instance.
    *
-   * @param provider - The provider instance for RPC and Jito connections
+   * @param {Provider} provider - The provider instance for RPC and Jito connections
    */
   constructor(private readonly provider: Provider) {
     this.estimatCUs = estimateComputeUnitLimitFactory({ rpc: provider.rpc })
   }
 
   /**
-   * Retrieves the latest blockhash from the network
+   * Retrieves the latest blockhash from the network.
    *
-   * @param minContextSlot - Optional minimum context slot for the blockhash
-   * @returns Promise resolving to the latest blockhash with lifetime information
-   * @throws Error if blockhash retrieval fails
+   * @private
+   * @param {Slot} [minContextSlot] - Optional minimum context slot for the blockhash
+   * @returns {Promise<TransactionBlockhashLifetime>} Promise resolving to the latest blockhash with lifetime information
+   * @throws {Error} When blockhash retrieval fails due to network issues
    */
   private async getBlockhash(minContextSlot?: Slot): Promise<TransactionBlockhashLifetime> {
     try {
@@ -112,12 +125,14 @@ class TransactionManagerImpl implements TransactionManager {
   }
 
   /**
-   * Creates a base transaction message with common setup
+   * Creates a base transaction message with common setup.
    *
-   * @param blockhash - Transaction blockhash and lifetime information
-   * @param instructions - Array of instructions to include
-   * @param feePayer - Transaction fee payer signer
-   * @returns Configured transaction message
+   * @private
+   * @param {TransactionBlockhashLifetime} blockhash - Transaction blockhash and lifetime information
+   * @param {Instruction[]} instructions - Array of instructions to include
+   * @param {TransactionSigner} feePayer - Transaction fee payer signer
+   * @param {TransactionSigner[]} [additionalSigners] - Optional additional signers for the transaction
+   * @returns {any} Configured transaction message ready for signing
    */
   private createBaseMessage(
     blockhash: TransactionBlockhashLifetime,
@@ -135,13 +150,17 @@ class TransactionManagerImpl implements TransactionManager {
   }
 
   /**
-   * Builds a simple transaction with the provided instructions
+   * Builds a simple transaction with the provided instructions.
    *
-   * @param instructions - Array of instructions to execute
-   * @param feePayer - Transaction fee payer signer
-   * @param minContextSlot - Optional minimum context slot
-   * @returns Promise resolving to base64-encoded wire transaction
-   * @throws Error if transaction building fails
+   * Creates a basic Solana transaction with the specified instructions,
+   * automatically fetching the latest blockhash and setting up the fee payer.
+   *
+   * @param {Instruction[]} instructions - Array of instructions to execute
+   * @param {TransactionSigner} feePayer - Transaction fee payer signer
+   * @param {Slot} [minContextSlot] - Optional minimum context slot for blockhash
+   * @param {TransactionSigner[]} [additionalSigners] - Optional additional signers
+   * @returns {Promise<Base64EncodedWireTransaction>} Promise resolving to base64-encoded wire transaction
+   * @throws {Error} When transaction building fails due to instruction or signing errors
    */
   async buildSimpleTransaction(
     instructions: Instruction[],
@@ -177,6 +196,7 @@ class TransactionManagerImpl implements TransactionManager {
   ): Promise<Base64EncodedWireTransaction> {
     let { unitLimit, unitPrice, senderTip } = options
     const blockhash = await this.getBlockhash()
+    const margin = 1.5
     let message = this.createBaseMessage(
       blockhash,
       instructions,
@@ -207,7 +227,7 @@ class TransactionManagerImpl implements TransactionManager {
     if (!unitLimit) {
       try {
         const units = await this.estimatCUs(message)
-        unitLimit = units < 1000 ? 200_000 : Math.ceil(units * 1.2)
+        unitLimit = units < 1000 ? 200_000 : Math.ceil(units * margin)
       } catch (error) {
         unitLimit = 200_000
       }
@@ -244,7 +264,7 @@ class TransactionManagerImpl implements TransactionManager {
                   },
                 })
                 .send()
-        const ceil = Math.ceil(Number(priorityFeeEstimate) * 1.2)
+        const ceil = Math.ceil(Number(priorityFeeEstimate) * margin)
         unitPrice = Number(ceil.toFixed(0))
       } catch (error) {
         unitPrice = 5_000_000
@@ -261,15 +281,16 @@ class TransactionManagerImpl implements TransactionManager {
   }
 
   /**
-   * Builds a bundle of transactions with Jito tip for MEV protection
+   * Builds a bundle of transactions with Jito tip for MEV protection.
    *
-   * Creates multiple transactions in a bundle, with the first transaction
+   * Creates multiple transactions in a bundle format, with the first transaction
    * including a tip payment to a randomly selected Jito validator account.
+   * All transactions in the bundle share the same blockhash and are executed atomically.
    *
-   * @param bundles - Array of bundle configurations
-   * @param tip - Tip amount in lamports for Jito validators
-   * @returns Promise resolving to array of base64-encoded wire transactions
-   * @throws Error if bundle building fails
+   * @param {Bundle[]} bundles - Array of bundle configurations with instructions and signers
+   * @param {bigint} tip - Tip amount in lamports for Jito validators (must be positive)
+   * @returns {Promise<Base64EncodedWireTransaction[]>} Promise resolving to array of base64-encoded wire transactions
+   * @throws {Error} When bundle building fails due to empty bundles, invalid tips, or transaction errors
    */
   async buildBundle(bundles: Bundle[], tip: bigint): Promise<Base64EncodedWireTransaction[]> {
     try {
@@ -373,7 +394,6 @@ class TransactionManagerImpl implements TransactionManager {
       const { jito } = this.provider
       const signature = await jito.sendShakingBundle(bundles, {
         encoding: 'base64',
-        skipPreflight: true,
       })
       return signature
     } catch (error) {
@@ -602,10 +622,13 @@ class TransactionManagerImpl implements TransactionManager {
 }
 
 /**
- * Factory function to create a TransactionManager instance
+ * Factory function to create a TransactionManager instance.
  *
- * @param provider - Provider instance for RPC and Jito connections
- * @returns New TransactionManager instance
+ * Convenience function for creating a transaction manager with the specified provider.
+ * The manager will use the provider's RPC and Jito connections for all operations.
+ *
+ * @param {Provider} provider - Provider instance for RPC and Jito connections
+ * @returns {TransactionManager} New TransactionManager instance ready for use
  */
 export const createTransactionManager = (provider: Provider): TransactionManager =>
   new TransactionManagerImpl(provider)

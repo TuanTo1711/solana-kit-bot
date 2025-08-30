@@ -14,6 +14,8 @@ import {
   getI64Encoder,
   getStructDecoder,
   getStructEncoder,
+  getU64Decoder,
+  getU64Encoder,
   type Address,
   type FixedSizeCodec,
   type FixedSizeDecoder,
@@ -23,17 +25,29 @@ import {
 export type CloseUserVolumeAccumulatorEvent = {
   user: Address
   timestamp: bigint
+  totalUnclaimedTokens: bigint
+  totalClaimedTokens: bigint
+  currentSolVolume: bigint
+  lastUpdateTimestamp: bigint
 }
 
 export type CloseUserVolumeAccumulatorEventArgs = {
   user: Address
   timestamp: number | bigint
+  totalUnclaimedTokens: number | bigint
+  totalClaimedTokens: number | bigint
+  currentSolVolume: number | bigint
+  lastUpdateTimestamp: number | bigint
 }
 
 export function getCloseUserVolumeAccumulatorEventEncoder(): FixedSizeEncoder<CloseUserVolumeAccumulatorEventArgs> {
   return getStructEncoder([
     ['user', getAddressEncoder()],
     ['timestamp', getI64Encoder()],
+    ['totalUnclaimedTokens', getU64Encoder()],
+    ['totalClaimedTokens', getU64Encoder()],
+    ['currentSolVolume', getU64Encoder()],
+    ['lastUpdateTimestamp', getI64Encoder()],
   ])
 }
 
@@ -41,6 +55,10 @@ export function getCloseUserVolumeAccumulatorEventDecoder(): FixedSizeDecoder<Cl
   return getStructDecoder([
     ['user', getAddressDecoder()],
     ['timestamp', getI64Decoder()],
+    ['totalUnclaimedTokens', getU64Decoder()],
+    ['totalClaimedTokens', getU64Decoder()],
+    ['currentSolVolume', getU64Decoder()],
+    ['lastUpdateTimestamp', getI64Decoder()],
   ])
 }
 

@@ -51,9 +51,7 @@ export type GlobalConfig = {
   discriminator: ReadonlyUint8Array
   /** The admin pubkey */
   admin: Address
-  /** The lp fee in basis points (0.01%) */
   lpFeeBasisPoints: bigint
-  /** The protocol fee in basis points (0.01%) */
   protocolFeeBasisPoints: bigint
   /**
    * Flags to disable certain functionality
@@ -66,7 +64,6 @@ export type GlobalConfig = {
   disableFlags: number
   /** Addresses of the protocol fee recipients */
   protocolFeeRecipients: Array<Address>
-  /** The coin creator fee in basis points (0.01%) */
   coinCreatorFeeBasisPoints: bigint
   /** The admin authority for setting coin creators */
   adminSetCoinCreatorAuthority: Address
@@ -75,9 +72,7 @@ export type GlobalConfig = {
 export type GlobalConfigArgs = {
   /** The admin pubkey */
   admin: Address
-  /** The lp fee in basis points (0.01%) */
   lpFeeBasisPoints: number | bigint
-  /** The protocol fee in basis points (0.01%) */
   protocolFeeBasisPoints: number | bigint
   /**
    * Flags to disable certain functionality
@@ -90,7 +85,6 @@ export type GlobalConfigArgs = {
   disableFlags: number
   /** Addresses of the protocol fee recipients */
   protocolFeeRecipients: Array<Address>
-  /** The coin creator fee in basis points (0.01%) */
   coinCreatorFeeBasisPoints: number | bigint
   /** The admin authority for setting coin creators */
   adminSetCoinCreatorAuthority: Address

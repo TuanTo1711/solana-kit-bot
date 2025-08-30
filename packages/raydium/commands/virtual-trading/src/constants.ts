@@ -6,7 +6,7 @@
 export const TRANSFER_AMOUNT_SOL: number = 0.005 as const
 
 /** Number of lamports per SOL */
-export const LAMPORTS_PER_SOL: number = 10 ** 9
+export const LAMPORTS_PER_SOL: number = 1_000_000_000 as const
 
 /** Estimated transaction fee in lamports */
 export const TRANSACTION_FEE: number = 10000 as const

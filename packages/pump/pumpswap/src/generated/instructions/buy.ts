@@ -11,11 +11,15 @@ import {
   fixDecoderSize,
   fixEncoderSize,
   getAddressEncoder,
+  getBooleanDecoder,
+  getBooleanEncoder,
   getBytesDecoder,
   getBytesEncoder,
   getProgramDerivedAddress,
   getStructDecoder,
   getStructEncoder,
+  getTupleDecoder,
+  getTupleEncoder,
   getU64Decoder,
   getU64Encoder,
   transformEncoder,
@@ -63,12 +67,17 @@ export type BuyInstruction<
     | string
     | AccountMeta<string> = 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
   TAccountEventAuthority extends string | AccountMeta<string> = string,
-  TAccountProgram extends string | AccountMeta<string> = string,
+  TAccountProgram extends
+    | string
+    | AccountMeta<string> = 'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA',
   TAccountCoinCreatorVaultAta extends string | AccountMeta<string> = string,
   TAccountCoinCreatorVaultAuthority extends string | AccountMeta<string> = string,
   TAccountGlobalVolumeAccumulator extends string | AccountMeta<string> = string,
   TAccountUserVolumeAccumulator extends string | AccountMeta<string> = string,
-  TAccountUserAccTarget extends string | AccountMeta<string> = string,
+  TAccountFeeConfig extends string | AccountMeta<string> = string,
+  TAccountFeeProgram extends
+    | string
+    | AccountMeta<string> = 'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ',
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
   InstructionWithData<ReadonlyUint8Array> &
@@ -129,9 +138,8 @@ export type BuyInstruction<
       TAccountUserVolumeAccumulator extends string
         ? WritableAccount<TAccountUserVolumeAccumulator>
         : TAccountUserVolumeAccumulator,
-      TAccountUserAccTarget extends string
-        ? WritableSignerAccount<TAccountUserAccTarget> & AccountSignerMeta<TAccountUserAccTarget>
-        : TAccountUserAccTarget,
+      TAccountFeeConfig extends string ? ReadonlyAccount<TAccountFeeConfig> : TAccountFeeConfig,
+      TAccountFeeProgram extends string ? ReadonlyAccount<TAccountFeeProgram> : TAccountFeeProgram,
       ...TRemainingAccounts,
     ]
   >
@@ -140,11 +148,13 @@ export type BuyInstructionData = {
   discriminator: ReadonlyUint8Array
   baseAmountOut: bigint
   maxQuoteAmountIn: bigint
+  trackVolume: readonly [boolean]
 }
 
 export type BuyInstructionDataArgs = {
   baseAmountOut: number | bigint
   maxQuoteAmountIn: number | bigint
+  trackVolume: readonly [boolean]
 }
 
 export function getBuyInstructionDataEncoder(): FixedSizeEncoder<BuyInstructionDataArgs> {
@@ -153,6 +163,7 @@ export function getBuyInstructionDataEncoder(): FixedSizeEncoder<BuyInstructionD
       ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
       ['baseAmountOut', getU64Encoder()],
       ['maxQuoteAmountIn', getU64Encoder()],
+      ['trackVolume', getTupleEncoder([getBooleanEncoder()])],
     ]),
     value => ({ ...value, discriminator: BUY_DISCRIMINATOR })
   )
@@ -163,6 +174,7 @@ export function getBuyInstructionDataDecoder(): FixedSizeDecoder<BuyInstructionD
     ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
     ['baseAmountOut', getU64Decoder()],
     ['maxQuoteAmountIn', getU64Decoder()],
+    ['trackVolume', getTupleDecoder([getBooleanDecoder()])],
   ])
 }
 
@@ -195,7 +207,8 @@ export type BuyAsyncInput<
   TAccountCoinCreatorVaultAuthority extends string = string,
   TAccountGlobalVolumeAccumulator extends string = string,
   TAccountUserVolumeAccumulator extends string = string,
-  TAccountUserAccTarget extends string = string,
+  TAccountFeeConfig extends string = string,
+  TAccountFeeProgram extends string = string,
 > = {
   pool: Address<TAccountPool>
   user: TransactionSigner<TAccountUser>
@@ -213,14 +226,16 @@ export type BuyAsyncInput<
   systemProgram?: Address<TAccountSystemProgram>
   associatedTokenProgram?: Address<TAccountAssociatedTokenProgram>
   eventAuthority?: Address<TAccountEventAuthority>
-  program: Address<TAccountProgram>
+  program?: Address<TAccountProgram>
   coinCreatorVaultAta?: Address<TAccountCoinCreatorVaultAta>
   coinCreatorVaultAuthority: Address<TAccountCoinCreatorVaultAuthority>
   globalVolumeAccumulator?: Address<TAccountGlobalVolumeAccumulator>
   userVolumeAccumulator?: Address<TAccountUserVolumeAccumulator>
-  userAccTarget: TransactionSigner<TAccountUserAccTarget>
+  feeConfig?: Address<TAccountFeeConfig>
+  feeProgram?: Address<TAccountFeeProgram>
   baseAmountOut: BuyInstructionDataArgs['baseAmountOut']
   maxQuoteAmountIn: BuyInstructionDataArgs['maxQuoteAmountIn']
+  trackVolume: BuyInstructionDataArgs['trackVolume']
 }
 
 export async function getBuyInstructionAsync<
@@ -245,7 +260,8 @@ export async function getBuyInstructionAsync<
   TAccountCoinCreatorVaultAuthority extends string,
   TAccountGlobalVolumeAccumulator extends string,
   TAccountUserVolumeAccumulator extends string,
-  TAccountUserAccTarget extends string,
+  TAccountFeeConfig extends string,
+  TAccountFeeProgram extends string,
   TProgramAddress extends Address = typeof PUMP_AMM_PROGRAM_ADDRESS,
 >(
   input: BuyAsyncInput<
@@ -270,7 +286,8 @@ export async function getBuyInstructionAsync<
     TAccountCoinCreatorVaultAuthority,
     TAccountGlobalVolumeAccumulator,
     TAccountUserVolumeAccumulator,
-    TAccountUserAccTarget
+    TAccountFeeConfig,
+    TAccountFeeProgram
   >,
   config?: { programAddress?: TProgramAddress }
 ): Promise<
@@ -297,7 +314,8 @@ export async function getBuyInstructionAsync<
     TAccountCoinCreatorVaultAuthority,
     TAccountGlobalVolumeAccumulator,
     TAccountUserVolumeAccumulator,
-    TAccountUserAccTarget
+    TAccountFeeConfig,
+    TAccountFeeProgram
   >
 > {
   // Program address.
@@ -365,7 +383,8 @@ export async function getBuyInstructionAsync<
       value: input.userVolumeAccumulator ?? null,
       isWritable: true,
     },
-    userAccTarget: { value: input.userAccTarget ?? null, isWritable: true },
+    feeConfig: { value: input.feeConfig ?? null, isWritable: false },
+    feeProgram: { value: input.feeProgram ?? null, isWritable: false },
   }
   const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
@@ -404,6 +423,10 @@ export async function getBuyInstructionAsync<
       ],
     })
   }
+  if (!accounts.program.value) {
+    accounts.program.value =
+      'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA' as Address<'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA'>
+  }
   if (!accounts.coinCreatorVaultAta.value) {
     accounts.coinCreatorVaultAta.value = await getProgramDerivedAddress({
       programAddress:
@@ -438,9 +461,28 @@ export async function getBuyInstructionAsync<
             108, 97, 116, 111, 114,
           ])
         ),
-        getAddressEncoder().encode(expectAddress(accounts.userAccTarget.value)),
+        getAddressEncoder().encode(expectAddress(accounts.user.value)),
       ],
     })
+  }
+  if (!accounts.feeConfig.value) {
+    accounts.feeConfig.value = await getProgramDerivedAddress({
+      programAddress:
+        'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ' as Address<'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ'>,
+      seeds: [
+        getBytesEncoder().encode(new Uint8Array([102, 101, 101, 95, 99, 111, 110, 102, 105, 103])),
+        getBytesEncoder().encode(
+          new Uint8Array([
+            12, 20, 222, 252, 130, 94, 198, 118, 148, 37, 8, 24, 187, 101, 64, 101, 244, 41, 141,
+            49, 86, 213, 113, 180, 212, 248, 9, 12, 24, 233, 168, 99,
+          ])
+        ),
+      ],
+    })
+  }
+  if (!accounts.feeProgram.value) {
+    accounts.feeProgram.value =
+      'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ' as Address<'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ'>
   }
 
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
@@ -467,7 +509,8 @@ export async function getBuyInstructionAsync<
       getAccountMeta(accounts.coinCreatorVaultAuthority),
       getAccountMeta(accounts.globalVolumeAccumulator),
       getAccountMeta(accounts.userVolumeAccumulator),
-      getAccountMeta(accounts.userAccTarget),
+      getAccountMeta(accounts.feeConfig),
+      getAccountMeta(accounts.feeProgram),
     ],
     programAddress,
     data: getBuyInstructionDataEncoder().encode(args as BuyInstructionDataArgs),
@@ -494,7 +537,8 @@ export async function getBuyInstructionAsync<
     TAccountCoinCreatorVaultAuthority,
     TAccountGlobalVolumeAccumulator,
     TAccountUserVolumeAccumulator,
-    TAccountUserAccTarget
+    TAccountFeeConfig,
+    TAccountFeeProgram
   >
 
   return instruction
@@ -522,7 +566,8 @@ export type BuyInput<
   TAccountCoinCreatorVaultAuthority extends string = string,
   TAccountGlobalVolumeAccumulator extends string = string,
   TAccountUserVolumeAccumulator extends string = string,
-  TAccountUserAccTarget extends string = string,
+  TAccountFeeConfig extends string = string,
+  TAccountFeeProgram extends string = string,
 > = {
   pool: Address<TAccountPool>
   user: TransactionSigner<TAccountUser>
@@ -540,14 +585,16 @@ export type BuyInput<
   systemProgram?: Address<TAccountSystemProgram>
   associatedTokenProgram?: Address<TAccountAssociatedTokenProgram>
   eventAuthority: Address<TAccountEventAuthority>
-  program: Address<TAccountProgram>
+  program?: Address<TAccountProgram>
   coinCreatorVaultAta: Address<TAccountCoinCreatorVaultAta>
   coinCreatorVaultAuthority: Address<TAccountCoinCreatorVaultAuthority>
   globalVolumeAccumulator: Address<TAccountGlobalVolumeAccumulator>
   userVolumeAccumulator: Address<TAccountUserVolumeAccumulator>
-  userAccTarget: TransactionSigner<TAccountUserAccTarget>
+  feeConfig: Address<TAccountFeeConfig>
+  feeProgram?: Address<TAccountFeeProgram>
   baseAmountOut: BuyInstructionDataArgs['baseAmountOut']
   maxQuoteAmountIn: BuyInstructionDataArgs['maxQuoteAmountIn']
+  trackVolume: BuyInstructionDataArgs['trackVolume']
 }
 
 export function getBuyInstruction<
@@ -572,7 +619,8 @@ export function getBuyInstruction<
   TAccountCoinCreatorVaultAuthority extends string,
   TAccountGlobalVolumeAccumulator extends string,
   TAccountUserVolumeAccumulator extends string,
-  TAccountUserAccTarget extends string,
+  TAccountFeeConfig extends string,
+  TAccountFeeProgram extends string,
   TProgramAddress extends Address = typeof PUMP_AMM_PROGRAM_ADDRESS,
 >(
   input: BuyInput<
@@ -597,7 +645,8 @@ export function getBuyInstruction<
     TAccountCoinCreatorVaultAuthority,
     TAccountGlobalVolumeAccumulator,
     TAccountUserVolumeAccumulator,
-    TAccountUserAccTarget
+    TAccountFeeConfig,
+    TAccountFeeProgram
   >,
   config?: { programAddress?: TProgramAddress }
 ): BuyInstruction<
@@ -623,7 +672,8 @@ export function getBuyInstruction<
   TAccountCoinCreatorVaultAuthority,
   TAccountGlobalVolumeAccumulator,
   TAccountUserVolumeAccumulator,
-  TAccountUserAccTarget
+  TAccountFeeConfig,
+  TAccountFeeProgram
 > {
   // Program address.
   const programAddress = config?.programAddress ?? PUMP_AMM_PROGRAM_ADDRESS
@@ -690,7 +740,8 @@ export function getBuyInstruction<
       value: input.userVolumeAccumulator ?? null,
       isWritable: true,
     },
-    userAccTarget: { value: input.userAccTarget ?? null, isWritable: true },
+    feeConfig: { value: input.feeConfig ?? null, isWritable: false },
+    feeProgram: { value: input.feeProgram ?? null, isWritable: false },
   }
   const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedAccount>
 
@@ -705,6 +756,14 @@ export function getBuyInstruction<
   if (!accounts.associatedTokenProgram.value) {
     accounts.associatedTokenProgram.value =
       'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL' as Address<'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'>
+  }
+  if (!accounts.program.value) {
+    accounts.program.value =
+      'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA' as Address<'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA'>
+  }
+  if (!accounts.feeProgram.value) {
+    accounts.feeProgram.value =
+      'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ' as Address<'pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ'>
   }
 
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
@@ -731,7 +790,8 @@ export function getBuyInstruction<
       getAccountMeta(accounts.coinCreatorVaultAuthority),
       getAccountMeta(accounts.globalVolumeAccumulator),
       getAccountMeta(accounts.userVolumeAccumulator),
-      getAccountMeta(accounts.userAccTarget),
+      getAccountMeta(accounts.feeConfig),
+      getAccountMeta(accounts.feeProgram),
     ],
     programAddress,
     data: getBuyInstructionDataEncoder().encode(args as BuyInstructionDataArgs),
@@ -758,7 +818,8 @@ export function getBuyInstruction<
     TAccountCoinCreatorVaultAuthority,
     TAccountGlobalVolumeAccumulator,
     TAccountUserVolumeAccumulator,
-    TAccountUserAccTarget
+    TAccountFeeConfig,
+    TAccountFeeProgram
   >
 
   return instruction
@@ -791,7 +852,8 @@ export type ParsedBuyInstruction<
     coinCreatorVaultAuthority: TAccountMetas[18]
     globalVolumeAccumulator: TAccountMetas[19]
     userVolumeAccumulator: TAccountMetas[20]
-    userAccTarget: TAccountMetas[21]
+    feeConfig: TAccountMetas[21]
+    feeProgram: TAccountMetas[22]
   }
   data: BuyInstructionData
 }
@@ -804,13 +866,13 @@ export function parseBuyInstruction<
     InstructionWithAccounts<TAccountMetas> &
     InstructionWithData<ReadonlyUint8Array>
 ): ParsedBuyInstruction<TProgram, TAccountMetas> {
-  if (instruction.accounts.length < 22) {
+  if (instruction.accounts.length < 23) {
     // TODO: Coded error.
     throw new Error('Not enough accounts')
   }
   let accountIndex = 0
   const getNextAccount = () => {
-    const accountMeta = instruction.accounts![accountIndex]!
+    const accountMeta = (instruction.accounts as TAccountMetas)[accountIndex]!
     accountIndex += 1
     return accountMeta
   }
@@ -838,7 +900,8 @@ export function parseBuyInstruction<
       coinCreatorVaultAuthority: getNextAccount(),
       globalVolumeAccumulator: getNextAccount(),
       userVolumeAccumulator: getNextAccount(),
-      userAccTarget: getNextAccount(),
+      feeConfig: getNextAccount(),
+      feeProgram: getNextAccount(),
     },
     data: getBuyInstructionDataDecoder().decode(instruction.data),
   }

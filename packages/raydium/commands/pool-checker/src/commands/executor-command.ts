@@ -5,7 +5,7 @@ import { Command, type BaseContext } from 'clipanion'
 import { combineLatest, filter, map, withLatestFrom } from 'rxjs'
 import type { Telegraf } from 'telegraf'
 
-import { formatUnits, wrapEscHandler, type SolanaBotContext } from '@solana-kit-bot/core'
+import { abbreviateNumber, wrapEscHandler, type SolanaBotContext } from '@solana-kit-bot/core'
 import type { PoolKeys, RaydiumCpmmClient } from '@solana-kit-bot/raydium-cpmm'
 
 import type { DexScreenerAPI } from '~/dexscreener-api'
@@ -300,7 +300,7 @@ export class ExecutorCommand extends Command<ExecutorContext> {
       const image = config.hasImage ? 'Có hình' : 'Không hình'
       const boost = config.hasBoost ? 'Có boost' : 'Không có boost'
       const totalBoost = config.totalBoost ?? ''
-      const target = formatUnits(Number(config.target) / 10 ** 6)
+      const target = abbreviateNumber(Number(config.target) / 10 ** 6)
       return {
         name: `${target} - ${boost} - ${image} ${'-' + totalBoost}`,
         value: config,

@@ -188,8 +188,7 @@ export class TelegramService {
   public async notifyBuySuccess(buyData: {
     poolAddress: string
     baseMint: string
-    baseAmount: bigint
-    quoteAmount: bigint
+    payer: string
     txSignature?: string
   }): Promise<void> {
     const message = this.formatBuySuccessMessage(buyData)
@@ -282,23 +281,29 @@ ${data.quoteAmount ? `💵 **Quote Amount:** ${this.formatAmount(data.quoteAmoun
   private formatBuySuccessMessage(data: {
     poolAddress: string
     baseMint: string
-    baseAmount?: bigint
-    quoteAmount?: bigint
     txSignature?: string
+    payer?: string
   }): string {
-    const timestamp = new Date().toLocaleString('vi-VN')
+    const timestamp = new Date().toLocaleString('vi-VN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    })
 
-    return `🚀 **MUA THÀNH CÔNG**
-    
-📍 **Pool:** \`${data.poolAddress}\`
-🪙 **Token:** \`${data.baseMint}\`
-${data.baseAmount ? `📊 **Base Amount:** ${this.formatAmount(data.baseAmount)}` : ''}
-${data.quoteAmount ? `💵 **Quote Amount:** ${this.formatAmount(data.quoteAmount)}` : ''}
-🔗 **Dexscreener:** https://dexscreener.com/solana/${data.poolAddress}?maker
+    return `🟢 **ĐÃ MUA TOKEN MỚI**
 
-⏰ **Thời gian:** ${timestamp}
++ ⏰ Thời gian: ${timestamp}
++ 🪙 Token: \`${data.baseMint}\`
++ 📍 Pool: \`${data.poolAddress}\`
 
-${data.txSignature ? `[Xem giao dịch](https://solscan.io/tx/${data.txSignature})` : ''}`
+🔍 Xem chi tiết:
+  • 📊 [Xem giao dich trên Dexscreener](https://dexscreener.com/solana/${data.poolAddress}?maker=${data.payer})
+  • 🔗 [Xem giao dịch Solscan](https://solscan.io/account/${data.poolAddress})
+  • 📋 [Xem holders](https://solscan.io/token/${data.baseMint}#holders)
+`
   }
 
   /**

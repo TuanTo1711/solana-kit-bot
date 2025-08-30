@@ -7,6 +7,7 @@ import type { Address } from '@solana/kit'
 import {
   BehaviorSubject,
   combineLatest,
+  filter,
   firstValueFrom,
   Observable,
   Subject,
@@ -203,11 +204,9 @@ export class PoolMonitor {
       await firstValueFrom(
         combineLatest([this.base$, this.quote$]).pipe(
           takeUntil(this.stop$),
+          filter(([a, b]) => a > 0n && b > 0n),
           timeout(POOL_DATA_TIMEOUT)
-        ),
-        {
-          defaultValue: [0n, 0n],
-        }
+        )
       )
     } catch (error) {
       throw new Error('Hết thời gian chờ khởi tạo dữ liệu pool')

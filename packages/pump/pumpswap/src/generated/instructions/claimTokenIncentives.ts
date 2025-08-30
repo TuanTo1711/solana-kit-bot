@@ -57,7 +57,9 @@ export type ClaimTokenIncentivesInstruction<
     | string
     | AccountMeta<string> = 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
   TAccountEventAuthority extends string | AccountMeta<string> = string,
-  TAccountProgram extends string | AccountMeta<string> = string,
+  TAccountProgram extends
+    | string
+    | AccountMeta<string> = 'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA',
   TAccountPayer extends string | AccountMeta<string> = string,
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
@@ -150,7 +152,7 @@ export type ClaimTokenIncentivesAsyncInput<
   systemProgram?: Address<TAccountSystemProgram>
   associatedTokenProgram?: Address<TAccountAssociatedTokenProgram>
   eventAuthority?: Address<TAccountEventAuthority>
-  program: Address<TAccountProgram>
+  program?: Address<TAccountProgram>
   payer: TransactionSigner<TAccountPayer>
 }
 
@@ -307,6 +309,10 @@ export async function getClaimTokenIncentivesInstructionAsync<
       ],
     })
   }
+  if (!accounts.program.value) {
+    accounts.program.value =
+      'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA' as Address<'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA'>
+  }
 
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
@@ -369,7 +375,7 @@ export type ClaimTokenIncentivesInput<
   systemProgram?: Address<TAccountSystemProgram>
   associatedTokenProgram?: Address<TAccountAssociatedTokenProgram>
   eventAuthority: Address<TAccountEventAuthority>
-  program: Address<TAccountProgram>
+  program?: Address<TAccountProgram>
   payer: TransactionSigner<TAccountPayer>
 }
 
@@ -463,6 +469,10 @@ export function getClaimTokenIncentivesInstruction<
     accounts.associatedTokenProgram.value =
       'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL' as Address<'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'>
   }
+  if (!accounts.program.value) {
+    accounts.program.value =
+      'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA' as Address<'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA'>
+  }
 
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId')
   const instruction = {
@@ -537,7 +547,7 @@ export function parseClaimTokenIncentivesInstruction<
   }
   let accountIndex = 0
   const getNextAccount = () => {
-    const accountMeta = instruction.accounts![accountIndex]!
+    const accountMeta = (instruction.accounts as TAccountMetas)[accountIndex]!
     accountIndex += 1
     return accountMeta
   }

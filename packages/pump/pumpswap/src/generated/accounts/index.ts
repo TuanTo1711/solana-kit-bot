@@ -7,6 +7,7 @@
  */
 
 export * from './bondingCurve'
+export * from './feeConfig'
 export * from './globalConfig'
 export * from './globalVolumeAccumulator'
 export * from './pool'

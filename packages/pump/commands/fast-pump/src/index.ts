@@ -87,7 +87,7 @@ export class PumpwapFastPumpCommand extends Command<BaseContext & SolanaBotConte
         slippage: impact === 0 ? slippage : Number(impact.toFixed(0)),
       })
 
-      const { base, maxQuote, priceImpact } = buyResult
+      const { base, maxQuote } = buyResult
       const signer = await createKeyPairSignerFromBytes(getBase58Codec().encode(keypair))
       const buyInstructions = await pumpswapClient.createBuyInstructions(
         {
@@ -104,14 +104,12 @@ export class PumpwapFastPumpCommand extends Command<BaseContext & SolanaBotConte
         amount: amount.toString(),
         base: base.toString(),
         maxQuote: maxQuote.toString(),
-        priceImpact: `${priceImpact.toFixed(3)}%`,
         baseTokenBalance: baseTokenBalance.toString(),
         quoteTokenBalance: quoteTokenBalance.toString(),
       })
 
       baseTokenBalance -= base
       quoteTokenBalance += maxQuote
-      impact = priceImpact
 
       bundle.push({
         instructions: buyInstructions,
@@ -124,12 +122,7 @@ export class PumpwapFastPumpCommand extends Command<BaseContext & SolanaBotConte
     for (const bundler of chunk) {
       try {
         const bundled = await transactionManager.buildBundle(bundler, jitoTip)
-        const id = await transactionManager.sendBundleWithRetry(bundled, {
-          maxRetries: 10,
-          retryDelay: 500,
-          statusCheckTimeout: 5000,
-          statusCheckInterval: 500,
-        })
+        const id = await transactionManager.sendBundle(bundled)
         console.log(id)
       } catch (error) {
         console.error(error)

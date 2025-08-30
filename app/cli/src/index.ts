@@ -4,6 +4,7 @@ import Conf from 'conf'
 
 import {
   createTransactionManager,
+  Logger,
   type SolanaBotConfig,
   type SolanaBotContext,
 } from '@solana-kit-bot/core'
@@ -65,6 +66,7 @@ class Application {
       provider,
       transactionManager,
       payer,
+      logger: new Logger(),
     }
 
     this.cli.register(PumpswapCommand)

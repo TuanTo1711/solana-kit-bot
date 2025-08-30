@@ -19,7 +19,6 @@ import { getSwapAddresses } from './constant'
 import {
   fetchPool,
   getBuyInstructionAsync,
-  getSellInstruction,
   getSellInstructionAsync,
   PUMP_AMM_PROGRAM_ADDRESS,
 } from './generated'
@@ -78,35 +77,25 @@ class PumpswapClientImpl implements PumpswapClient {
     const base58 = getBase58Codec()
 
     // Find or derive all required addresses for the swap operation
-    const [[baseAta], [quoteAta], [coinCreatorVaultAuthority, [coinCreatorVaultAta]]] =
-      await Promise.all([
-        // Find the buyer's base token associated token account
-        findAssociatedTokenPda({
-          mint: baseMint,
-          owner: buyer.address,
-          tokenProgram: TOKEN_PROGRAM_ADDRESS,
-        }),
-        // Find the buyer's quote token (wrapped SOL) associated token account
-        findAssociatedTokenPda({
-          mint: quoteMint,
-          owner: buyer.address,
-          tokenProgram: TOKEN_PROGRAM_ADDRESS,
-        }),
-        // Derive the coin creator's vault authority and find their quote token ATA
-        getProgramDerivedAddress({
-          programAddress: PUMP_AMM_PROGRAM_ADDRESS,
-          seeds: ['creator_vault', base58.encode(coinCreator)],
-        }).then(([coinCreatorVaultAuthority]) => {
-          return Promise.all([
-            coinCreatorVaultAuthority,
-            findAssociatedTokenPda({
-              mint: quoteMint,
-              owner: coinCreatorVaultAuthority,
-              tokenProgram: TOKEN_PROGRAM_ADDRESS,
-            }),
-          ])
-        }),
-      ])
+    const [[baseAta], [quoteAta], [coinCreatorVaultAuthority]] = await Promise.all([
+      // Find the buyer's base token associated token account
+      findAssociatedTokenPda({
+        mint: baseMint,
+        owner: buyer.address,
+        tokenProgram: TOKEN_PROGRAM_ADDRESS,
+      }),
+      // Find the buyer's quote token (wrapped SOL) associated token account
+      findAssociatedTokenPda({
+        mint: quoteMint,
+        owner: buyer.address,
+        tokenProgram: TOKEN_PROGRAM_ADDRESS,
+      }),
+      // Derive the coin creator's vault authority and find their quote token ATA
+      getProgramDerivedAddress({
+        programAddress: PUMP_AMM_PROGRAM_ADDRESS,
+        seeds: ['creator_vault', base58.encode(coinCreator)],
+      }),
+    ])
 
     // Create base token ATA if it doesn't exist
     if (!hasBaseAta) {
@@ -149,9 +138,8 @@ class PumpswapClientImpl implements PumpswapClient {
       maxQuoteAmountIn: maxAmountIn,
       userBaseTokenAccount: baseAta,
       userQuoteTokenAccount: quoteAta,
-      coinCreatorVaultAta,
       coinCreatorVaultAuthority,
-      userAccTarget: buyer,
+      trackVolume: [true],
     })
 
     instructions.push(buyInstruction)
@@ -343,11 +331,11 @@ class PumpswapClientImpl implements PumpswapClient {
       userQuoteTokenAccount: quoteAta,
       coinCreatorVaultAta,
       coinCreatorVaultAuthority,
-      userAccTarget: payer,
+      trackVolume: [true],
     })
 
     // Create sell instruction - sells base tokens for quote tokens
-    const sellInstruction = getSellInstruction({
+    const sellInstruction = await getSellInstructionAsync({
       ...poolKeys,
       ...defaultAddresses,
       user: payer,

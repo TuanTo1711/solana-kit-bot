@@ -1,38 +1,65 @@
-/**
- * @fileoverview Dynamic price strategy - Adjusts based on iteration and performance
- */
-
-import { AbstractPriceStrategy } from './price-strategy'
+import { AbstractPriceStrategy } from '~/abstract'
 import type { PriceContext, PriceResult, PriceStrategyConfig } from '~/types'
 
+/**
+ * Configuration for Dynamic Price Strategy
+ */
 export interface DynamicPriceConfig extends PriceStrategyConfig {
-  /** Starting price */
+  /** Starting price for the strategy */
   startPrice: number
-  /** Price adjustment per iteration */
+  /** Price adjustment amount per iteration */
   priceStep?: number
-  /** Maximum price change per iteration (percentage) */
+  /** Maximum price change per iteration as a percentage (0-100) */
   maxChangePerIteration?: number
-  /** Adaptation mode */
+  /** Algorithm used for price adaptation */
   adaptationMode: 'linear' | 'exponential' | 'logarithmic' | 'performance'
-  /** Performance threshold for adaptation */
+  /** Success rate threshold for performance-based adaptation (0-1) */
   performanceThreshold?: number
-  /** Price bounds */
+  /** Optional price boundaries to constrain the price range */
   bounds?: {
     min: number
     max: number
   }
 }
 
+/**
+ * Performance tracking metrics for the strategy
+ */
 interface PerformanceMetrics {
+  /** Current success rate (0-1) */
   successRate: number
+  /** Average execution time in milliseconds */
   averageExecutionTime: number
+  /** Total number of iterations executed */
   totalIterations: number
+  /** History of recent success/failure results */
   recentSuccesses: boolean[]
 }
 
 /**
  * Dynamic Price Strategy
- * Adjusts price dynamically based on iteration count and performance metrics
+ *
+ * A sophisticated pricing strategy that adjusts prices dynamically based on iteration count,
+ * performance metrics, and configurable adaptation algorithms. Supports multiple adaptation
+ * modes including linear, exponential, logarithmic, and performance-based pricing.
+ *
+ * @example
+ * ```typescript
+ * // Linear price increase
+ * const linearStrategy = new DynamicPriceStrategy({
+ *   startPrice: 0.01,
+ *   priceStep: 0.001,
+ *   adaptationMode: 'linear'
+ * })
+ *
+ * // Performance-based adaptation with bounds
+ * const performanceStrategy = new DynamicPriceStrategy({
+ *   startPrice: 0.02,
+ *   adaptationMode: 'performance',
+ *   performanceThreshold: 0.8,
+ *   bounds: { min: 0.01, max: 0.1 }
+ * })
+ * ```
  */
 export class DynamicPriceStrategy extends AbstractPriceStrategy {
   private startPrice: number
@@ -43,11 +70,16 @@ export class DynamicPriceStrategy extends AbstractPriceStrategy {
   private bounds?: DynamicPriceConfig['bounds']
   private performanceHistory: PerformanceMetrics
 
+  /**
+   * Creates a new Dynamic Price Strategy
+   *
+   * @param config - Configuration options for the strategy
+   */
   constructor(config: DynamicPriceConfig) {
     super('DynamicPrice', config)
     this.startPrice = config.startPrice
     this.priceStep = config.priceStep || 0.001
-    this.maxChangePerIteration = config.maxChangePerIteration || 5 // 5%
+    this.maxChangePerIteration = config.maxChangePerIteration || 5
     this.adaptationMode = config.adaptationMode
     this.performanceThreshold = config.performanceThreshold || 0.8
     this.bounds = config.bounds
@@ -60,12 +92,17 @@ export class DynamicPriceStrategy extends AbstractPriceStrategy {
     }
   }
 
+  /**
+   * Calculates the price for the current iteration based on the selected adaptation mode
+   *
+   * @param context - Current pricing context including iteration and metadata
+   * @returns Price result with calculated price, confidence, and reasoning
+   */
   calculatePrice(context: PriceContext): PriceResult {
     let newPrice: number
     let confidence: number
     let reason: string
 
-    // Update performance metrics
     this.updatePerformanceMetrics(context)
 
     switch (this.adaptationMode) {
@@ -99,7 +136,6 @@ export class DynamicPriceStrategy extends AbstractPriceStrategy {
         reason = 'Default start price'
     }
 
-    // Apply bounds if configured
     if (this.bounds) {
       newPrice = Math.max(this.bounds.min, Math.min(this.bounds.max, newPrice))
     }
@@ -115,15 +151,27 @@ export class DynamicPriceStrategy extends AbstractPriceStrategy {
     })
   }
 
+  /**
+   * Calculates price using linear progression
+   * Formula: startPrice + (priceStep * iteration)
+   */
   private calculateLinearPrice(context: PriceContext): number {
     return this.startPrice + this.priceStep * context.iteration
   }
 
+  /**
+   * Calculates price using exponential growth
+   * Formula: startPrice * (1 + growthRate)^iteration
+   */
   private calculateExponentialPrice(context: PriceContext): number {
-    const growthRate = this.priceStep / this.startPrice // Convert to percentage
+    const growthRate = this.priceStep / this.startPrice
     return this.startPrice * Math.pow(1 + growthRate, context.iteration)
   }
 
+  /**
+   * Calculates price using logarithmic growth for diminishing returns
+   * Formula: startPrice + (priceStep * log(iteration + 1))
+   */
   private calculateLogarithmicPrice(context: PriceContext): number {
     if (context.iteration === 0) return this.startPrice
 
@@ -131,46 +179,43 @@ export class DynamicPriceStrategy extends AbstractPriceStrategy {
     return this.startPrice + this.priceStep * logFactor
   }
 
+  /**
+   * Calculates price based on performance metrics and success rate
+   * Increases price when performance is above threshold, decreases when below
+   */
   private calculatePerformanceBasedPrice(context: PriceContext): number {
     const basePrice = context.previousPrice || this.startPrice
 
-    // Adjust based on success rate
     let adjustment = 0
 
     if (this.performanceHistory.successRate > this.performanceThreshold) {
-      // High success rate - increase price
       adjustment =
         this.priceStep * (this.performanceHistory.successRate - this.performanceThreshold)
     } else {
-      // Low success rate - decrease price
       adjustment =
         -this.priceStep * (this.performanceThreshold - this.performanceHistory.successRate)
     }
 
-    // Apply max change limit
     const maxChange = basePrice * (this.maxChangePerIteration / 100)
     adjustment = Math.max(-maxChange, Math.min(maxChange, adjustment))
 
     return basePrice + adjustment
   }
 
+  /**
+   * Updates internal performance metrics based on context metadata
+   */
   private updatePerformanceMetrics(context: PriceContext): void {
-    // This would be updated by the runner with actual performance data
-    // For now, we'll simulate some metrics based on context
-
     this.performanceHistory.totalIterations = context.iteration
 
-    // Simulate success based on metadata (if available)
     if (context.metadata?.['lastOperationSuccess'] !== undefined) {
       const success = context.metadata['lastOperationSuccess']
       this.performanceHistory.recentSuccesses.push(success)
 
-      // Keep only last 10 results
       if (this.performanceHistory.recentSuccesses.length > 10) {
         this.performanceHistory.recentSuccesses.shift()
       }
 
-      // Calculate success rate
       const successes = this.performanceHistory.recentSuccesses.filter(s => s).length
       this.performanceHistory.successRate =
         successes / this.performanceHistory.recentSuccesses.length
@@ -178,21 +223,25 @@ export class DynamicPriceStrategy extends AbstractPriceStrategy {
   }
 
   /**
-   * Update performance metrics externally
+   * Updates performance metrics with external data
+   *
+   * @param metrics - Partial performance metrics to update
    */
   updatePerformance(metrics: Partial<PerformanceMetrics>): void {
     this.performanceHistory = { ...this.performanceHistory, ...metrics }
   }
 
   /**
-   * Get current performance metrics
+   * Retrieves current performance metrics
+   *
+   * @returns Copy of current performance metrics
    */
   getPerformanceMetrics(): PerformanceMetrics {
     return { ...this.performanceHistory }
   }
 
   /**
-   * Reset performance history
+   * Resets performance history to initial state
    */
   override reset(): void {
     this.performanceHistory = {
@@ -204,56 +253,72 @@ export class DynamicPriceStrategy extends AbstractPriceStrategy {
   }
 
   /**
-   * Update adaptation mode
+   * Updates the adaptation mode for price calculation
+   *
+   * @param mode - New adaptation mode to use
    */
   setAdaptationMode(mode: 'linear' | 'exponential' | 'logarithmic' | 'performance'): void {
     this.adaptationMode = mode
   }
 
   /**
-   * Get current adaptation mode
+   * Gets the current adaptation mode
+   *
+   * @returns Current adaptation mode
    */
   getAdaptationMode(): string {
     return this.adaptationMode
   }
 
   /**
-   * Update price step
+   * Updates the price step amount
+   *
+   * @param step - New price step value
    */
   setPriceStep(step: number): void {
     this.priceStep = step
   }
 
   /**
-   * Get current price step
+   * Gets the current price step
+   *
+   * @returns Current price step value
    */
   getPriceStep(): number {
     return this.priceStep
   }
 
   /**
-   * Update bounds
+   * Updates the price boundaries
+   *
+   * @param bounds - New minimum and maximum price bounds
    */
   setBounds(bounds: { min: number; max: number }): void {
     this.bounds = bounds
   }
 
   /**
-   * Get current bounds
+   * Gets the current price boundaries
+   *
+   * @returns Current price bounds or undefined if not set
    */
   getBounds(): { min: number; max: number } | undefined {
     return this.bounds
   }
 
   /**
-   * Update performance threshold
+   * Updates the performance threshold for performance-based adaptation
+   *
+   * @param threshold - New threshold value (automatically clamped between 0 and 1)
    */
   setPerformanceThreshold(threshold: number): void {
     this.performanceThreshold = Math.max(0, Math.min(1, threshold))
   }
 
   /**
-   * Get performance threshold
+   * Gets the current performance threshold
+   *
+   * @returns Current performance threshold value
    */
   getPerformanceThreshold(): number {
     return this.performanceThreshold

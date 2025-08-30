@@ -7,5 +7,9 @@ export default defineConfig({
   clean: true,
   sourcemap: true,
   treeshake: true,
-  splitting: false,
+  minify: true,
+  minifySyntax: true,
+  minifyIdentifiers: true,
+  minifyWhitespace: true,
+  cjsInterop: true,
 })

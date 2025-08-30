@@ -19,7 +19,7 @@
     "cli:install": "pnpm cli:build && pnpm cli:link"
   },
   "devDependencies": {
-    "@types/node": "^22.17.2",
+    "@types/node": "^22.18.0",
     "prettier": "^3.6.2",
     "turbo": "^2.5.6",
     "typescript": "5.8.2"

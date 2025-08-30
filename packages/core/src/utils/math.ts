@@ -1,28 +1,12 @@
 /**
- * @fileoverview Mathematical utility functions for BigInt and precision calculations
+ * Performs ceiling division on two BigInt values.
  *
- * This module provides essential mathematical operations for Solana applications,
- * particularly for handling token amounts, price calculations, and precision-safe
- * arithmetic operations using BigInt.
- */
-
-/**
- * Performs ceiling division on two BigInt values
+ * Calculates the ceiling (round up) of the division a/b using BigInt arithmetic.
  *
- * Calculates the ceiling of a/b, useful for determining minimum token amounts
- * or ensuring adequate buffer calculations.
- *
- * @param a - Dividend (numerator)
- * @param b - Divisor (denominator), must be non-zero
- * @returns Ceiling of a/b
- *
- * @throws Error if b is zero
- *
- * @example
- * ```typescript
- * const result = ceilDiv(100n, 30n) // Returns 4n (ceiling of 3.33...)
- * const tokens = ceilDiv(1000000n, 999999n) // Returns 2n for minimum tokens needed
- * ```
+ * @param {bigint} a - Dividend (numerator)
+ * @param {bigint} b - Divisor (denominator), must be non-zero
+ * @returns {bigint} Ceiling of a/b
+ * @throws {Error} When divisor b is zero
  */
 export function ceilDiv(a: bigint, b: bigint): bigint {
   if (b === 0n) {
@@ -32,22 +16,14 @@ export function ceilDiv(a: bigint, b: bigint): bigint {
 }
 
 /**
- * Performs floor division on two BigInt values
+ * Performs floor division on two BigInt values.
  *
- * Calculates the floor of a/b, equivalent to regular BigInt division
- * but explicitly named for clarity in calculations.
+ * Calculates the floor (round down) of the division a/b using BigInt arithmetic.
  *
- * @param a - Dividend (numerator)
- * @param b - Divisor (denominator), must be non-zero
- * @returns Floor of a/b
- *
- * @throws Error if b is zero
- *
- * @example
- * ```typescript
- * const result = floorDiv(100n, 30n) // Returns 3n (floor of 3.33...)
- * const maxTokens = floorDiv(balance, tokenPrice) // Maximum tokens affordable
- * ```
+ * @param {bigint} a - Dividend (numerator)
+ * @param {bigint} b - Divisor (denominator), must be non-zero
+ * @returns {bigint} Floor of a/b
+ * @throws {Error} When divisor b is zero
  */
 export function floorDiv(a: bigint, b: bigint): bigint {
   if (b === 0n) {
@@ -57,20 +33,14 @@ export function floorDiv(a: bigint, b: bigint): bigint {
 }
 
 /**
- * Converts a regular number to BigInt with specified decimal places
+ * Converts a regular number to BigInt with specified decimal places.
  *
- * Useful for converting SOL amounts to lamports or token amounts to their
- * smallest unit representation.
+ * Multiplies the input value by 10^decimals to preserve decimal precision
+ * in BigInt format. Commonly used for SOL amounts (9 decimals).
  *
- * @param value - The decimal number to convert
- * @param decimals - Number of decimal places (default: 9 for SOL)
- * @returns BigInt representation with decimal places
- *
- * @example
- * ```typescript
- * const lamports = toBigInt(0.5, 9) // Returns 500000000n (0.5 SOL in lamports)
- * const usdcAmount = toBigInt(100.50, 6) // Returns 100500000n (100.50 USDC)
- * ```
+ * @param {number} value - The decimal number to convert
+ * @param {number} [decimals=9] - Number of decimal places (default: 9 for SOL)
+ * @returns {bigint} BigInt representation with decimal places preserved
  */
 export function toBigInt(value: number, decimals = 9): bigint {
   const multiplier = 10 ** decimals
@@ -78,20 +48,14 @@ export function toBigInt(value: number, decimals = 9): bigint {
 }
 
 /**
- * Converts BigInt to a decimal number with specified decimal places
+ * Converts BigInt to a decimal number with specified decimal places.
  *
- * Useful for displaying token amounts in human-readable format.
+ * Divides the BigInt value by 10^decimals to restore decimal representation.
  * Note: May lose precision for very large numbers due to JavaScript number limitations.
  *
- * @param value - BigInt value to convert
- * @param decimals - Number of decimal places (default: 9 for SOL)
- * @returns Decimal number representation
- *
- * @example
- * ```typescript
- * const sol = fromBigInt(500000000n, 9) // Returns 0.5 (0.5 SOL)
- * const usdc = fromBigInt(100500000n, 6) // Returns 100.5 (100.50 USDC)
- * ```
+ * @param {bigint} value - BigInt value to convert
+ * @param {number} [decimals=9] - Number of decimal places (default: 9 for SOL)
+ * @returns {number} Decimal number representation
  */
 export function fromBigInt(value: bigint, decimals = 9): number {
   const divisor = 10 ** decimals
@@ -104,12 +68,6 @@ export function fromBigInt(value: bigint, decimals = 9): number {
  * @param value - Base value
  * @param percentage - Percentage as a number (e.g., 10 for 10%)
  * @returns Calculated percentage as BigInt
- *
- * @example
- * ```typescript
- * const fee = percentageOf(1000000n, 0.5) // Returns 5000n (0.5% fee)
- * const slippage = percentageOf(tokenAmount, 2) // Returns 2% slippage amount
- * ```
  */
 export function percentageOf(value: bigint, percentage: number): bigint {
   return (value * BigInt(Math.floor(percentage * 10000))) / 1000000n
@@ -121,12 +79,6 @@ export function percentageOf(value: bigint, percentage: number): bigint {
  * @param value - Base value
  * @param percentage - Percentage to add (e.g., 5 for 5% increase)
  * @returns Value increased by percentage
- *
- * @example
- * ```typescript
- * const withSlippage = addPercentage(tokenAmount, 1) // Add 1% slippage
- * const withTip = addPercentage(baseAmount, 0.1) // Add 0.1% tip
- * ```
  */
 export function addPercentage(value: bigint, percentage: number): bigint {
   return value + percentageOf(value, percentage)
@@ -138,12 +90,6 @@ export function addPercentage(value: bigint, percentage: number): bigint {
  * @param value - Base value
  * @param percentage - Percentage to subtract (e.g., 5 for 5% decrease)
  * @returns Value decreased by percentage
- *
- * @example
- * ```typescript
- * const afterFee = subtractPercentage(amount, 0.25) // Subtract 0.25% fee
- * const minAmount = subtractPercentage(tokenAmount, 2) // Subtract 2% slippage
- * ```
  */
 export function subtractPercentage(value: bigint, percentage: number): bigint {
   return value - percentageOf(value, percentage)
@@ -155,12 +101,6 @@ export function subtractPercentage(value: bigint, percentage: number): bigint {
  * @param a - First value
  * @param b - Second value
  * @returns Smaller of the two values
- *
- * @example
- * ```typescript
- * const maxAffordable = minBigInt(balance, maxTokens)
- * const safeAmount = minBigInt(requestedAmount, availableLiquidity)
- * ```
  */
 export function minBigInt(a: bigint, b: bigint): bigint {
   return a < b ? a : b
@@ -172,12 +112,6 @@ export function minBigInt(a: bigint, b: bigint): bigint {
  * @param a - First value
  * @param b - Second value
  * @returns Larger of the two values
- *
- * @example
- * ```typescript
- * const minimumFee = maxBigInt(calculatedFee, minimumFeeRequired)
- * const betterPrice = maxBigInt(currentPrice, reservePrice)
- * ```
  */
 export function maxBigInt(a: bigint, b: bigint): bigint {
   return a > b ? a : b
@@ -190,14 +124,7 @@ export function maxBigInt(a: bigint, b: bigint): bigint {
  * @param min - Minimum allowed value
  * @param max - Maximum allowed value
  * @returns Clamped value
- *
  * @throws Error if min > max
- *
- * @example
- * ```typescript
- * const safeAmount = clampBigInt(userInput, 1000n, 1000000n)
- * const validSlippage = clampBigInt(slippage, 0n, 10000n) // 0-100%
- * ```
  */
 export function clampBigInt(value: bigint, min: bigint, max: bigint): bigint {
   if (min > max) {
@@ -212,12 +139,6 @@ export function clampBigInt(value: bigint, min: bigint, max: bigint): bigint {
  * @param a - First value
  * @param b - Second value
  * @returns Absolute difference |a - b|
- *
- * @example
- * ```typescript
- * const priceGap = absDiff(bidPrice, askPrice)
- * const slippageAmount = absDiff(expectedPrice, actualPrice)
- * ```
  */
 export function absDiff(a: bigint, b: bigint): bigint {
   return a > b ? a - b : b - a
@@ -228,14 +149,7 @@ export function absDiff(a: bigint, b: bigint): bigint {
  *
  * @param value - Value to calculate square root for
  * @returns Integer square root (floor)
- *
  * @throws Error if value is negative
- *
- * @example
- * ```typescript
- * const root = sqrtBigInt(1000000n) // Returns 1000n
- * const geometricMean = sqrtBigInt(a * b) // Geometric mean of two values
- * ```
  */
 export function sqrtBigInt(value: bigint): bigint {
   if (value < 0n) {
@@ -263,12 +177,6 @@ export function sqrtBigInt(value: bigint): bigint {
  * @param decimals - Number of decimal places
  * @param precision - Number of decimal places to display (default: 6)
  * @returns Formatted string representation
- *
- * @example
- * ```typescript
- * const formatted = formatBigInt(1500000000n, 9, 4) // "1.5000 SOL"
- * const price = formatBigInt(123456789n, 6, 2) // "123.46 USDC"
- * ```
  */
 export function formatBigInt(value: bigint, decimals: number, precision = 6): string {
   const divisor = BigInt(10 ** decimals)
@@ -282,18 +190,57 @@ export function formatBigInt(value: bigint, decimals: number, precision = 6): st
 }
 
 /**
+ * Formats a number into abbreviated form (K, M, B, T, ...).
+ *
+ * Converts large numbers into human-readable format with appropriate suffixes.
+ * Supports both number and bigint inputs with locale-specific formatting.
+ *
+ * @param {number | bigint} value - Number to format (number or bigint)
+ * @param {number} [decimals=1] - Number of decimal places to display
+ * @param {string} [locale='en-US'] - Locale for formatting (e.g. 'en-US', 'vi-VN')
+ * @returns {string} Readable abbreviated string, e.g. 1.2K, 3.5M, 7B
+ *
+ * @example
+ * ```typescript
+ * abbreviateNumber(1234567) // '1.2M'
+ * abbreviateNumber(1234567, 2, 'vi-VN') // '1,23M'
+ * ```
+ */
+export function abbreviateNumber(
+  value: number | bigint,
+  decimals: number = 1,
+  locale: string = 'en-US'
+): string {
+  const numb = Number(value)
+  if (Number.isNaN(numb)) return String(value)
+
+  const units: [number, string][] = [
+    [1e12, 'T'],
+    [1e9, 'B'],
+    [1e6, 'M'],
+    [1e3, 'K'],
+  ]
+
+  for (const [threshold, suffix] of units) {
+    if (Math.abs(numb) >= threshold) {
+      const formatted = (numb / threshold).toLocaleString(locale, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: decimals,
+      })
+      return `${formatted}${suffix}`
+    }
+  }
+
+  return numb.toLocaleString(locale)
+}
+
+/**
  * Interpolates between two BigInt values
  *
  * @param start - Starting value
  * @param end - Ending value
  * @param factor - Interpolation factor (0.0 to 1.0)
  * @returns Interpolated value
- *
- * @example
- * ```typescript
- * const midPrice = interpolate(minPrice, maxPrice, 0.5) // 50% between min and max
- * const gradualIncrease = interpolate(currentAmount, targetAmount, 0.1) // 10% towards target
- * ```
  */
 export function interpolate(start: bigint, end: bigint, factor: number): bigint {
   const clampedFactor = Math.max(0, Math.min(1, factor))

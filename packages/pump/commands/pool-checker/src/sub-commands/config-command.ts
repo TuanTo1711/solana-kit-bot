@@ -1,4 +1,4 @@
-import { formatUnits, wrapEscHandler } from '@solana-kit-bot/core'
+import { abbreviateNumber, wrapEscHandler } from '@solana-kit-bot/core'
 import chalk from 'chalk'
 import CliTable3 from 'cli-table3'
 import { Command, type BaseContext } from 'clipanion'
@@ -89,7 +89,7 @@ export class ConfigCommand extends Command<BaseContext & PoolCheckerConfigContex
     configs.forEach((config, index) => {
       cliTable.push([
         index + 1,
-        formatUnits(Number(config.target) / 10 ** 6),
+        abbreviateNumber(Number(config.target) / 10 ** 6),
         config.hasBoost ? '✅' : '❌',
         config.totalBoost ?? 'N/A',
         config.hasImage ? '✅' : '❌',
@@ -216,7 +216,7 @@ export class ConfigCommand extends Command<BaseContext & PoolCheckerConfigContex
     const prompt = inquirer.default.prompt
 
     const choices = configs.map((config, index) => ({
-      name: `Config ${index + 1}: Target=${formatUnits(Number(config.target) / 10 ** 6)}, Amount=${Number(config.amount) / 10 ** 9} SOL`,
+      name: `Config ${index + 1}: Target=${abbreviateNumber(Number(config.target) / 10 ** 6)}, Amount=${Number(config.amount) / 10 ** 9} SOL`,
       value: config,
     }))
 

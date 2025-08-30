@@ -1,10 +1,9 @@
-/**
- * @fileoverview Fixed price strategy - Always returns the same price
- */
-
-import { AbstractPriceStrategy } from './price-strategy'
+import { AbstractPriceStrategy } from '~/abstract'
 import type { PriceContext, PriceResult, PriceStrategyConfig } from '~/types'
 
+/**
+ * Configuration for Fixed Price Strategy
+ */
 export interface FixedPriceConfig extends PriceStrategyConfig {
   /** Fixed price to always return */
   fixedPrice: number
@@ -12,11 +11,29 @@ export interface FixedPriceConfig extends PriceStrategyConfig {
 
 /**
  * Fixed Price Strategy
- * Always returns the same predetermined price
+ *
+ * A simple pricing strategy that always returns the same predetermined price
+ * regardless of iteration count or context. This strategy provides maximum
+ * predictability and consistency.
+ *
+ * @example
+ * ```typescript
+ * const fixedStrategy = new FixedPriceStrategy({
+ *   fixedPrice: 0.05
+ * })
+ *
+ * const result = fixedStrategy.calculatePrice({ iteration: 10 })
+ * console.log(result.price) // Always 0.05
+ * ```
  */
 export class FixedPriceStrategy extends AbstractPriceStrategy {
   private fixedPrice: number
 
+  /**
+   * Creates a new Fixed Price Strategy instance
+   *
+   * @param config - Configuration object containing the fixed price
+   */
   constructor(config: FixedPriceConfig) {
     super('FixedPrice', {
       maxPrice: config.fixedPrice,
@@ -26,27 +43,32 @@ export class FixedPriceStrategy extends AbstractPriceStrategy {
     this.fixedPrice = config.fixedPrice
   }
 
+  /**
+   * Calculates the price for the current iteration
+   *
+   * @param context - Current pricing context (ignored in fixed strategy)
+   * @returns Price result with the fixed price and maximum confidence
+   */
   calculatePrice(context: PriceContext): PriceResult {
-    return this.createResult(
-      this.fixedPrice,
-      1.0, // Maximum confidence since it's fixed
-      `Fixed price: ${this.fixedPrice}`,
-      {
-        strategy: 'fixed',
-        iteration: context.iteration,
-      }
-    )
+    return this.createResult(this.fixedPrice, 1.0, `Fixed price: ${this.fixedPrice}`, {
+      strategy: 'fixed',
+      iteration: context.iteration,
+    })
   }
 
   /**
-   * Update the fixed price
+   * Updates the fixed price value
+   *
+   * @param price - New fixed price to use
    */
   setFixedPrice(price: number): void {
     this.fixedPrice = price
   }
 
   /**
-   * Get current fixed price
+   * Retrieves the current fixed price
+   *
+   * @returns The current fixed price value
    */
   getFixedPrice(): number {
     return this.fixedPrice

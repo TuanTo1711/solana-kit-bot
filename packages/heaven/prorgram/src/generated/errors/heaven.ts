@@ -180,7 +180,7 @@ export type HeavenError =
   | typeof HEAVEN_ERROR__ZERO_AMOUNT
 
 let heavenErrorMessages: Record<HeavenError, string> | undefined
-if (process.env.NODE_ENV !== 'production') {
+if (process.env['NODE_ENV'] !== 'production') {
   heavenErrorMessages = {
     [HEAVEN_ERROR__ADD_LIQUIDITY_DISABLED]: `Add liquidity is disabled`,
     [HEAVEN_ERROR__CANNOT_CLAIM_SWAP_FEE]: `Cannot claim swap fee`,
@@ -240,7 +240,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 export function getHeavenErrorMessage(code: HeavenError): string {
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env['NODE_ENV'] !== 'production') {
     return (heavenErrorMessages as Record<HeavenError, string>)[code]
   }
 

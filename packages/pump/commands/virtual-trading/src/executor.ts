@@ -3,12 +3,12 @@
  */
 
 import {
-  IterationRunner,
+  IterationExecutor,
+  type ExecutorResult,
   type PriceStrategy,
-  type RunnerResult,
   type SolanaBotContext,
 } from '@solana-kit-bot/core'
-import type { PoolKeys, RaydiumCpmmClient } from '@solana-kit-bot/raydium-cpmm'
+import type { PoolKeys, PumpswapClient } from '@solana-kit-bot/pumpswap'
 
 import { PerformanceMonitor } from './performance-monitor'
 import { PoolMonitor } from './pool-monitor'
@@ -23,7 +23,7 @@ import type { VirtualTradingOptions } from './validation'
  * and then automatically executes sell transactions after a specified timeout.
  * It supports per-signer pricing strategies for randomized trading patterns.
  */
-export class VirtualWalletTradingRunner extends IterationRunner {
+export class VirtualWalletTradingExecutor extends IterationExecutor {
   private poolKeys: PoolKeys | null = null
   private readonly poolMonitor = new PoolMonitor()
   private readonly tradingOps: TradingOperations
@@ -34,7 +34,7 @@ export class VirtualWalletTradingRunner extends IterationRunner {
     private readonly context: SolanaBotContext,
     private readonly options: VirtualTradingOptions,
     private readonly priceStrategy: PriceStrategy,
-    private readonly raydiumClient: RaydiumCpmmClient
+    private readonly client: PumpswapClient
   ) {
     super({
       gracefulShutdown: false,
@@ -43,7 +43,7 @@ export class VirtualWalletTradingRunner extends IterationRunner {
       stopOnError: false,
     })
 
-    this.tradingOps = new TradingOperations(raydiumClient, this.poolMonitor)
+    this.tradingOps = new TradingOperations(client, this.poolMonitor)
   }
 
   /**
@@ -53,7 +53,7 @@ export class VirtualWalletTradingRunner extends IterationRunner {
     try {
       console.log('🚀 Initializing virtual trading runner...')
 
-      this.poolKeys = await this.raydiumClient.fetchPoolKeys(this.options.pool)
+      this.poolKeys = await this.client.fetchPoolKeys(this.options.pool)
       await this.poolMonitor.subscribeToPoolUpdates(this.context, this.poolKeys)
 
       // Start performance monitoring
@@ -69,7 +69,7 @@ export class VirtualWalletTradingRunner extends IterationRunner {
   /**
    * Override execute để thêm custom completion messaging
    */
-  override async execute(context: SolanaBotContext): Promise<RunnerResult> {
+  override async execute(context: SolanaBotContext): Promise<ExecutorResult> {
     try {
       const result = await super.execute(context)
       return result
@@ -84,7 +84,7 @@ export class VirtualWalletTradingRunner extends IterationRunner {
   override async executeIteration(
     context: SolanaBotContext,
     iteration: number
-  ): Promise<RunnerResult> {
+  ): Promise<ExecutorResult> {
     const startTime = Date.now()
 
     // Validate pool keys are available
@@ -117,7 +117,9 @@ export class VirtualWalletTradingRunner extends IterationRunner {
       }
 
       // Schedule sell phase
-      this.scheduleSellPhase(context, buyResult, timeout)
+      if (timeout > 0) {
+        this.scheduleSellPhase(context, buyResult, timeout)
+      }
 
       // Record successful iteration
       const duration = Date.now() - startTime
@@ -247,5 +249,5 @@ export const createVirtualWalletTradingRunner = (
   context: SolanaBotContext,
   options: VirtualTradingOptions,
   priceStrategy: PriceStrategy,
-  raydiumClient: RaydiumCpmmClient
-) => new VirtualWalletTradingRunner(context, options, priceStrategy, raydiumClient)
+  raydiumClient: PumpswapClient
+) => new VirtualWalletTradingExecutor(context, options, priceStrategy, raydiumClient)

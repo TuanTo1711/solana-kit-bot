@@ -1,8 +1,4 @@
-/**
- * @fileoverview Random percentage strategy - Adjusts price by random percentage from base price
- */
-
-import { AbstractPriceStrategy } from './price-strategy'
+import { AbstractPriceStrategy } from '~/abstract'
 import type { PriceContext, PriceResult, PriceStrategyConfig } from '~/types'
 
 export interface RandomPercentageConfig extends PriceStrategyConfig {
@@ -20,7 +16,24 @@ export interface RandomPercentageConfig extends PriceStrategyConfig {
 
 /**
  * Random Percentage Strategy
- * Adjusts price by a random percentage from a base price
+ *
+ * Adjusts price by a random percentage from a base price. The strategy generates
+ * a random percentage between the configured min and max values and applies it
+ * to either a fixed base price or the previous price from context.
+ *
+ * @example
+ * ```typescript
+ * const strategy = new RandomPercentageStrategy({
+ *   basePrice: 100,
+ *   minPercentage: -10,
+ *   maxPercentage: 15,
+ *   usePreviousPrice: true,
+ *   fallbackBasePrice: 100
+ * })
+ *
+ * const result = strategy.calculatePrice(context)
+ * // Returns price with random adjustment between -10% and +15%
+ * ```
  */
 export class RandomPercentageStrategy extends AbstractPriceStrategy {
   private basePrice: number
@@ -38,8 +51,13 @@ export class RandomPercentageStrategy extends AbstractPriceStrategy {
     this.fallbackBasePrice = config.fallbackBasePrice || config.basePrice
   }
 
+  /**
+   * Calculate new price with random percentage adjustment
+   *
+   * @param context - Price calculation context containing previous price and iteration info
+   * @returns Price result with calculated price, confidence, and metadata
+   */
   calculatePrice(context: PriceContext): PriceResult {
-    // Determine base price
     let currentBasePrice = this.basePrice
 
     if (this.usePreviousPrice && context.previousPrice !== undefined) {
@@ -48,17 +66,14 @@ export class RandomPercentageStrategy extends AbstractPriceStrategy {
       currentBasePrice = this.fallbackBasePrice
     }
 
-    // Generate random percentage
     const percentageRange = this.maxPercentage - this.minPercentage
     const randomPercentage = this.minPercentage + Math.random() * percentageRange
 
-    // Calculate new price
     const priceChange = currentBasePrice * (randomPercentage / 100)
     const newPrice = currentBasePrice + priceChange
 
-    // Calculate confidence based on how close to base price
     const changeRatio = Math.abs(priceChange) / currentBasePrice
-    const confidence = Math.max(0.1, 1 - changeRatio) // Lower confidence for bigger changes
+    const confidence = Math.max(0.1, 1 - changeRatio)
 
     return this.createResult(
       newPrice,
@@ -76,21 +91,29 @@ export class RandomPercentageStrategy extends AbstractPriceStrategy {
   }
 
   /**
-   * Update base price
+   * Update the base price used for percentage calculations
+   *
+   * @param price - New base price
    */
   setBasePrice(price: number): void {
     this.basePrice = price
   }
 
   /**
-   * Get current base price
+   * Get the current base price
+   *
+   * @returns Current base price
    */
   getBasePrice(): number {
     return this.basePrice
   }
 
   /**
-   * Update percentage range
+   * Update the percentage range for random adjustments
+   *
+   * @param min - Minimum percentage (can be negative)
+   * @param max - Maximum percentage
+   * @throws Error if min > max
    */
   setPercentageRange(min: number, max: number): void {
     if (min > max) {
@@ -101,7 +124,9 @@ export class RandomPercentageStrategy extends AbstractPriceStrategy {
   }
 
   /**
-   * Get current percentage range
+   * Get the current percentage range
+   *
+   * @returns Object containing min and max percentage values
    */
   getPercentageRange(): { min: number; max: number } {
     return {
@@ -111,28 +136,36 @@ export class RandomPercentageStrategy extends AbstractPriceStrategy {
   }
 
   /**
-   * Enable/disable using previous price as base
+   * Enable or disable using previous price as base
+   *
+   * @param use - Whether to use previous price from context
    */
   setUsePreviousPrice(use: boolean): void {
     this.usePreviousPrice = use
   }
 
   /**
-   * Check if using previous price as base
+   * Check if strategy is configured to use previous price as base
+   *
+   * @returns True if using previous price, false otherwise
    */
   isUsingPreviousPrice(): boolean {
     return this.usePreviousPrice
   }
 
   /**
-   * Set fallback base price
+   * Set the fallback base price used when previous price is unavailable
+   *
+   * @param price - Fallback base price
    */
   setFallbackBasePrice(price: number): void {
     this.fallbackBasePrice = price
   }
 
   /**
-   * Get fallback base price
+   * Get the current fallback base price
+   *
+   * @returns Current fallback base price
    */
   getFallbackBasePrice(): number {
     return this.fallbackBasePrice

@@ -39,6 +39,7 @@ export const PUMP_AMM_PROGRAM_ADDRESS =
 
 export enum PumpAmmAccount {
   BondingCurve,
+  FeeConfig,
   GlobalConfig,
   GlobalVolumeAccumulator,
   Pool,
@@ -59,6 +60,17 @@ export function identifyPumpAmmAccount(
     )
   ) {
     return PumpAmmAccount.BondingCurve
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([143, 52, 146, 187, 219, 123, 76, 155])
+      ),
+      0
+    )
+  ) {
+    return PumpAmmAccount.FeeConfig
   }
   if (
     containsBytes(

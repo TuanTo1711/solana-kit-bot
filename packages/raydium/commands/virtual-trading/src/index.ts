@@ -4,10 +4,8 @@ import {
   FixedPriceStrategy,
   RandomPriceStrategy,
   wrapEscHandler,
-  globalSignalHandler,
   type PriceStrategy,
   type SolanaBotContext,
-  RunnerState,
 } from '@solana-kit-bot/core'
 import { createRaydiumCpmmClient } from '@solana-kit-bot/raydium-cpmm'
 import chalk from 'chalk'
@@ -18,7 +16,7 @@ import {
   DEFAULT_TIP_SOL,
   LAMPORTS_PER_SOL,
 } from './constants'
-import { globalVirtualTradingController } from './controllers/virtual-trading-controller'
+import { VirtualWalletTradingExecutor } from './executor'
 
 export class VirtualTradingCommand extends Command<BaseContext & SolanaBotContext> {
   pool = Option.String('-p,--pool', { description: 'Địa chỉ pool để chạy lệnh', required: false })
@@ -179,15 +177,15 @@ export class VirtualTradingCommand extends Command<BaseContext & SolanaBotContex
     )
 
     const answers = await wrapEscHandler<typeof questions>(questions)
-    const result = virtualTradingOptionsSchema.safeParse(answers)
-    if (!result.success) {
-      this.context.stderr.write(result.error)
+    const { success, data, error } = virtualTradingOptionsSchema.safeParse(answers)
+    if (!success) {
+      this.context.stderr.write(error)
       return
     }
 
-    this.printPrettyConfig(result.data)
+    this.printPrettyConfig(data)
 
-    const priceStrategy = this.initializePricingStrategy(result.data)
+    const priceStrategy = this.initializePricingStrategy(data)
 
     if (!priceStrategy) {
       this.context.stderr.write('Chiến lược định giá không hợp lệ')
@@ -207,43 +205,21 @@ export class VirtualTradingCommand extends Command<BaseContext & SolanaBotContex
     }
 
     const raydiumClient = createRaydiumCpmmClient(this.context.provider.rpc)
-
-    // Initialize controller with dependencies
-    await globalVirtualTradingController.initialize(result.data, priceStrategy, raydiumClient)
-
-    // Setup signal handlers để có thể dừng bằng Ctrl+C
-    console.log('🎯 Khởi động runner với signal handling...')
-    console.log('💡 Nhấn Ctrl+C để dừng runner và quay về menu chính')
-    console.log('')
-
-    globalSignalHandler.setRunnerController(globalVirtualTradingController)
-    globalSignalHandler.setupSignalHandlers()
-
+    const executor = new VirtualWalletTradingExecutor(
+      this.context,
+      data,
+      priceStrategy,
+      raydiumClient
+    )
     try {
-      // Sử dụng runner controller với foreground mode
-      await globalVirtualTradingController.start(this.context, true)
+      await executor.setup()
+      const result = await executor.execute(this.context)
 
-      console.log('🏁 Runner đã hoàn thành tất cả iterations!')
+      this.context.logger.info(result.data ?? 'Lệnh chạy thành công')
     } catch (error) {
-      // Nếu có lỗi, cleanup gracefully
       this.context.stderr.write('Lỗi khi chạy virtual trading: ')
 
-      // Cố gắng stop runner nếu nó đang chạy
-      const status = globalVirtualTradingController.getStatus()
-      if (status.state === RunnerState.RUNNING) {
-        console.log('🔄 Đang cleanup runner...')
-        try {
-          await globalVirtualTradingController.stop()
-        } catch (stopError) {
-          console.error('❌ Cleanup error:', stopError)
-        }
-      }
-
       throw error
-    } finally {
-      // Luôn restore signal handlers khi xong
-      globalSignalHandler.restoreSignalHandlers()
-      console.log('🔙 Đã quay về menu chính')
     }
   }
 

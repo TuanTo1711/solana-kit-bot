@@ -3,8 +3,10 @@ import { findAssociatedTokenPda, TOKEN_PROGRAM_ADDRESS } from '@solana-program/t
 import { address } from '@solana/addresses'
 import {
   catchError,
+  distinct,
   EMPTY,
   filter,
+  forkJoin,
   from,
   map,
   mergeMap,
@@ -57,20 +59,22 @@ export class PoolMonitor {
             e.baseMint !== address('So11111111111111111111111111111111111111112')
         ),
         mergeMap(event =>
-          from(
-            Promise.all([
+          forkJoin([
+            from(
               findAssociatedTokenPda({
                 mint: event.baseMint,
                 owner: event.pool,
                 tokenProgram: TOKEN_PROGRAM_ADDRESS,
-              }),
+              })
+            ),
+            from(
               findAssociatedTokenPda({
                 mint: event.quoteMint,
                 owner: event.pool,
                 tokenProgram: TOKEN_PROGRAM_ADDRESS,
-              }),
-            ])
-          ).pipe(
+              })
+            ),
+          ]).pipe(
             map(([[poolBaseTokenAccount], [poolQuoteTokenAccount]]) => ({
               baseMint: event.baseMint,
               coinCreator: event.coinCreator,
@@ -90,7 +94,8 @@ export class PoolMonitor {
               return EMPTY
             })
           )
-        )
+        ),
+        distinct(e => e.pool)
       )
       .subscribe({
         next: poolEvent => {

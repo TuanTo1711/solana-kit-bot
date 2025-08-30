@@ -1,16 +1,21 @@
 {
-  "name": "prorgram",
+  "name": "@solana-kit-bot/heaven-program",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Heaven program for Solana Blockchain",
+  "type": "module",
+  "main": "dist/index.js",
   "scripts": {
     "update": "pnpm update",
     "build": "tsup",
     "check-types": "npx tsc --noEmit",
     "clean": "rimraf dist"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "solana",
+    "bot",
+    "heaven"
+  ],
+  "author": "Yuuta - To Hoang Tuan",
   "license": "ISC",
   "packageManager": "pnpm@10.14.0",
   "dependencies": {

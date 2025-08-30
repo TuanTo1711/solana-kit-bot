@@ -1,4 +1,4 @@
-import { formatUnits, wrapEscHandler, type SolanaBotContext } from '@solana-kit-bot/core'
+import { abbreviateNumber, wrapEscHandler, type SolanaBotContext } from '@solana-kit-bot/core'
 import Table from 'cli-table3'
 import { Command, type BaseContext } from 'clipanion'
 import type { ConfigService } from '../services/ConfigService'
@@ -78,7 +78,7 @@ export class PoolCheckerConfigCommand extends Command<PoolCheckerConfigContext> 
     configs.forEach((config, index) => {
       cliTable.push([
         index + 1,
-        formatUnits(Number(config.target) / 10 ** 6),
+        abbreviateNumber(Number(config.target) / 10 ** 6),
         config.hasBoost ? '✅' : '❌',
         config.totalBoost ?? 'N/A',
         config.hasImage ? '✅' : '❌',

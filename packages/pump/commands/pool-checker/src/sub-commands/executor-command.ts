@@ -4,7 +4,7 @@ import chalk from 'chalk'
 import { Command, type BaseContext } from 'clipanion'
 import { combineLatest, filter, map, Subscription, withLatestFrom } from 'rxjs'
 
-import { formatUnits, wrapEscHandler, type SolanaBotContext } from '@solana-kit-bot/core'
+import { abbreviateNumber, wrapEscHandler, type SolanaBotContext } from '@solana-kit-bot/core'
 import { computeBuyQuoteIn, type PoolKeys, type PumpswapClient } from '@solana-kit-bot/pumpswap'
 
 import type { Config } from '~/database/client'
@@ -87,7 +87,7 @@ export class ExecutorCommand extends Command<BaseContext & ExecutorContext> {
     const inquirer = await import('inquirer')
     const prompt = inquirer.default.prompt
     const choices = configs.map((c, index) => {
-      const formattedTarget = formatUnits(Number(c.target) / 10 ** 6)
+      const formattedTarget = abbreviateNumber(Number(c.target) / 10 ** 6)
       const boosted = c.hasBoost ? '- Có boost' : '- Không boost'
       const imaged = c.hasImage ? '- Có ảnh' : '- Không ảnh'
       const totalBoosted = c.hasBoost && c.totalBoost ? `- Tổng boost: ${c.totalBoost}` : ''
@@ -147,7 +147,7 @@ export class ExecutorCommand extends Command<BaseContext & ExecutorContext> {
 
     // Log cấu hình sau khi xác nhận
     console.log('🚀 Bắt đầu chạy với cấu hình:')
-    console.log(`   📊 Mục tiêu: ${formatUnits(Number(config.target) / 10 ** 6)}`)
+    console.log(`   📊 Mục tiêu: ${abbreviateNumber(Number(config.target) / 10 ** 6)}`)
     console.log(`   💰 Số tiền: ${Number(config.amount) / 10 ** 9} SOL`)
     console.log(`   📈 Lợi nhuận: ${config.profitSell}%`)
     console.log(`   💡 Tip: ${Number(config.jitoTip) / 10 ** 9} SOL`)
@@ -284,9 +284,9 @@ export class ExecutorCommand extends Command<BaseContext & ExecutorContext> {
   ) {
     try {
       const { pumpswapClient, transactionManager, payer } = this.context
-      const { maxQuote, base } = computeBuyQuoteIn({
+      const { base } = computeBuyQuoteIn({
         quote: config.amount,
-        slippage: 5,
+        slippage: 1,
         baseReserve: baseAmount,
         quoteReserve: quoteAmount,
         coinCreator: poolKeys.coinCreator,
@@ -296,7 +296,7 @@ export class ExecutorCommand extends Command<BaseContext & ExecutorContext> {
         {
           amountOut: base,
           buyer: payer,
-          maxAmountIn: maxQuote,
+          maxAmountIn: config.amount,
           poolKeys: poolKeys,
         },
         { hasBaseAta: false, hasQuoteAta: false }
@@ -310,6 +310,7 @@ export class ExecutorCommand extends Command<BaseContext & ExecutorContext> {
             payer,
             {
               senderTip: Math.max(tip, Number(config.jitoTip) / 10 ** 9),
+              priorityFeeLevel: 'recommended',
             }
           )
 
@@ -325,8 +326,7 @@ export class ExecutorCommand extends Command<BaseContext & ExecutorContext> {
                 await this.context.telegramService.notifyBuySuccess({
                   poolAddress: poolKeys.pool,
                   baseMint: poolKeys.baseMint,
-                  baseAmount: base,
-                  quoteAmount: maxQuote,
+                  payer: payer.address,
                   txSignature: result,
                 })
               }

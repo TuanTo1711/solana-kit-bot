@@ -33,13 +33,13 @@
     "decimal.js": "^10.6.0",
     "figlet": "^1.8.2",
     "gradient-string": "^3.0.0",
-    "inquirer": "^12.9.3",
+    "inquirer": "^12.9.4",
     "rxjs": "^7.8.2",
-    "zod": "^4.0.17"
+    "zod": "^4.1.5"
   },
   "devDependencies": {
     "@types/figlet": "^1.7.0",
-    "prisma": "^6.14.0",
+    "prisma": "^6.15.0",
     "rimraf": "^6.0.1",
     "tsup": "^8.5.0"
   }

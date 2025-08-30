@@ -1,17 +1,13 @@
-/**
- * @fileoverview Abstract iterative runner for repeated command execution
- */
-
 import type {
-  AsyncCommandRunner,
-  RunnerResult,
+  AsyncCommandExecutor,
+  CommandExecutorConfig,
   ExecutionContext,
   ExecutionStrategy,
-  RunnerConfig,
+  ExecutorResult,
   SolanaBotContext,
   TimingStrategy,
 } from '~/types'
-import { BaseRunner } from './base'
+import { BaseExecutor } from './base-executor'
 
 /**
  * Abstract base class for iterative command runners
@@ -28,30 +24,19 @@ import { BaseRunner } from './base'
  * - Progress monitoring and reporting
  *
  * @abstract
- * @extends BaseRunner
- * @implements AsyncCommandRunner
+ * @extends BaseExecutor
+ * @implements AsyncCommandExecutor
  */
-export abstract class IterableRunner extends BaseRunner implements AsyncCommandRunner {
-  /** Flag indicating if the runner is currently executing */
+export abstract class IterableExecutor extends BaseExecutor implements AsyncCommandExecutor {
   protected _isRunning = false
-
-  /** Current execution context containing iteration state and metrics */
   protected executionContext: ExecutionContext
-
-  /** Strategy for controlling execution flow and error handling */
   protected strategy: ExecutionStrategy
-
-  /** Strategy for controlling execution timing and scheduling */
   protected timing: TimingStrategy
-
-  /** Timer ID for scheduled executions, used for cancellation */
   protected intervalId?: NodeJS.Timeout | undefined
-
-  /** Cleanup callbacks to run on cancellation */
   private readonly cleanupCallbacks: Array<() => void> = []
 
   /**
-   * Creates a new AbstractIterativeRunner instance
+   * Creates a new IterableExecutor instance
    *
    * Initializes the runner with command configuration, execution strategy, and timing strategy.
    * The execution context is created with initial values for tracking iterations and state.
@@ -60,7 +45,7 @@ export abstract class IterableRunner extends BaseRunner implements AsyncCommandR
    * @param strategy - Execution strategy for controlling iteration flow
    * @param timing - Timing strategy for controlling execution scheduling
    */
-  constructor(config: RunnerConfig, strategy: ExecutionStrategy, timing: TimingStrategy) {
+  constructor(config: CommandExecutorConfig, strategy: ExecutionStrategy, timing: TimingStrategy) {
     super(config)
     this.strategy = strategy
     this.timing = timing
@@ -79,7 +64,7 @@ export abstract class IterableRunner extends BaseRunner implements AsyncCommandR
    * @param iteration - Current iteration number (1-based)
    * @returns Promise resolving to the command result
    */
-  abstract executeIteration(context: SolanaBotContext, iteration: number): Promise<RunnerResult>
+  abstract executeIteration(context: SolanaBotContext, iteration: number): Promise<ExecutorResult>
 
   /**
    * Executes the iterative command loop
@@ -91,53 +76,80 @@ export abstract class IterableRunner extends BaseRunner implements AsyncCommandR
    * @param context - The command execution context
    * @returns Promise resolving to the final command result
    */
-  async execute(context: SolanaBotContext): Promise<RunnerResult> {
+  async execute(context: SolanaBotContext): Promise<ExecutorResult> {
     this._isRunning = true
     this.executionContext = this.createInitialContext()
 
     try {
       await this.validate(context)
       await this.runIterativeLoop(context)
-      return this.createSuccessResult(
-        `${this.constructor.name} completed. Total executions: ${this.executionContext.totalExecutions}`
-      )
+
+      const totalTime = Date.now() - this.executionContext.startTime
+      const successMessage = [
+        `${this.constructor.name} completed successfully.`,
+        `Total executions: ${this.executionContext.totalExecutions}`,
+        '',
+        `Successful: ${this.executionContext.successfulExecutions}`,
+        `Failed: ${this.executionContext.failedExecutions}`,
+        `Total time: ${totalTime}ms`,
+      ].join('\n')
+
+      context.logger.info(successMessage)
+      return this.createSuccessResult(successMessage)
     } catch (error) {
+      const errorMessage = `${this.constructor.name} failed after ${this.executionContext.totalExecutions} executions: ${(error as Error).message}`
+      context.logger.error(errorMessage, {
+        totalExecutions: this.executionContext.totalExecutions,
+        successfulExecutions: this.executionContext.successfulExecutions,
+        failedExecutions: this.executionContext.failedExecutions,
+        currentIteration: this.executionContext.currentIteration,
+        error: (error as Error).stack,
+      })
       return this.createErrorResult(error as Error)
     }
   }
 
   /**
    * Cancels the currently running command
+   *
+   * Performs cleanup operations including clearing timers, running cleanup callbacks,
+   * and resetting execution context for memory management.
+   *
    * @returns Promise that resolves when cancellation is complete
    */
   async cancel(): Promise<void> {
+    console.info(
+      `${this.constructor.name}: Cancelling execution (iteration: ${this.executionContext.currentIteration})`
+    )
+
     this._isRunning = false
     this.executionContext.isRunning = false
 
-    // Clear any pending timers
     if (this.intervalId) {
       clearTimeout(this.intervalId)
       this.intervalId = undefined
+      console.debug(`${this.constructor.name}: Cleared pending timeout`)
     }
 
-    // Run all cleanup callbacks
+    console.debug(
+      `${this.constructor.name}: Running ${this.cleanupCallbacks.length} cleanup callbacks`
+    )
     for (const callback of this.cleanupCallbacks) {
       try {
         callback()
       } catch (error) {
-        console.warn('Cleanup callback failed:', error)
+        console.warn(`${this.constructor.name}: Cleanup callback failed:`, error)
       }
     }
 
-    // Clear cleanup callbacks
     this.cleanupCallbacks.length = 0
-
-    // Force garbage collection hint for execution context
     this.resetExecutionContext()
+    console.info(`${this.constructor.name}: Cancellation completed`)
   }
 
   /**
    * Register a cleanup callback to run on cancellation
+   *
    * @param callback - Function to call during cleanup
    */
   protected addCleanupCallback(callback: () => void): void {
@@ -146,7 +158,6 @@ export abstract class IterableRunner extends BaseRunner implements AsyncCommandR
 
   /**
    * Reset execution context for memory cleanup
-   * @private
    */
   private resetExecutionContext(): void {
     this.executionContext = {
@@ -160,6 +171,7 @@ export abstract class IterableRunner extends BaseRunner implements AsyncCommandR
 
   /**
    * Gets the current progress of the operation
+   *
    * @returns Progress value (0-1) or -1 for indeterminate
    */
   getProgress(): number {
@@ -168,6 +180,7 @@ export abstract class IterableRunner extends BaseRunner implements AsyncCommandR
 
   /**
    * Checks if the runner is currently executing
+   *
    * @returns True if the runner is currently active
    */
   isRunning(): boolean {
@@ -205,7 +218,6 @@ export abstract class IterableRunner extends BaseRunner implements AsyncCommandR
    * Initializes a new execution context with default values for tracking
    * iteration state, timing, errors, and execution metrics.
    *
-   * @private
    * @returns New execution context with initial values
    */
   private createInitialContext(): ExecutionContext {
@@ -234,28 +246,30 @@ export abstract class IterableRunner extends BaseRunner implements AsyncCommandR
    * - An unrecoverable error occurs
    * - The runner is cancelled externally
    *
-   * @private
    * @param context - The command execution context
    * @returns Promise that resolves when the loop completes
    */
   private async runIterativeLoop(context: SolanaBotContext): Promise<void> {
+    context.logger.info(`${this.constructor.name}: Starting iterative loop`)
+
     return new Promise((resolve, reject) => {
       const executeNext = async () => {
-        // Check if execution should continue (cancellation or external stop)
         if (!this._isRunning || !this.executionContext.isRunning) {
+          context.logger.info(`${this.constructor.name}: Loop stopped - execution not active`)
           resolve()
           return
         }
 
-        // Check if strategy allows continuation (max iterations, conditions, etc.)
         if (!this.strategy.shouldContinue(this.executionContext)) {
           this._isRunning = false
           this.executionContext.isRunning = false
+          context.logger.info(
+            `${this.constructor.name}: Loop completed - strategy determined to stop`
+          )
           resolve()
           return
         }
 
-        // Check if timing strategy allows execution now
         if (!this.timing.shouldExecuteNow(this.executionContext)) {
           const delay = this.timing.getNextExecutionDelay(this.executionContext)
           this.intervalId = setTimeout(executeNext, delay)
@@ -263,8 +277,10 @@ export abstract class IterableRunner extends BaseRunner implements AsyncCommandR
         }
 
         try {
-          // Increment iteration counter and execute
           this.executionContext.currentIteration++
+          context.logger.debug(
+            `${this.constructor.name}: Starting iteration ${this.executionContext.currentIteration}`
+          )
 
           const iterationStartTime = Date.now()
           const result = await this.executeIteration(
@@ -273,68 +289,143 @@ export abstract class IterableRunner extends BaseRunner implements AsyncCommandR
           )
           const iterationEndTime = Date.now()
 
-          // Update execution context
-          this.executionContext.recentResults.push(result)
-          if (this.executionContext.recentResults.length > 10) {
-            this.executionContext.recentResults.shift() // Keep only last 10 results
-          }
+          this.handleIterationSuccess(context, result, iterationStartTime, iterationEndTime)
 
-          this.executionContext.totalExecutions++
-          this.executionContext.lastExecutionTime = iterationEndTime
-          this.executionContext.totalExecutionTime += iterationEndTime - iterationStartTime
-
-          if (result.success) {
-            this.executionContext.successfulExecutions++
-          } else {
-            this.executionContext.failedExecutions++
-          }
-
-          // Notify strategy of completion
-          this.strategy.onIterationComplete(this.executionContext, result)
-
-          // Handle execution result
           if (!result.success) {
             const error = result.error || new Error(result.message || 'Unknown error')
-            const shouldContinue = this.strategy.onError(this.executionContext, error)
+            const shouldContinue = this.handleIterationError(context, error, false)
             if (!shouldContinue) {
-              this._isRunning = false
-              this.executionContext.isRunning = false
               reject(error)
               return
             }
           }
 
-          // Schedule next execution if still running
-          if (this._isRunning && this.executionContext.isRunning) {
-            const delay = this.timing.getNextExecutionDelay(this.executionContext)
-            this.intervalId = setTimeout(executeNext, delay)
-          } else {
-            resolve()
-          }
+          this.scheduleNext(context, executeNext, resolve)
         } catch (error) {
-          // Handle unexpected errors during execution
           const err = error as Error
-          this.executionContext.failedExecutions++
+          context.logger.error(
+            `${this.constructor.name}: Iteration ${this.executionContext.currentIteration} threw exception: ${err.message}`
+          )
 
-          const shouldContinue = this.strategy.onError(this.executionContext, err)
+          const shouldContinue = this.handleIterationError(context, err, true)
           if (!shouldContinue) {
-            this._isRunning = false
-            this.executionContext.isRunning = false
             reject(err)
           } else {
-            // Continue with next execution after error
-            if (this._isRunning && this.executionContext.isRunning) {
-              const delay = this.timing.getNextExecutionDelay(this.executionContext)
-              this.intervalId = setTimeout(executeNext, delay)
-            } else {
-              resolve()
-            }
+            this.scheduleNext(context, executeNext, resolve)
           }
         }
       }
 
-      // Start the first execution
       executeNext()
     })
+  }
+
+  /**
+   * Handles successful iteration completion
+   *
+   * Updates execution context with iteration results and metrics,
+   * and notifies the strategy of completion.
+   *
+   * @param context - The command execution context
+   * @param result - The result of the iteration
+   * @param startTime - When the iteration started
+   * @param endTime - When the iteration ended
+   */
+  private handleIterationSuccess(
+    context: SolanaBotContext,
+    result: ExecutorResult,
+    startTime: number,
+    endTime: number
+  ): void {
+    this.executionContext.recentResults.push(result)
+    if (this.executionContext.recentResults.length > 10) {
+      this.executionContext.recentResults.shift()
+    }
+
+    this.executionContext.totalExecutions++
+    this.executionContext.lastExecutionTime = endTime
+    this.executionContext.totalExecutionTime += endTime - startTime
+
+    if (result.success) {
+      this.executionContext.successfulExecutions++
+      context.logger.debug(
+        `${this.constructor.name}: Iteration ${this.executionContext.currentIteration} succeeded (${endTime - startTime}ms)`
+      )
+    } else {
+      this.executionContext.failedExecutions++
+      context.logger.warn(
+        `${this.constructor.name}: Iteration ${this.executionContext.currentIteration} failed: ${result.message}`
+      )
+    }
+
+    this.strategy.onIterationComplete(this.executionContext, result)
+  }
+
+  /**
+   * Handles iteration errors
+   *
+   * Updates failure counters, logs the error, and consults the strategy
+   * to determine if execution should continue.
+   *
+   * @param context - The command execution context
+   * @param error - The error that occurred
+   * @param wasException - Whether this was an uncaught exception
+   * @returns True if execution should continue, false otherwise
+   */
+  private handleIterationError(
+    context: SolanaBotContext,
+    error: Error,
+    wasException: boolean
+  ): boolean {
+    if (wasException) {
+      this.executionContext.failedExecutions++
+    }
+
+    context.logger.error(
+      `${this.constructor.name}: ${wasException ? 'Exception' : 'Error'} in iteration ${this.executionContext.currentIteration}: ${error.message}`,
+      {
+        error: error.stack,
+        iteration: this.executionContext.currentIteration,
+        totalExecutions: this.executionContext.totalExecutions,
+        failedExecutions: this.executionContext.failedExecutions,
+      }
+    )
+
+    const shouldContinue = this.strategy.onError(this.executionContext, error)
+
+    if (!shouldContinue) {
+      this._isRunning = false
+      this.executionContext.isRunning = false
+      context.logger.error(`${this.constructor.name}: Strategy determined to stop after error`)
+    } else {
+      context.logger.info(`${this.constructor.name}: Strategy determined to continue after error`)
+    }
+
+    return shouldContinue
+  }
+
+  /**
+   * Schedules the next iteration or resolves the loop
+   *
+   * Determines whether to schedule another iteration based on runner state,
+   * and either schedules the next execution or resolves the loop.
+   *
+   * @param context - The command execution context
+   * @param executeNext - Function to execute the next iteration
+   * @param resolve - Promise resolve function to complete the loop
+   */
+  private scheduleNext(
+    context: SolanaBotContext,
+    executeNext: () => Promise<void>,
+    resolve: () => void
+  ): void {
+    if (this._isRunning && this.executionContext.isRunning) {
+      const delay = this.timing.getNextExecutionDelay(this.executionContext)
+      context.logger.debug(`${this.constructor.name}: Scheduling next iteration in ${delay}ms`)
+      this.intervalId = setTimeout(executeNext, delay)
+    } else {
+      context.logger.info(`${this.constructor.name}: Loop completed - no more iterations scheduled`)
+      resolve()
+    }
   }
 }

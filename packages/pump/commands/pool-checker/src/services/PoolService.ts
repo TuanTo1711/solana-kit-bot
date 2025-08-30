@@ -5,9 +5,15 @@ export class PoolService {
   constructor(private readonly db: PrismaClient) {}
 
   async addPoolKeys(poolKeys: PoolKeys & { timestamp: bigint }) {
-    return await this.db.pumpSwapPool.create({
-      data: this.mapToEntity(poolKeys, poolKeys.timestamp),
-    })
+    const exists = await this.db.pumpSwapPool.findUnique({ where: { pool: poolKeys.pool } })
+
+    if (!exists) {
+      return await this.db.pumpSwapPool.create({
+        data: this.mapToEntity(poolKeys, poolKeys.timestamp),
+      })
+    }
+
+    return exists
   }
 
   mapToEntity(poolKeys: PoolKeys, timestamp: bigint): PumpSwapPool {

@@ -30,10 +30,6 @@ interface BuyQuoteInResult {
   internalQuoteWithoutFees: bigint
   /** Maximum quote amount with slippage protection */
   maxQuote: bigint
-  /** Price impact percentage (0-100) */
-  priceImpact: number
-  /** Effective price per unit */
-  effectivePrice: bigint
 }
 
 /**
@@ -178,21 +174,6 @@ export function computeBuyQuoteIn({
   if (denominator === 0n) throw new Error('Pool would be depleted')
 
   const baseAmountOut = numerator / denominator
-
-  // Calculate price impact using market price vs execution price method
-  // Market price = current quote/base ratio
-  const marketPrice = (quoteReserve * 1_000_000_000n) / baseReserve
-  
-  // Execution price = actual quote paid per base token received
-  const executionPrice = baseAmountOut > 0n ? (effectiveQuote * 1_000_000_000n) / baseAmountOut : 0n
-  
-  // Price impact = (execution_price - market_price) / market_price * 100
-  const priceImpact = marketPrice > 0n ? 
-    Number(((executionPrice - marketPrice) * 10_000n) / marketPrice) / 100 : 0
-
-  // Calculate effective price (how much quote per unit base)
-  const effectivePrice = baseAmountOut > 0n ? (effectiveQuote * 1_000_000n) / baseAmountOut : 0n
-
   // Apply slippage protection
   const slippageFactor = Math.floor((1 + slippage / 100) * 1_000_000_000)
   const maxQuote = (quote * BigInt(slippageFactor)) / 1_000_000_000n
@@ -201,7 +182,5 @@ export function computeBuyQuoteIn({
     base: baseAmountOut,
     internalQuoteWithoutFees: effectiveQuote,
     maxQuote,
-    priceImpact,
-    effectivePrice,
   }
 }

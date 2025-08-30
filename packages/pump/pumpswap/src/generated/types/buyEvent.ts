@@ -10,6 +10,8 @@ import {
   combineCodec,
   getAddressDecoder,
   getAddressEncoder,
+  getBooleanDecoder,
+  getBooleanEncoder,
   getI64Decoder,
   getI64Encoder,
   getStructDecoder,
@@ -46,6 +48,11 @@ export type BuyEvent = {
   coinCreator: Address
   coinCreatorFeeBasisPoints: bigint
   coinCreatorFee: bigint
+  trackVolume: boolean
+  totalUnclaimedTokens: bigint
+  totalClaimedTokens: bigint
+  currentSolVolume: bigint
+  lastUpdateTimestamp: bigint
 }
 
 export type BuyEventArgs = {
@@ -72,6 +79,11 @@ export type BuyEventArgs = {
   coinCreator: Address
   coinCreatorFeeBasisPoints: number | bigint
   coinCreatorFee: number | bigint
+  trackVolume: boolean
+  totalUnclaimedTokens: number | bigint
+  totalClaimedTokens: number | bigint
+  currentSolVolume: number | bigint
+  lastUpdateTimestamp: number | bigint
 }
 
 export function getBuyEventEncoder(): FixedSizeEncoder<BuyEventArgs> {
@@ -99,6 +111,11 @@ export function getBuyEventEncoder(): FixedSizeEncoder<BuyEventArgs> {
     ['coinCreator', getAddressEncoder()],
     ['coinCreatorFeeBasisPoints', getU64Encoder()],
     ['coinCreatorFee', getU64Encoder()],
+    ['trackVolume', getBooleanEncoder()],
+    ['totalUnclaimedTokens', getU64Encoder()],
+    ['totalClaimedTokens', getU64Encoder()],
+    ['currentSolVolume', getU64Encoder()],
+    ['lastUpdateTimestamp', getI64Encoder()],
   ])
 }
 
@@ -127,6 +144,11 @@ export function getBuyEventDecoder(): FixedSizeDecoder<BuyEvent> {
     ['coinCreator', getAddressDecoder()],
     ['coinCreatorFeeBasisPoints', getU64Decoder()],
     ['coinCreatorFee', getU64Decoder()],
+    ['trackVolume', getBooleanDecoder()],
+    ['totalUnclaimedTokens', getU64Decoder()],
+    ['totalClaimedTokens', getU64Decoder()],
+    ['currentSolVolume', getU64Decoder()],
+    ['lastUpdateTimestamp', getI64Decoder()],
   ])
 }
 

@@ -27,6 +27,8 @@ export type ClaimTokenIncentivesEvent = {
   mint: Address
   amount: bigint
   timestamp: bigint
+  totalClaimedTokens: bigint
+  currentSolVolume: bigint
 }
 
 export type ClaimTokenIncentivesEventArgs = {
@@ -34,6 +36,8 @@ export type ClaimTokenIncentivesEventArgs = {
   mint: Address
   amount: number | bigint
   timestamp: number | bigint
+  totalClaimedTokens: number | bigint
+  currentSolVolume: number | bigint
 }
 
 export function getClaimTokenIncentivesEventEncoder(): FixedSizeEncoder<ClaimTokenIncentivesEventArgs> {
@@ -42,6 +46,8 @@ export function getClaimTokenIncentivesEventEncoder(): FixedSizeEncoder<ClaimTok
     ['mint', getAddressEncoder()],
     ['amount', getU64Encoder()],
     ['timestamp', getI64Encoder()],
+    ['totalClaimedTokens', getU64Encoder()],
+    ['currentSolVolume', getU64Encoder()],
   ])
 }
 
@@ -51,6 +57,8 @@ export function getClaimTokenIncentivesEventDecoder(): FixedSizeDecoder<ClaimTok
     ['mint', getAddressDecoder()],
     ['amount', getU64Decoder()],
     ['timestamp', getI64Decoder()],
+    ['totalClaimedTokens', getU64Decoder()],
+    ['currentSolVolume', getU64Decoder()],
   ])
 }
 

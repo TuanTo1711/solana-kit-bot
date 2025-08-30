@@ -7,7 +7,7 @@ import { Command, type BaseContext } from 'clipanion'
 import Decimal from 'decimal.js'
 import { combineLatest, filter, map, Subject, takeUntil, tap, withLatestFrom } from 'rxjs'
 
-import { formatUnits, wrapEscHandler, type SolanaBotContext } from '@solana-kit-bot/core'
+import { abbreviateNumber, wrapEscHandler, type SolanaBotContext } from '@solana-kit-bot/core'
 import {
   computeBuyQuoteIn,
   createPumpswapClient,
@@ -433,14 +433,14 @@ export class PumpswapLimitOrderCommand extends Command<BaseContext & SolanaBotCo
             maxBase = baseAmount
           }
           console.log('Thông tin pool:', {
-            'Mục tiêu': formatUnits(config.target / BigInt(TOKEN_DECIMALS)),
+            'Mục tiêu': abbreviateNumber(config.target / BigInt(TOKEN_DECIMALS)),
             'Số tiền mua': Number(config.amount) / LAMPORTS_PER_SOL,
-            'Token pool hiện tại': `${Decimal(baseAmount.toString())} | ${formatUnits(
+            'Token pool hiện tại': `${Decimal(baseAmount.toString())} | ${abbreviateNumber(
               baseAmount / BigInt(TOKEN_DECIMALS)
             )}`,
             'Ví trả phí': payer.address,
             Tip: `${tip} SOL`,
-            'Token pool cao nhất': `${Decimal(maxBase.toString())} | ${formatUnits(
+            'Token pool cao nhất': `${Decimal(maxBase.toString())} | ${abbreviateNumber(
               maxBase / BigInt(TOKEN_DECIMALS)
             )}`,
           })
