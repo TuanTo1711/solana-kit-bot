@@ -1,4 +1,4 @@
-import type { ExecutionContext, TimingStrategy } from '~/types'
+import type { TimingStrategy } from '~/types'
 
 /**
  * A timing strategy that executes tasks at fixed intervals.

@@ -4,18 +4,17 @@ import Conf from 'conf'
 
 import {
   createTransactionManager,
-  Logger,
   type SolanaBotConfig,
   type SolanaBotContext,
 } from '@solana-kit-bot/core'
 import { createProvider, SENDER_ENPOINTS, type Provider } from '@solana-kit-bot/provider'
+import { PumpfunSniperBumpCommand } from '@solana-kit-bot/pumpfun-sniper-bump'
+import { PumpwapFastPumpCommand } from '@solana-kit-bot/pumpswap-fast-pump'
+import { PumpswapLimitOrderCommand } from '@solana-kit-bot/pumpswap-limit-order'
+import { PumpswapPoolCheckerCommand } from '@solana-kit-bot/pumpswap-pool-checker'
 import { VirtualTradingCommand as PumpswapVirtualTradingCommand } from '@solana-kit-bot/pumpswap-virtual-trading'
 import { PoolCheckerCommand } from '@solana-kit-bot/raydium-launchlab-pool-checker'
 import { VirtualTradingCommand } from '@solana-kit-bot/raydium-launchlab-virtual-trading'
-import { PumpswapPoolCheckerCommand } from '@solana-kit-bot/pumpswap-pool-checker'
-import { PumpswapLimitOrderCommand } from '@solana-kit-bot/pumpswap-limit-order'
-import { PumpfunSniperBumpCommand } from '@solana-kit-bot/pumpfun-sniper-bump'
-import { PumpwapFastPumpCommand } from '@solana-kit-bot/pumpswap-fast-pump'
 
 import { ConfigCommand } from './commands/config'
 import { PumpswapCommand } from './commands/pumpswap'
@@ -66,7 +65,6 @@ class Application {
       provider,
       transactionManager,
       payer,
-      logger: new Logger(),
     }
 
     this.cli.register(PumpswapCommand)

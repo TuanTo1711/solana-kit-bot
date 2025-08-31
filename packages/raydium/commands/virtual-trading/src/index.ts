@@ -215,7 +215,7 @@ export class VirtualTradingCommand extends Command<BaseContext & SolanaBotContex
       await executor.setup()
       const result = await executor.execute(this.context)
 
-      this.context.logger.info(result.data ?? 'Lệnh chạy thành công')
+      console.log(result.data ?? 'Lệnh chạy thành công')
     } catch (error) {
       this.context.stderr.write('Lỗi khi chạy virtual trading: ')
 

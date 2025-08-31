@@ -1,7 +1,6 @@
 import type { Provider } from '@solana-kit-bot/provider'
 import type { TransactionSigner } from '@solana/kit'
 
-import type { Logger } from '~/utils/logger'
 import type { TransactionManager } from './transaction'
 /**
  * Core configuration interface for Solana bot operations

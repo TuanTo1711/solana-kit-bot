@@ -2,6 +2,7 @@ import { Command, Option, type BaseContext } from 'clipanion'
 import chalk from 'chalk'
 
 import {
+  createLogger,
   FixedPriceStrategy,
   RandomPriceStrategy,
   wrapEscHandler,
@@ -49,6 +50,8 @@ export class VirtualTradingCommand extends Command<BaseContext & SolanaBotContex
     description: 'Số tiền tối đa sử dụng (strategy = random)',
     required: false,
   })
+
+  private logger = createLogger(VirtualTradingCommand.name)
 
   override async execute(): Promise<number | void> {
     const options = {
@@ -210,12 +213,11 @@ export class VirtualTradingCommand extends Command<BaseContext & SolanaBotContex
       await executor.setup()
       const result = await executor.execute(this.context)
 
-      this.context.logger.info(result.data ?? 'Chạy lệnh thành công')
+      this.logger.info(result.data ?? 'Chạy lệnh thành công')
     } catch (error) {
       this.context.stderr.write('Lỗi khi chạy virtual trading: ')
 
       throw error
-    } finally {
     }
   }
 

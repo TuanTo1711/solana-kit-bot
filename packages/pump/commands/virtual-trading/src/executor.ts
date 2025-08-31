@@ -190,7 +190,7 @@ export class VirtualWalletTradingExecutor extends IterationExecutor {
     })
   }
 
-  async cleanup(): Promise<void> {
+  override async cleanup(): Promise<void> {
     console.log('🧹 Cleaning up virtual trading runner...')
 
     this._isRunning = false
