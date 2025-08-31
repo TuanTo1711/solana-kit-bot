@@ -58,14 +58,14 @@ export interface ExecutionStrategy {
    * @param context - The current execution context
    * @returns true if execution should continue, false to stop
    */
-  shouldContinue(context: ExecutionContext): boolean
+  shouldContinue(context: ExecutionContext): boolean | Promise<boolean>
 
   /**
    * Called after each iteration completes successfully.
    * @param context - The current execution context
    * @param result - The result from the completed iteration
    */
-  onIterationComplete(context: ExecutionContext, result: ExecutorResult): void
+  onIterationComplete(context: ExecutionContext, result: ExecutorResult): void | Promise<void>
 
   /**
    * Called when an error occurs during execution.

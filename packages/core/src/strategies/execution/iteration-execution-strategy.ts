@@ -37,7 +37,7 @@ export class IterationExecutionStrategy implements ExecutionStrategy {
    * @returns true if execution should continue, false otherwise
    */
   shouldContinue(context: ExecutionContext): boolean {
-    if (this.maxIterations > 0 && context.currentIteration >= this.maxIterations) {
+    if (this.maxIterations > 0 && context.currentIteration > this.maxIterations) {
       return false
     }
     return context.isRunning

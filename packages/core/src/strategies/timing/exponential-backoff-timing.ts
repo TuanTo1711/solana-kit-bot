@@ -41,20 +41,18 @@ export class ExponentialBackoffTiming implements TimingStrategy {
    * @returns Delay in milliseconds before next execution attempt
    */
   getNextExecutionDelay(context: ExecutionContext): number {
-    const delay = Math.min(
-      this.baseInterval * Math.pow(this.multiplier, context.failedExecutions),
-      this.maxInterval
-    )
+    let delay = this.baseInterval * Math.pow(this.multiplier, context.failedExecutions)
+    delay = Math.min(delay, this.maxInterval)
+
     return delay
   }
 
   /**
    * Determines if execution should happen immediately.
    *
-   * @param _ - Execution context (unused in this implementation)
    * @returns Always returns true, allowing immediate execution when called
    */
-  shouldExecuteNow(_: ExecutionContext): boolean {
+  shouldExecuteNow(): boolean {
     return true
   }
 }

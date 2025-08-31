@@ -1,9 +1,11 @@
+import { GracefulShutdownManager, type GracefulShutdownConfig } from '~/manager'
 import type {
   CommandExecutor,
   CommandExecutorConfig,
   ExecutorResult,
   SolanaBotContext,
 } from '~/types'
+import { createLogger, Logger } from '~/utils'
 
 /**
  * Abstract base class for all command executors in the Solana Kit Bot system.
@@ -30,6 +32,8 @@ import type {
  */
 export abstract class BaseExecutor implements CommandExecutor<SolanaBotContext> {
   protected config: CommandExecutorConfig
+  protected logger: Logger
+  protected shutdownManager?: GracefulShutdownManager | undefined
 
   /**
    * Creates a new BaseExecutor instance with the specified configuration.
@@ -37,7 +41,15 @@ export abstract class BaseExecutor implements CommandExecutor<SolanaBotContext> 
    * @param config - Configuration object with optional timeout, retry, and delay settings
    */
   constructor(config: CommandExecutorConfig) {
-    this.config = config
+    this.config = {
+      timeout: 30000,
+      maxRetries: 3,
+      retryDelay: 1000,
+      gracefulShutdown: false,
+      ...config,
+    }
+    this.logger = createLogger(this.constructor.name)
+    this.setupGracefulShutdown()
   }
 
   /**
@@ -69,7 +81,7 @@ export abstract class BaseExecutor implements CommandExecutor<SolanaBotContext> 
       this.validateContext(context)
       return true
     } catch (error) {
-      context.logger.error(
+      this.logger.error(
         `Validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
       )
       return false
@@ -147,7 +159,6 @@ export abstract class BaseExecutor implements CommandExecutor<SolanaBotContext> 
    * ```
    */
   protected async executeWithRetry<T>(
-    context: SolanaBotContext,
     operation: () => Promise<T>,
     retries = this.getRetries()
   ): Promise<T> {
@@ -159,12 +170,12 @@ export abstract class BaseExecutor implements CommandExecutor<SolanaBotContext> 
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
         if (attempt > 0) {
-          context.logger.info(`Retry attempt ${attempt}/${retries} (delay: ${delay}ms)`)
+          this.logger.info(`Retry attempt ${attempt}/${retries} (delay: ${delay}ms)`)
         }
         return await operation()
       } catch (error) {
         lastError = error instanceof Error ? error : lastError
-        context.logger.warn(`Attempt ${attempt + 1} failed: ${lastError.message}`)
+        this.logger.warn(`Attempt ${attempt + 1} failed: ${lastError.message}`)
 
         if (attempt < retries) {
           await this.sleep(delay)
@@ -242,5 +253,66 @@ export abstract class BaseExecutor implements CommandExecutor<SolanaBotContext> 
     if (!context) {
       throw Error('Context is required')
     }
+  }
+
+  /**
+   * Setup graceful shutdown handling based on configuration
+   */
+  private setupGracefulShutdown(): void {
+    if (!this.config.gracefulShutdown) return
+
+    const shutdownConfig: GracefulShutdownConfig =
+      typeof this.config.gracefulShutdown === 'boolean' ? {} : this.config.gracefulShutdown
+
+    this.shutdownManager = new GracefulShutdownManager({
+      signals: ['SIGTERM', 'SIGINT'],
+      hotkeys: ['q', 'escape'],
+      gracePeriod: 15000,
+      enablePrompt: false,
+      shutdownMessage: `${this.constructor.name} shutdown`,
+      ...shutdownConfig,
+    })
+
+    this.shutdownManager.registerCallback(async () => {
+      await this.onShutdown()
+    })
+
+    this.shutdownManager.enable()
+    this.logger.debug('Graceful shutdown enabled')
+  }
+
+  /**
+   * Called when graceful shutdown is initiated.
+   * Override this method to implement custom cleanup logic.
+   */
+  protected abstract onShutdown(): Promise<void>
+
+  /**
+   * Add a callback to be executed during shutdown
+   */
+  protected addShutdownCallback(callback: () => Promise<void>): void {
+    this.shutdownManager?.registerCallback(callback)
+  }
+
+  /**
+   * Manually trigger graceful shutdown
+   */
+  protected async triggerShutdown(reason = 'Manual shutdown'): Promise<void> {
+    await this.shutdownManager?.shutdown(reason)
+  }
+
+  /**
+   * Check if shutdown is in progress
+   */
+  protected isShuttingDown(): boolean {
+    return this.shutdownManager?.isShutdownInProgress() ?? false
+  }
+
+  /**
+   * Cleanup method called when the executor is being destroyed
+   */
+  public async cleanup(): Promise<void> {
+    this.shutdownManager?.disable()
+    this.shutdownManager = undefined
   }
 }

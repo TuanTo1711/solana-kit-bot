@@ -29,10 +29,9 @@ export class FixedIntervalTiming implements TimingStrategy {
   /**
    * Returns the fixed delay until the next execution.
    *
-   * @param _ - The execution context (unused in this strategy)
    * @returns The fixed interval in milliseconds
    */
-  getNextExecutionDelay(_: ExecutionContext): number {
+  getNextExecutionDelay(): number {
     return this.interval
   }
 
@@ -42,10 +41,9 @@ export class FixedIntervalTiming implements TimingStrategy {
    * Checks if enough time has passed since the last execution. If so,
    * updates the last execution time and returns true.
    *
-   * @param _ - The execution context (unused in this strategy)
    * @returns True if the task should execute now, false otherwise
    */
-  shouldExecuteNow(_: ExecutionContext): boolean {
+  shouldExecuteNow(): boolean {
     const now = Date.now()
     if (now - this.lastExecution >= this.interval) {
       this.lastExecution = now

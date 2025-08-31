@@ -30,10 +30,10 @@ export class Logger {
   /**
    * Creates a new Logger instance with the specified configuration.
    *
-   * @param {LoggerConfig} [userConfig] - Optional configuration object
-   * @param {LogLevel} [userConfig.level='info'] - Log level threshold
-   * @param {boolean} [userConfig.enableColors=true] - Whether to colorize output
-   * @param {string} [userConfig.moduleName=''] - Module name prefix for log messages
+   * @param [userConfig] - Optional configuration object
+   * @param [userConfig.level='info'] - Log level threshold
+   * @param [userConfig.enableColors=true] - Whether to colorize output
+   * @param [userConfig.moduleName=''] - Module name prefix for log messages
    */
   constructor(userConfig: LoggerConfig = {}) {
     this.config = { level: 'info', enableColors: true, moduleName: '', ...userConfig }
@@ -45,7 +45,7 @@ export class Logger {
    * Creates a JSON stringifier with safe handling of circular references and BigInt values.
    *
    * @private
-   * @returns {Function} Configured stringify function that safely handles circular refs and BigInt
+   * @returns Configured stringify function that safely handles circular refs and BigInt
    */
   private createStringifier() {
     return configure({
@@ -59,7 +59,7 @@ export class Logger {
    * Creates and configures the underlying Winston logger instance.
    *
    * @private
-   * @returns {Winston} Configured Winston logger with appropriate transports and formatting
+   * @returns Configured Winston logger with appropriate transports and formatting
    */
   private createWinstonLogger(): Winston {
     return createWinstonLogger({
@@ -77,7 +77,7 @@ export class Logger {
    * Future versions may include file or remote transports.
    *
    * @private
-   * @returns {any[]} Array of Winston transports
+   * @returns Array of Winston transports
    */
   private createTransports(): any[] {
     const transports: any[] = []
@@ -89,7 +89,7 @@ export class Logger {
    * Creates a console transport with custom formatting.
    *
    * @private
-   * @returns {any} Configured console transport with timestamp and error formatting
+   * @returns Configured console transport with timestamp and error formatting
    */
   private createConsoleTransport() {
     return new transports.Console({
@@ -195,7 +195,7 @@ export class Logger {
   /**
    * Sets the minimum log level threshold.
    *
-   * @param {LogLevel} level - New log level threshold (error, warn, info, verbose, debug, silly)
+   * @param level - New log level threshold (error, warn, info, verbose, debug, silly)
    */
   public setLevel(level: LogLevel): void {
     this.logger.level = level
@@ -204,7 +204,7 @@ export class Logger {
   /**
    * Gets the current log level threshold.
    *
-   * @returns {string} Current log level setting
+   * @returns Current log level setting
    */
   public getLevel(): string {
     return this.logger.level
@@ -213,8 +213,8 @@ export class Logger {
   /**
    * Checks if a specific log level is enabled based on current threshold.
    *
-   * @param {LogLevel} level - Log level to check against current threshold
-   * @returns {boolean} True if the level is enabled and will be logged
+   * @param level - Log level to check against current threshold
+   * @returns True if the level is enabled and will be logged
    */
   public isLevelEnabled(level: LogLevel): boolean {
     return this.logger.isLevelEnabled(level)
@@ -309,8 +309,8 @@ export class Logger {
    * Useful for measuring operation performance. The returned function logs
    * the elapsed time at info level when called.
    *
-   * @param {string} label - Timer label for identification in logs
-   * @returns {() => void} Function to call when operation completes
+   * @param label - Timer label for identification in logs
+   * @returns Function to call when operation completes
    *
    * @example
    * ```typescript
@@ -335,9 +335,9 @@ export class Logger {
    * is always logged regardless of whether the operation succeeds or fails.
    *
    * @template T - The return type of the async function
-   * @param {string} label - Timer label for identification in logs
-   * @param {() => Promise<T>} fn - Async function to time and execute
-   * @returns {Promise<T>} Promise resolving to the function's result
+   * @param label - Timer label for identification in logs
+   * @param fn - Async function to time and execute
+   * @returns Promise resolving to the function's result
    *
    * @example
    * ```typescript
@@ -379,9 +379,9 @@ export class Logger {
  * Convenience function for creating loggers with module-specific prefixes.
  * The module name will appear in all log messages from this logger instance.
  *
- * @param {string} moduleName - Name of the module for log prefixing
- * @param {LoggerConfig} [config] - Optional additional configuration to merge
- * @returns {Logger} Configured Logger instance with module name prefix
+ * @param moduleName - Name of the module for log prefixing
+ * @param [config] - Optional additional configuration to merge
+ * @returns Configured Logger instance with module name prefix
  *
  * @example
  * ```typescript

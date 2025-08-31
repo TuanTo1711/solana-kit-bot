@@ -42,7 +42,6 @@ import type {
  * front-running risks.
  *
  * @constant
- * @type {string[]}
  */
 export const JITO_TIP_ACCOUNTS: string[] = [
   '96gYZGLnJYVFmbjzopPSU6QiEV5fGqZNyN9nmNhvrZU5',
@@ -58,7 +57,7 @@ export const JITO_TIP_ACCOUNTS: string[] = [
 /**
  * Randomly selects a Jito tip account from the available list.
  *
- * @returns {string} A randomly selected Jito tip account address
+ * @returns A randomly selected Jito tip account address
  */
 export const randomTipAccount = (): string =>
   JITO_TIP_ACCOUNTS[Math.floor(Math.random() * JITO_TIP_ACCOUNTS.length)]!
@@ -93,7 +92,7 @@ class TransactionManagerImpl implements TransactionManager {
   /**
    * Creates a new TransactionManager instance.
    *
-   * @param {Provider} provider - The provider instance for RPC and Jito connections
+   * @param provider - The provider instance for RPC and Jito connections
    */
   constructor(private readonly provider: Provider) {
     this.estimatCUs = estimateComputeUnitLimitFactory({ rpc: provider.rpc })
@@ -103,8 +102,8 @@ class TransactionManagerImpl implements TransactionManager {
    * Retrieves the latest blockhash from the network.
    *
    * @private
-   * @param {Slot} [minContextSlot] - Optional minimum context slot for the blockhash
-   * @returns {Promise<TransactionBlockhashLifetime>} Promise resolving to the latest blockhash with lifetime information
+   * @param [minContextSlot] - Optional minimum context slot for the blockhash
+   * @returns Promise resolving to the latest blockhash with lifetime information
    * @throws {Error} When blockhash retrieval fails due to network issues
    */
   private async getBlockhash(minContextSlot?: Slot): Promise<TransactionBlockhashLifetime> {
@@ -128,11 +127,11 @@ class TransactionManagerImpl implements TransactionManager {
    * Creates a base transaction message with common setup.
    *
    * @private
-   * @param {TransactionBlockhashLifetime} blockhash - Transaction blockhash and lifetime information
-   * @param {Instruction[]} instructions - Array of instructions to include
-   * @param {TransactionSigner} feePayer - Transaction fee payer signer
-   * @param {TransactionSigner[]} [additionalSigners] - Optional additional signers for the transaction
-   * @returns {any} Configured transaction message ready for signing
+   * @param blockhash - Transaction blockhash and lifetime information
+   * @param instructions - Array of instructions to include
+   * @param feePayer - Transaction fee payer signer
+   * @param [additionalSigners] - Optional additional signers for the transaction
+   * @returns Configured transaction message ready for signing
    */
   private createBaseMessage(
     blockhash: TransactionBlockhashLifetime,
@@ -155,11 +154,11 @@ class TransactionManagerImpl implements TransactionManager {
    * Creates a basic Solana transaction with the specified instructions,
    * automatically fetching the latest blockhash and setting up the fee payer.
    *
-   * @param {Instruction[]} instructions - Array of instructions to execute
-   * @param {TransactionSigner} feePayer - Transaction fee payer signer
-   * @param {Slot} [minContextSlot] - Optional minimum context slot for blockhash
-   * @param {TransactionSigner[]} [additionalSigners] - Optional additional signers
-   * @returns {Promise<Base64EncodedWireTransaction>} Promise resolving to base64-encoded wire transaction
+   * @param instructions - Array of instructions to execute
+   * @param feePayer - Transaction fee payer signer
+   * @param [minContextSlot] - Optional minimum context slot for blockhash
+   * @param [additionalSigners] - Optional additional signers
+   * @returns Promise resolving to base64-encoded wire transaction
    * @throws {Error} When transaction building fails due to instruction or signing errors
    */
   async buildSimpleTransaction(
@@ -287,9 +286,9 @@ class TransactionManagerImpl implements TransactionManager {
    * including a tip payment to a randomly selected Jito validator account.
    * All transactions in the bundle share the same blockhash and are executed atomically.
    *
-   * @param {Bundle[]} bundles - Array of bundle configurations with instructions and signers
-   * @param {bigint} tip - Tip amount in lamports for Jito validators (must be positive)
-   * @returns {Promise<Base64EncodedWireTransaction[]>} Promise resolving to array of base64-encoded wire transactions
+   * @param bundles - Array of bundle configurations with instructions and signers
+   * @param tip - Tip amount in lamports for Jito validators (must be positive)
+   * @returns Promise resolving to array of base64-encoded wire transactions
    * @throws {Error} When bundle building fails due to empty bundles, invalid tips, or transaction errors
    */
   async buildBundle(bundles: Bundle[], tip: bigint): Promise<Base64EncodedWireTransaction[]> {
@@ -627,8 +626,8 @@ class TransactionManagerImpl implements TransactionManager {
  * Convenience function for creating a transaction manager with the specified provider.
  * The manager will use the provider's RPC and Jito connections for all operations.
  *
- * @param {Provider} provider - Provider instance for RPC and Jito connections
- * @returns {TransactionManager} New TransactionManager instance ready for use
+ * @param provider - Provider instance for RPC and Jito connections
+ * @returns New TransactionManager instance ready for use
  */
 export const createTransactionManager = (provider: Provider): TransactionManager =>
   new TransactionManagerImpl(provider)

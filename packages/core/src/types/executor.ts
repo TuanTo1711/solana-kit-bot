@@ -1,4 +1,5 @@
 import type { SolanaBotContext } from './context'
+import type { GracefulShutdownConfig } from '~/manager/graceful-shutdown'
 
 /**
  * Represents the result of a command execution
@@ -29,6 +30,9 @@ export interface CommandExecutorConfig {
 
   /** Delay between retry attempts in milliseconds */
   retryDelay?: number
+  
+  /** Graceful shutdown configuration */
+  gracefulShutdown?: boolean | GracefulShutdownConfig
 }
 
 /**

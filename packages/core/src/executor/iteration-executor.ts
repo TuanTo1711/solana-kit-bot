@@ -1,5 +1,3 @@
-import type { Key } from 'readline'
-
 import { IterableExecutor } from '~/abstract'
 import { FixedIntervalTiming, IterationExecutionStrategy } from '~/strategies'
 import type { CommandExecutorConfig, ExecutorResult, SolanaBotContext } from '~/types'
@@ -17,8 +15,6 @@ export type IterationExecutorConfig = CommandExecutorConfig & {
   maxIterations?: number
   /** Whether to stop execution on first error (default: false) */
   stopOnError?: boolean
-  /** Whether to enable graceful shutdown on SIGINT/SIGTERM (default: true) */
-  gracefulShutdown?: boolean
 }
 
 /**
@@ -54,7 +50,12 @@ export abstract class IterationExecutor extends IterableExecutor {
       interval: config.interval ?? 5000,
       maxIterations: config.maxIterations ?? 0,
       stopOnError: config.stopOnError ?? false,
-      gracefulShutdown: config.gracefulShutdown ?? true,
+    }
+
+    // Enable graceful shutdown by default for iteration executors
+    const executorConfig = {
+      gracefulShutdown: true,
+      ...config,
     }
 
     const strategy = new IterationExecutionStrategy(
@@ -62,12 +63,8 @@ export abstract class IterationExecutor extends IterableExecutor {
       iterationConfig.stopOnError
     )
     const timing = new FixedIntervalTiming(iterationConfig.interval)
-    super(config, strategy, timing)
+    super(executorConfig, strategy, timing)
     this.iterationConfig = iterationConfig
-
-    if (this.iterationConfig.gracefulShutdown) {
-      this.setupGracefulShutdown()
-    }
   }
 
   /**
@@ -100,21 +97,11 @@ export abstract class IterationExecutor extends IterableExecutor {
   }
 
   /**
-   * Sets up graceful shutdown handlers for SIGINT and SIGTERM signals
+   * Override onShutdown to provide custom cleanup for iteration executors
    */
-  protected setupGracefulShutdown(): void {
-    const escListener = (_: string, key: Key) => {
-      if (key.name === 'escape' || key.name === 'SIGINT') {
-        this.cancel()
-        cleanup()
-      }
-    }
-
-    const cleanup = () => {
-      process.stdin.removeListener('keypress', escListener)
-    }
-
-    process.stdin.on('keypress', escListener)
+  protected override async onShutdown(): Promise<void> {
+    this.logger.info('Graceful shutdown initiated for iteration executor')
+    await super.onShutdown()
   }
 
   /**

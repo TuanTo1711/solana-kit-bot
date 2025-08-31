@@ -21,7 +21,7 @@ export class TimeBasedExecutionStrategy implements ExecutionStrategy {
   onIterationComplete(context: ExecutionContext, result: ExecutorResult): void {
     context.recentResults.push(result)
     if (context.recentResults.length > 10) {
-      context.recentResults.shift() // Keep only last 10 results
+      context.recentResults.shift()
     }
   }
 

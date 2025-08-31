@@ -1,6 +1,5 @@
 export * from './strategies'
 export * from './types'
 export * from './utils'
-export * from './transaction-manager'
+export * from './manager/transaction-manager'
 export * from './executor'
-export * from './logger'

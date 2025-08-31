@@ -35,8 +35,8 @@ export abstract class AbstractPriceStrategy implements PriceStrategy {
   /**
    * Creates a new price strategy instance.
    *
-   * @param {string} name - Unique identifier for the strategy
-   * @param {PriceStrategyConfig} [config] - Optional configuration overrides
+   * @param name - Unique identifier for the strategy
+   * @param [config] - Optional configuration overrides
    */
   constructor(name: string, config: PriceStrategyConfig = {}) {
     this.name = name
@@ -56,8 +56,8 @@ export abstract class AbstractPriceStrategy implements PriceStrategy {
    * price calculation logic. The method can be synchronous or asynchronous.
    *
    * @abstract
-   * @param {PriceContext} context - The pricing context containing input data
-   * @returns {Promise<PriceResult> | PriceResult} The calculated price result
+   * @param context - The pricing context containing input data
+   * @returns The calculated price result
    */
   abstract calculatePrice(context: PriceContext): Promise<PriceResult> | PriceResult
 
@@ -67,9 +67,9 @@ export abstract class AbstractPriceStrategy implements PriceStrategy {
    * Checks if the price is a valid number and falls within the configured
    * minimum and maximum price boundaries.
    *
-   * @param {number} price - The price to validate
-   * @param {PriceContext} _ - The price context (unused in base implementation)
-   * @returns {boolean} True if the price is valid, false otherwise
+   * @param price - The price to validate
+   * @param _ - The price context (unused in base implementation)
+   * @returns True if the price is valid, false otherwise
    */
   validatePrice(price: number, _: PriceContext): boolean {
     if (isNaN(price) || !isFinite(price)) {
@@ -94,7 +94,11 @@ export abstract class AbstractPriceStrategy implements PriceStrategy {
    * to be cleared or reset between calculation sessions.
    */
   reset(): void {
-    // Default implementation - override if needed
+    this.config = {
+      minPrice: 0,
+      maxPrice: Number.MAX_SAFE_INTEGER,
+      precision: 6,
+    }
   }
 
   /**
@@ -103,9 +107,9 @@ export abstract class AbstractPriceStrategy implements PriceStrategy {
    * @param price - The raw price value
    * @returns The formatted price with proper decimal precision
    */
-  protected formatPrice(price: number): number {
-    const precision = this.config.precision || 6
-    return Number(price.toFixed(precision))
+  protected formatPrice(price: number, precision?: number): number {
+    const pre = precision ?? this.config.precision ?? 6
+    return Number(price.toFixed(pre))
   }
 
   /**
@@ -135,11 +139,11 @@ export abstract class AbstractPriceStrategy implements PriceStrategy {
    * confidence normalization, and timestamp assignment.
    *
    * @protected
-   * @param {number} price - The calculated price before clamping
-   * @param {number} confidence - Confidence level (0-1) in the price calculation
-   * @param {string} reason - Human-readable explanation for the price
-   * @param {Record<string, any>} [metadata] - Optional additional data about the calculation
-   * @returns {PriceResult} A complete PriceResult object with clamped price and normalized confidence
+   * @param price - The calculated price before clamping
+   * @param confidence - Confidence level (0-1) in the price calculation
+   * @param reason - Human-readable explanation for the price
+   * @param [metadata] - Optional additional data about the calculation
+   * @returns A complete PriceResult object with clamped price and normalized confidence
    */
   protected createResult(
     price: number,

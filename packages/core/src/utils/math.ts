@@ -3,9 +3,9 @@
  *
  * Calculates the ceiling (round up) of the division a/b using BigInt arithmetic.
  *
- * @param {bigint} a - Dividend (numerator)
- * @param {bigint} b - Divisor (denominator), must be non-zero
- * @returns {bigint} Ceiling of a/b
+ * @param a - Dividend (numerator)
+ * @param b - Divisor (denominator), must be non-zero
+ * @returns Ceiling of a/b
  * @throws {Error} When divisor b is zero
  */
 export function ceilDiv(a: bigint, b: bigint): bigint {
@@ -20,9 +20,9 @@ export function ceilDiv(a: bigint, b: bigint): bigint {
  *
  * Calculates the floor (round down) of the division a/b using BigInt arithmetic.
  *
- * @param {bigint} a - Dividend (numerator)
- * @param {bigint} b - Divisor (denominator), must be non-zero
- * @returns {bigint} Floor of a/b
+ * @param a - Dividend (numerator)
+ * @param b - Divisor (denominator), must be non-zero
+ * @returns Floor of a/b
  * @throws {Error} When divisor b is zero
  */
 export function floorDiv(a: bigint, b: bigint): bigint {
@@ -38,9 +38,9 @@ export function floorDiv(a: bigint, b: bigint): bigint {
  * Multiplies the input value by 10^decimals to preserve decimal precision
  * in BigInt format. Commonly used for SOL amounts (9 decimals).
  *
- * @param {number} value - The decimal number to convert
- * @param {number} [decimals=9] - Number of decimal places (default: 9 for SOL)
- * @returns {bigint} BigInt representation with decimal places preserved
+ * @param value - The decimal number to convert
+ * @param [decimals=9] - Number of decimal places (default: 9 for SOL)
+ * @returns BigInt representation with decimal places preserved
  */
 export function toBigInt(value: number, decimals = 9): bigint {
   const multiplier = 10 ** decimals
@@ -53,9 +53,9 @@ export function toBigInt(value: number, decimals = 9): bigint {
  * Divides the BigInt value by 10^decimals to restore decimal representation.
  * Note: May lose precision for very large numbers due to JavaScript number limitations.
  *
- * @param {bigint} value - BigInt value to convert
- * @param {number} [decimals=9] - Number of decimal places (default: 9 for SOL)
- * @returns {number} Decimal number representation
+ * @param value - BigInt value to convert
+ * @param [decimals=9] - Number of decimal places (default: 9 for SOL)
+ * @returns Decimal number representation
  */
 export function fromBigInt(value: bigint, decimals = 9): number {
   const divisor = 10 ** decimals
@@ -195,10 +195,10 @@ export function formatBigInt(value: bigint, decimals: number, precision = 6): st
  * Converts large numbers into human-readable format with appropriate suffixes.
  * Supports both number and bigint inputs with locale-specific formatting.
  *
- * @param {number | bigint} value - Number to format (number or bigint)
- * @param {number} [decimals=1] - Number of decimal places to display
- * @param {string} [locale='en-US'] - Locale for formatting (e.g. 'en-US', 'vi-VN')
- * @returns {string} Readable abbreviated string, e.g. 1.2K, 3.5M, 7B
+ * @param value - Number to format (number or bigint)
+ * @param [decimals=1] - Number of decimal places to display
+ * @param [locale='en-US'] - Locale for formatting (e.g. 'en-US', 'vi-VN')
+ * @returns Readable abbreviated string, e.g. 1.2K, 3.5M, 7B
  *
  * @example
  * ```typescript
