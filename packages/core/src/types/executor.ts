@@ -21,7 +21,7 @@ export interface ExecutorResult<T = string> {
 /**
  * Base configuration for all command runners
  */
-export interface CommandExecutorConfig {
+export interface ExecutorConfig {
   /** Maximum execution time in milliseconds before timeout */
   timeout?: number
 
@@ -30,7 +30,7 @@ export interface CommandExecutorConfig {
 
   /** Delay between retry attempts in milliseconds */
   retryDelay?: number
-  
+
   /** Graceful shutdown configuration */
   gracefulShutdown?: boolean | GracefulShutdownConfig
 }

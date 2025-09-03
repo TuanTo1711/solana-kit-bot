@@ -7,12 +7,18 @@
   "main": "dist/index.js",
   "scripts": {
     "update": "pnpm update",
-    "build": "tsup",
+    "build": "pnpm clean && tsup",
     "check-types": "npx tsc --noEmit",
     "clean": "rimraf dist"
   },
-  "keywords": [],
-  "author": "Yuuta - To Hoang Tuan",
+  "keywords": [
+    "solana",
+    "provider",
+    "rpc",
+    "jito",
+    "sender",
+    "subscriptions"
+  ],
   "license": "ISC",
   "packageManager": "pnpm@10.13.1",
   "dependencies": {

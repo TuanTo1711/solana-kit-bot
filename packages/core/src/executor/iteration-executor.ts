@@ -1,14 +1,14 @@
 import { IterableExecutor } from '~/abstract'
 import { FixedIntervalTiming, IterationExecutionStrategy } from '~/strategies'
-import type { CommandExecutorConfig, ExecutorResult, SolanaBotContext } from '~/types'
+import type { ExecutorConfig, ExecutorResult, SolanaBotContext } from '~/types'
 
 /**
  * Configuration interface for IterationExecutor.
  *
  * @interface IterationExecutorConfig
- * @extends {CommandExecutorConfig}
+ * @extends {ExecutorConfig}
  */
-export type IterationExecutorConfig = CommandExecutorConfig & {
+export type IterationExecutorConfig = ExecutorConfig & {
   /** Time interval between iterations in milliseconds (default: 5000) */
   interval?: number
   /** Maximum number of iterations to execute (0 = infinite, default: 0) */

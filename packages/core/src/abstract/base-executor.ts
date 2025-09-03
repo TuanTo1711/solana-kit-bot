@@ -1,11 +1,5 @@
 import { GracefulShutdownManager, type GracefulShutdownConfig } from '~/manager'
-import type {
-  CommandExecutor,
-  CommandExecutorConfig,
-  ExecutorResult,
-  SolanaBotContext,
-} from '~/types'
-import { createLogger, Logger } from '~/utils'
+import type { CommandExecutor, ExecutorConfig, ExecutorResult, SolanaBotContext } from '~/types'
 
 /**
  * Abstract base class for all command executors in the Solana Kit Bot system.
@@ -31,8 +25,7 @@ import { createLogger, Logger } from '~/utils'
  * ```
  */
 export abstract class BaseExecutor implements CommandExecutor<SolanaBotContext> {
-  protected config: CommandExecutorConfig
-  protected logger: Logger
+  protected config: ExecutorConfig
   protected shutdownManager?: GracefulShutdownManager | undefined
 
   /**
@@ -40,15 +33,8 @@ export abstract class BaseExecutor implements CommandExecutor<SolanaBotContext> 
    *
    * @param config - Configuration object with optional timeout, retry, and delay settings
    */
-  constructor(config: CommandExecutorConfig) {
-    this.config = {
-      timeout: 30000,
-      maxRetries: 3,
-      retryDelay: 1000,
-      gracefulShutdown: false,
-      ...config,
-    }
-    this.logger = createLogger(this.constructor.name)
+  constructor(config: ExecutorConfig) {
+    this.config = config
     this.setupGracefulShutdown()
   }
 
@@ -81,9 +67,6 @@ export abstract class BaseExecutor implements CommandExecutor<SolanaBotContext> 
       this.validateContext(context)
       return true
     } catch (error) {
-      this.logger.error(
-        `Validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-      )
       return false
     }
   }
@@ -169,13 +152,9 @@ export abstract class BaseExecutor implements CommandExecutor<SolanaBotContext> 
 
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
-        if (attempt > 0) {
-          this.logger.info(`Retry attempt ${attempt}/${retries} (delay: ${delay}ms)`)
-        }
         return await operation()
       } catch (error) {
         lastError = error instanceof Error ? error : lastError
-        this.logger.warn(`Attempt ${attempt + 1} failed: ${lastError.message}`)
 
         if (attempt < retries) {
           await this.sleep(delay)
@@ -268,17 +247,13 @@ export abstract class BaseExecutor implements CommandExecutor<SolanaBotContext> 
       signals: ['SIGTERM', 'SIGINT'],
       hotkeys: ['q', 'escape'],
       gracePeriod: 15000,
-      enablePrompt: false,
-      shutdownMessage: `${this.constructor.name} shutdown`,
+      exitProcess: false, // Only cleanup command, don't exit app
+      shutdownMessage: `${this.constructor.name} cleanup`,
       ...shutdownConfig,
     })
 
-    this.shutdownManager.registerCallback(async () => {
-      await this.onShutdown()
-    })
-
+    this.shutdownManager.registerCallback(this.onShutdown.bind(this))
     this.shutdownManager.enable()
-    this.logger.debug('Graceful shutdown enabled')
   }
 
   /**

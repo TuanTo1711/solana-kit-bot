@@ -1,9 +1,9 @@
 import chalk from 'chalk'
 
-import { createLogger } from '~/utils/logger'
+import { createLogger, Logger } from '~/utils'
 import type {
   AsyncCommandExecutor,
-  CommandExecutorConfig,
+  ExecutorConfig,
   ExecutionContext,
   ExecutionStrategy,
   ExecutorResult,
@@ -37,6 +37,7 @@ export abstract class IterableExecutor extends BaseExecutor implements AsyncComm
   protected strategy: ExecutionStrategy
   protected timing: TimingStrategy
   protected timeoutId: NodeJS.Timeout | undefined
+  protected logger: Logger
 
   /**
    * Creates a new IterableExecutor instance
@@ -48,7 +49,7 @@ export abstract class IterableExecutor extends BaseExecutor implements AsyncComm
    * @param strategy - Execution strategy for controlling iteration flow
    * @param timing - Timing strategy for controlling execution scheduling
    */
-  constructor(config: CommandExecutorConfig, strategy: ExecutionStrategy, timing: TimingStrategy) {
+  constructor(config: ExecutorConfig, strategy: ExecutionStrategy, timing: TimingStrategy) {
     super(config)
     this.strategy = strategy
     this.timing = timing
@@ -90,7 +91,7 @@ export abstract class IterableExecutor extends BaseExecutor implements AsyncComm
 
       const totalTime = Date.now() - this.executionContext.startTime
       const successMessage = [
-        chalk.green.bold(`✓ ${this.constructor.name} completed successfully.`),
+        chalk.green.bold(`✓ ${IterableExecutor.name} completed successfully.`),
         chalk.cyan(
           `📊 Total executions: ${chalk.white.bold(this.executionContext.totalExecutions)}`
         ),
@@ -105,7 +106,7 @@ export abstract class IterableExecutor extends BaseExecutor implements AsyncComm
       this.logger.info(successMessage)
       return this.createSuccessResult(successMessage)
     } catch (error) {
-      const errorMessage = `${chalk.red.bold(this.constructor.name)} failed after ${chalk.yellow(this.executionContext.totalExecutions)} executions: ${chalk.red((error as Error).message)}`
+      const errorMessage = `${chalk.red.bold(IterableExecutor.name)} failed after ${chalk.yellow(this.executionContext.totalExecutions)} executions: ${chalk.red((error as Error).message)}`
       this.logger.error(errorMessage, {
         totalExecutions: this.executionContext.totalExecutions,
         successfulExecutions: this.executionContext.successfulExecutions,
@@ -143,7 +144,7 @@ export abstract class IterableExecutor extends BaseExecutor implements AsyncComm
   private async performCancellation(reason: string): Promise<void> {
     this.logger.info(
       chalk.yellow(
-        `${this.constructor.name}: ${reason} (iteration: ${chalk.cyan(this.executionContext.currentIteration)})`
+        `${IterableExecutor.name}: ${reason} (iteration: ${chalk.cyan(this.executionContext.currentIteration)})`
       )
     )
 
@@ -159,15 +160,15 @@ export abstract class IterableExecutor extends BaseExecutor implements AsyncComm
     if (this.timeoutId) {
       clearTimeout(this.timeoutId)
       this.timeoutId = undefined
-      this.logger.debug(chalk.gray(`${this.constructor.name}: Cleared pending timeout`))
+      this.logger.debug(chalk.gray(`${IterableExecutor.name}: Cleared pending timeout`))
     }
 
     this.logger.info(
       chalk.blue(
-        `${this.constructor.name}: Running ${chalk.cyan(this.cleanupCallbacks.length)} cleanup callbacks`
+        `${IterableExecutor.name}: Running ${chalk.cyan(this.cleanupCallbacks.length)} cleanup callbacks`
       )
     )
-    
+
     // Run cleanup callbacks with individual timeouts
     for (const [index, callback] of this.cleanupCallbacks.entries()) {
       try {
@@ -183,14 +184,14 @@ export abstract class IterableExecutor extends BaseExecutor implements AsyncComm
     this.cleanupCallbacks.length = 0
     this.resetExecutionContext()
     await this.cleanup() // Call async cleanup
-    this.logger.info(chalk.green(`${this.constructor.name}: ${reason} completed`))
+    this.logger.info(chalk.green(`${IterableExecutor.name}: ${reason} completed`))
   }
 
   /**
    * Wait for current iteration to complete with timeout
    */
   private async waitForCurrentIteration(timeoutMs: number): Promise<void> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const startTime = Date.now()
       const checkInterval = setInterval(() => {
         if (!this.timeoutId || Date.now() - startTime > timeoutMs) {
@@ -207,9 +208,7 @@ export abstract class IterableExecutor extends BaseExecutor implements AsyncComm
   private withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
     return Promise.race([
       promise,
-      new Promise<never>((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout')), timeoutMs)
-      )
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeoutMs)),
     ])
   }
 
@@ -325,13 +324,13 @@ export abstract class IterableExecutor extends BaseExecutor implements AsyncComm
    * @returns Promise that resolves when the loop completes
    */
   private async runIterationLoop(context: SolanaBotContext): Promise<void> {
-    this.logger.info(chalk.blue(`${this.constructor.name}: Starting iteration loop`))
+    this.logger.info(chalk.blue(`${IterableExecutor.name}: Starting iteration loop`))
 
     return new Promise((resolve, reject) => {
       const executeNext = async () => {
         if (!this._isRunning || !this.executionContext.isRunning) {
           this.logger.info(
-            chalk.gray(`${this.constructor.name}: Loop stopped - execution not active`)
+            chalk.gray(`${IterableExecutor.name}: Loop stopped - execution not active`)
           )
           resolve()
           return
@@ -341,7 +340,7 @@ export abstract class IterableExecutor extends BaseExecutor implements AsyncComm
           this._isRunning = false
           this.executionContext.isRunning = false
           this.logger.info(
-            chalk.green(`${this.constructor.name}: Loop completed - strategy determined to stop`)
+            chalk.green(`${IterableExecutor.name}: Loop completed - strategy determined to stop`)
           )
           resolve()
           return
@@ -357,7 +356,7 @@ export abstract class IterableExecutor extends BaseExecutor implements AsyncComm
           this.executionContext.currentIteration++
           this.logger.debug(
             chalk.cyan(
-              `${this.constructor.name}: Starting iteration ${chalk.white.bold(this.executionContext.currentIteration)}`
+              `${IterableExecutor.name}: Starting iteration ${chalk.white.bold(this.executionContext.currentIteration)}`
             )
           )
 
@@ -384,7 +383,7 @@ export abstract class IterableExecutor extends BaseExecutor implements AsyncComm
           const err = error as Error
           this.logger.error(
             chalk.red(
-              `${this.constructor.name}: Iteration ${chalk.yellow(this.executionContext.currentIteration)} threw exception: ${err.message}`
+              `${IterableExecutor.name}: Iteration ${chalk.yellow(this.executionContext.currentIteration)} threw exception: ${err.message}`
             )
           )
 
@@ -426,14 +425,14 @@ export abstract class IterableExecutor extends BaseExecutor implements AsyncComm
       this.executionContext.successfulExecutions++
       this.logger.debug(
         chalk.green(
-          `${this.constructor.name}: Iteration ${chalk.cyan(this.executionContext.currentIteration)} succeeded (${chalk.yellow(`${endTime - startTime}ms`)})`
+          `${IterableExecutor.name}: Iteration ${chalk.cyan(this.executionContext.currentIteration)} succeeded (${chalk.yellow(`${endTime - startTime}ms`)})`
         )
       )
     } else {
       this.executionContext.failedExecutions++
       this.logger.warn(
         chalk.yellow(
-          `${this.constructor.name}: Iteration ${chalk.cyan(this.executionContext.currentIteration)} failed: ${chalk.red(result.message)}`
+          `${IterableExecutor.name}: Iteration ${chalk.cyan(this.executionContext.currentIteration)} failed: ${chalk.red(result.message)}`
         )
       )
     }
@@ -459,7 +458,7 @@ export abstract class IterableExecutor extends BaseExecutor implements AsyncComm
 
     this.logger.error(
       chalk.red(
-        `${this.constructor.name}: ${chalk.magenta(wasException ? 'Exception' : 'Error')} in iteration ${chalk.cyan(this.executionContext.currentIteration)}: ${error.message}`
+        `${IterableExecutor.name}: ${chalk.magenta(wasException ? 'Exception' : 'Error')} in iteration ${chalk.cyan(this.executionContext.currentIteration)}: ${error.message}`
       ),
       {
         error: error.stack,
@@ -475,11 +474,11 @@ export abstract class IterableExecutor extends BaseExecutor implements AsyncComm
       this._isRunning = false
       this.executionContext.isRunning = false
       this.logger.error(
-        chalk.red.bold(`${this.constructor.name}: Strategy determined to stop after error`)
+        chalk.red.bold(`${IterableExecutor.name}: Strategy determined to stop after error`)
       )
     } else {
       this.logger.info(
-        chalk.green(`${this.constructor.name}: Strategy determined to continue after error`)
+        chalk.green(`${IterableExecutor.name}: Strategy determined to continue after error`)
       )
     }
 
@@ -501,13 +500,13 @@ export abstract class IterableExecutor extends BaseExecutor implements AsyncComm
       const delay = this.timing.getNextExecutionDelay(this.executionContext)
       this.logger.debug(
         chalk.gray(
-          `${this.constructor.name}: Scheduling next iteration in ${chalk.cyan(`${delay}ms`)}`
+          `${IterableExecutor.name}: Scheduling next iteration in ${chalk.cyan(`${delay}ms`)}`
         )
       )
       this.timeoutId = setTimeout(executeNext, delay)
     } else {
       this.logger.info(
-        chalk.blue(`${this.constructor.name}: Loop completed - no more iterations scheduled`)
+        chalk.blue(`${IterableExecutor.name}: Loop completed - no more iterations scheduled`)
       )
       resolve()
     }

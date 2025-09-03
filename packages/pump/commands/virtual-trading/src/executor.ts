@@ -37,7 +37,13 @@ export class VirtualWalletTradingExecutor extends IterationExecutor {
     private readonly client: PumpswapClient
   ) {
     super({
-      gracefulShutdown: false,
+      gracefulShutdown: {
+        signals: ['SIGTERM', 'SIGINT'],
+        hotkeys: ['q', 'escape'],
+        gracePeriod: 10000, // 10 giây để cleanup
+        shutdownMessage: 'Virtual Trading shutting down...',
+        exitProcess: false,
+      },
       interval: options.interval,
       maxIterations: options.loops,
       stopOnError: false,

@@ -1,5 +1,4 @@
 import chalk from 'chalk'
-import { createLogger } from '~/utils/logger'
 
 /**
  * Configuration for graceful shutdown behavior
@@ -11,12 +10,12 @@ export interface GracefulShutdownConfig {
   hotkeys?: string[]
   /** Maximum time to wait for graceful shutdown (default: 30000ms) */
   gracePeriod?: number
-  /** Whether to show confirmation prompt (default: false for CLI) */
-  enablePrompt?: boolean
   /** Custom shutdown message */
   shutdownMessage?: string
   /** Whether to clear screen on shutdown (default: false) */
   clearScreen?: boolean
+  /** Whether to exit process after cleanup (default: false) */
+  exitProcess?: boolean
 }
 
 /**
@@ -45,7 +44,6 @@ export class GracefulShutdownManager {
   private shutdownCallbacks: Array<() => Promise<void>> = []
   private isShuttingDown = false
   private isEnabled = false
-  private logger = createLogger('ShutdownManager')
   private keyListener?: ((key: string) => void) | undefined
   private signalListeners = new Map<string, () => void>()
 
@@ -54,9 +52,9 @@ export class GracefulShutdownManager {
       signals: ['SIGTERM', 'SIGINT'],
       hotkeys: ['q', 'escape', 'ctrl+c'],
       gracePeriod: 30000,
-      enablePrompt: false,
       shutdownMessage: 'Shutdown initiated',
       clearScreen: false,
+      exitProcess: false,
       ...config,
     }
   }
@@ -70,12 +68,6 @@ export class GracefulShutdownManager {
     this.isEnabled = true
     this.setupSignalHandlers()
     this.setupKeyHandlers()
-
-    this.logger.debug('Graceful shutdown enabled', {
-      signals: this.config.signals,
-      hotkeys: this.config.hotkeys,
-      gracePeriod: this.config.gracePeriod,
-    })
   }
 
   /**
@@ -86,8 +78,6 @@ export class GracefulShutdownManager {
 
     this.isEnabled = false
     this.cleanupListeners()
-
-    this.logger.debug('Graceful shutdown disabled')
   }
 
   /**
@@ -147,7 +137,7 @@ export class GracefulShutdownManager {
       process.stdin.setEncoding('utf8')
       process.stdin.on('data', this.keyListener)
     } catch (error) {
-      this.logger.warn('Failed to setup key handlers:', { error })
+      console.warn('Failed to setup key handlers:', error)
     }
   }
 
@@ -218,62 +208,18 @@ export class GracefulShutdownManager {
         chalk.cyan(reason)
     )
 
-    if (this.config.enablePrompt) {
-      const shouldContinue = await this.promptConfirmation()
-      if (!shouldContinue) {
-        this.isShuttingDown = false
-        console.log(chalk.green('✅ Shutdown cancelled'))
-        return
-      }
-    }
-
     await this.performShutdown()
-  }
-
-  private async promptConfirmation(): Promise<boolean> {
-    try {
-      const inquirer = await import('inquirer')
-
-      // Create a timeout promise
-      const timeoutPromise = new Promise<boolean>(resolve => {
-        setTimeout(() => {
-          console.log(chalk.gray('\n⏰ Timeout - proceeding with shutdown...'))
-          resolve(true)
-        }, 5000)
-      })
-
-      // Create the inquirer prompt
-      const promptPromise = inquirer.default
-        .prompt([
-          {
-            type: 'confirm',
-            name: 'shouldShutdown',
-            message: chalk.cyan('Are you sure you want to stop?'),
-            default: false,
-            theme: {
-              style: {
-                answer: (text: string) => chalk.yellow(text),
-                message: (text: string) => chalk.cyan(text),
-                help: (text: string) => chalk.gray(text),
-              },
-            },
-          },
-        ])
-        .then(answers => answers.shouldShutdown)
-
-      // Race between prompt and timeout
-      return await Promise.race([promptPromise, timeoutPromise])
-    } catch (error) {
-      // Fallback to default behavior if inquirer fails
-      console.log(chalk.gray('Using default confirmation...'))
-      return true
-    }
   }
 
   private async performShutdown(): Promise<void> {
     const shutdownTimer = setTimeout(() => {
-      console.log(chalk.red('❌ Graceful shutdown timeout, forcing exit'))
-      process.exit(1)
+      console.log(chalk.red('❌ Graceful shutdown timeout'))
+      if (this.config.exitProcess) {
+        console.log(chalk.red('Forcing exit...'))
+        process.exit(1)
+      } else {
+        console.log(chalk.yellow('Continuing with cleanup...'))
+      }
     }, this.config.gracePeriod)
 
     try {
@@ -300,7 +246,7 @@ export class GracefulShutdownManager {
           console.log(chalk.yellow(`   ⚠️  ${failed} task(s) failed`))
           results.forEach((result, index) => {
             if (result.status === 'rejected') {
-              this.logger.warn(`Shutdown callback ${index + 1} failed:`, result.reason)
+              console.warn(`Shutdown callback ${index + 1} failed:`, result.reason)
             }
           })
         }
@@ -309,14 +255,27 @@ export class GracefulShutdownManager {
       clearTimeout(shutdownTimer)
       this.cleanupListeners()
 
-      console.log(chalk.green('\n✅ ') + chalk.white.bold('Graceful shutdown completed') + chalk.gray(' - Goodbye! 👋'))
-
-      // Small delay to ensure logs are flushed
-      setTimeout(() => process.exit(0), 100)
+      if (this.config.exitProcess) {
+        console.log(
+          chalk.green('\n✅ ') +
+            chalk.white.bold('Graceful shutdown completed') +
+            chalk.gray(' - Goodbye! 👋')
+        )
+        // Small delay to ensure logs are flushed
+        setTimeout(() => process.exit(0), 100)
+      } else {
+        console.log(
+          chalk.green('\n✅ ') +
+            chalk.white.bold('Command cleanup completed') +
+            chalk.gray(' - Ready for next command')
+        )
+      }
     } catch (error) {
       clearTimeout(shutdownTimer)
       console.error(chalk.red('❌ Error during shutdown:'), error)
-      process.exit(1)
+      if (this.config.exitProcess) {
+        process.exit(1)
+      }
     }
   }
 
@@ -337,10 +296,15 @@ export class GracefulShutdownManager {
  *
  * @example
  * ```typescript
+ * // For full app shutdown
  * const shutdown = createGracefulShutdown([
- *   async () => { await cleanup() },
- *   () => { console.log('Goodbye!') }
+ *   async () => { await cleanup() }
  * ])
+ *
+ * // For command-only cleanup (don't exit app)
+ * const commandShutdown = createGracefulShutdown([
+ *   async () => { await cleanup() }
+ * ], { exitProcess: false })
  * ```
  */
 export function createGracefulShutdown(
