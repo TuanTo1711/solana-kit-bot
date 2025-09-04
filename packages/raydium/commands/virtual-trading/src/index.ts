@@ -1,6 +1,8 @@
+import chalk from 'chalk'
 import { Command, Option, type BaseContext } from 'clipanion'
 
 import {
+  createLogger,
   FixedPriceStrategy,
   RandomPriceStrategy,
   wrapEscHandler,
@@ -8,17 +10,18 @@ import {
   type SolanaBotContext,
 } from '@solana-kit-bot/core'
 import { createRaydiumCpmmClient } from '@solana-kit-bot/raydium-cpmm'
-import chalk from 'chalk'
-import { virtualTradingOptionsSchema, type VirtualTradingOptions } from './validation'
 import {
-  MAX_VIRTUAL_WALLETS,
-  MIN_VIRTUAL_WALLETS,
   DEFAULT_TIP_SOL,
   LAMPORTS_PER_SOL,
+  MAX_VIRTUAL_WALLETS,
+  MIN_VIRTUAL_WALLETS,
 } from './constants'
 import { VirtualWalletTradingExecutor } from './executor'
+import { virtualTradingOptionsSchema, type VirtualTradingOptions } from './validation'
 
 export class VirtualTradingCommand extends Command<BaseContext & SolanaBotContext> {
+  private readonly logger = createLogger('VirtualTradingCommand')
+
   pool = Option.String('-p,--pool', { description: 'Địa chỉ pool để chạy lệnh', required: false })
   wallets = Option.String('-w,--wallets', {
     description: 'Số lượng ví muốn dùng',
@@ -63,11 +66,8 @@ export class VirtualTradingCommand extends Command<BaseContext & SolanaBotContex
       max: this.max,
     }
 
-    const inquirer = await import('inquirer')
-    const prompt = inquirer.createPromptModule({
-      input: process.stdin,
-      output: process.stdout,
-    })
+    const { default: inquirer } = await import('inquirer')
+    const prompt = inquirer.prompt
 
     const questions = prompt<VirtualTradingOptions>(
       [
@@ -168,8 +168,8 @@ export class VirtualTradingCommand extends Command<BaseContext & SolanaBotContex
           message: 'Khoảng thời gian chờ để bán (giây): ',
           required: true,
           validate: (value: string) =>
-            isNaN(parseFloat(value)) || parseFloat(value) < 0
-              ? 'Khoảng thời gian phải lớn hơn 0'
+            isNaN(parseFloat(value)) || parseFloat(value) <= 0
+              ? 'Khoảng thời gian phải là một số'
               : true,
         },
       ],
@@ -179,7 +179,7 @@ export class VirtualTradingCommand extends Command<BaseContext & SolanaBotContex
     const answers = await wrapEscHandler<typeof questions>(questions)
     const { success, data, error } = virtualTradingOptionsSchema.safeParse(answers)
     if (!success) {
-      this.context.stderr.write(error)
+      this.logger.error(error)
       return
     }
 
@@ -188,7 +188,7 @@ export class VirtualTradingCommand extends Command<BaseContext & SolanaBotContex
     const priceStrategy = this.initializePricingStrategy(data)
 
     if (!priceStrategy) {
-      this.context.stderr.write('Chiến lược định giá không hợp lệ')
+      this.logger.error('Chiến lược định giá không hợp lệ')
       return
     }
 
@@ -200,7 +200,7 @@ export class VirtualTradingCommand extends Command<BaseContext & SolanaBotContex
     })
 
     if (!confirmed) {
-      this.context.stderr.write('Đã hủy thực thi lệnh')
+      this.logger.error('Đã hủy thực thi lệnh')
       return
     }
 
@@ -215,9 +215,9 @@ export class VirtualTradingCommand extends Command<BaseContext & SolanaBotContex
       await executor.setup()
       const result = await executor.execute(this.context)
 
-      console.log(result.data ?? 'Lệnh chạy thành công')
+      this.logger.info(result.data ?? 'Lệnh chạy thành công')
     } catch (error) {
-      this.context.stderr.write('Lỗi khi chạy virtual trading: ')
+      this.logger.error('Lỗi khi chạy virtual trading: ')
 
       throw error
     }
