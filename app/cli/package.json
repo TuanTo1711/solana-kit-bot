@@ -28,6 +28,7 @@
     "@solana-kit-bot/pumpswap-virtual-trading": "workspace:*",
     "@solana-kit-bot/raydium-launchlab-pool-checker": "workspace:*",
     "@solana-kit-bot/raydium-launchlab-virtual-trading": "workspace:*",
+    "@solana-kit-bot/raydium-cpmm-fast-pump": "workspace:*",
     "@solana/kit": "^2.3.0",
     "chalk": "^5.6.0",
     "clipanion": "4.0.0-rc.4",

@@ -15,6 +15,7 @@ import { PumpswapPoolCheckerCommand } from '@solana-kit-bot/pumpswap-pool-checke
 import { VirtualTradingCommand as PumpswapVirtualTradingCommand } from '@solana-kit-bot/pumpswap-virtual-trading'
 import { PoolCheckerCommand } from '@solana-kit-bot/raydium-launchlab-pool-checker'
 import { VirtualTradingCommand } from '@solana-kit-bot/raydium-launchlab-virtual-trading'
+import { RaydiumCpmmFastPumpCommand } from '@solana-kit-bot/raydium-cpmm-fast-pump'
 
 import { ConfigCommand } from './commands/config'
 import { PumpswapCommand } from './commands/pumpswap'
@@ -75,6 +76,7 @@ class Application {
 
     this.cli.register(VirtualTradingCommand)
     this.cli.register(PoolCheckerCommand)
+    this.cli.register(RaydiumCpmmFastPumpCommand)
 
     this.cli.register(RaydiumLaunchlabCommand)
     this.cli.register(PumpswapPoolCheckerCommand)

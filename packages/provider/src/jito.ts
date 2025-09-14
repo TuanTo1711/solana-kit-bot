@@ -180,10 +180,7 @@ export const createJitoRpc = (
             params: [
               transaction,
               {
-                encoding: 'base64',
-                skipPreflight: config?.skipPreflight ?? true,
-                maxRetries: config?.maxRetries ?? 0,
-                preflightCommitment: config?.preflightCommitment ?? 'confirmed',
+                encoding: config?.encoding ?? 'base64',
               },
             ],
           }),
@@ -209,7 +206,6 @@ export const createJitoRpc = (
         const bundleId = await Promise.any(requests)
         return bundleId
       } catch (error) {
-        // Nếu tất cả requests đều fail
         throw new Error(`All Jito endpoints failed: ${error}`)
       }
     },

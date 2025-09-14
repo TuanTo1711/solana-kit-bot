@@ -107,6 +107,10 @@ export class RaydiumLaunchlabCommand extends Command<BaseContext & SolanaBotCont
         value: () => this.getCommand('pool-checker', 'run'),
       },
       {
+        name: `💰 Mua bơm nhanh ${chalk.gray('- Fast Pump')}`,
+        value: () => this.getCommand('fast-pump'),
+      },
+      {
         name: `📈 Đặt lệnh mua tự động ${chalk.gray('- Limit Order Buy')}`,
         value: () => this.getCommand('limit-order'),
         disabled: `- Chưa phát triển xong`,

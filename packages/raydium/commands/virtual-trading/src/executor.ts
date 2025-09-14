@@ -121,16 +121,13 @@ export class VirtualWalletTradingExecutor extends IterationExecutor {
         this.scheduleSellPhase(context, buyResult, timeout)
       }
 
-      // Record successful iteration
       const duration = Date.now() - startTime
       this.performanceMonitor.recordIteration(duration, true, wallets)
 
       return this.createSuccessResult('Buy phase completed, sell scheduled')
     } catch (error) {
-      // Record failed iteration
       this.performanceMonitor.recordIteration(Date.now() - startTime, false)
 
-      // Don't throw error if we're shutting down
       if (!this.isRunning()) {
         return this.createSuccessResult('Iteration failed but shutdown in progress')
       }

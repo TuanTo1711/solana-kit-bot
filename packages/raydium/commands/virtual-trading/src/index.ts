@@ -168,7 +168,7 @@ export class VirtualTradingCommand extends Command<BaseContext & SolanaBotContex
           message: 'Khoảng thời gian chờ để bán (giây): ',
           required: true,
           validate: (value: string) =>
-            isNaN(parseFloat(value)) || parseFloat(value) <= 0
+            isNaN(parseFloat(value)) || parseFloat(value) < 0
               ? 'Khoảng thời gian phải là một số'
               : true,
         },
@@ -213,9 +213,9 @@ export class VirtualTradingCommand extends Command<BaseContext & SolanaBotContex
     )
     try {
       await executor.setup()
-      const result = await executor.execute(this.context)
+      await executor.execute(this.context)
 
-      this.logger.info(result.data ?? 'Lệnh chạy thành công')
+      this.logger.info('Lệnh chạy thành công')
     } catch (error) {
       this.logger.error('Lỗi khi chạy virtual trading: ')
 

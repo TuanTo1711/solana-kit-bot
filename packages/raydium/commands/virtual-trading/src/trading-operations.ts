@@ -111,8 +111,6 @@ export class TradingOperations {
         price: priceResult.price,
       }
 
-      console.log(`Ví ${index + 1}: giá=${priceResult.price}, mua=${amountIn}, nhận=${amountOut}`)
-
       return { bundle, tradeInfo, signerAddress: signer.address }
     }
 
