@@ -27,6 +27,7 @@ export type RaydiumCpmmFastPumpConfig = {
   pool: string
   wallets: number
   method: 'manual' | 'file'
+  hasBaseAta: boolean
   tip: bigint
 }
 
@@ -61,6 +62,12 @@ export class RaydiumCpmmFastPumpCommand extends Command<BaseContext & SolanaBotC
           },
         ],
         default: 'manual',
+      },
+      {
+        type: 'confirm',
+        name: 'hasBaseAta',
+        message: 'Đã có ata cho token chưa?',
+        default: false,
       },
       {
         type: 'number',
@@ -125,7 +132,7 @@ export class RaydiumCpmmFastPumpCommand extends Command<BaseContext & SolanaBotC
   }
 
   async doExecute(answer: RaydiumCpmmFastPumpConfig, pumpers: Pumper[]) {
-    const { pool, tip } = answer
+    const { pool, tip, hasBaseAta } = answer
     const { provider, transactionManager } = this.context
     const base58 = getBase58Codec()
     const bundle: Bundle[] = []
@@ -147,7 +154,7 @@ export class RaydiumCpmmFastPumpCommand extends Command<BaseContext & SolanaBotC
             amountIn: amount,
             minAmountOut: 1n,
           },
-          { hasSolAta: false, hasTokenAta: true }
+          { hasSolAta: false, hasTokenAta: hasBaseAta }
         )
 
         instructions.push(...buyInstructions)
