@@ -200,7 +200,7 @@ export class RaydiumCpmmFastPumpCommand extends Command<BaseContext & SolanaBotC
       required: true,
       validate: (value: string) =>
         isNaN(parseFloat(value)) || Number(value) <= 0 ? 'Số lượng SOL phải lớn hơn 0' : true,
-      filter: (value: string) => BigInt(Number(value) * 10 ** 9),
+      filter: (value: string) => BigInt((Number(value) * 10 ** 9).toFixed(0)),
     }
   }
 }
