@@ -3,6 +3,7 @@ import * as fs from 'fs'
 import {
   createKeyPairSignerFromBytes,
   getBase58Codec,
+  type Address,
   type Instruction,
   type TransactionSigner,
 } from '@solana/kit'
@@ -17,6 +18,7 @@ import {
   type SolanaBotContext,
 } from '@solana-kit-bot/core'
 import { createRaydiumCpmmClient } from '@solana-kit-bot/raydium-cpmm'
+import { fetchMint } from '@solana-program/token'
 
 export type Pumper = {
   keypair: string
@@ -26,6 +28,7 @@ export type Pumper = {
 export type RaydiumCpmmFastPumpConfig = {
   pool: string
   wallets: number
+  baseMint: string
   method: 'manual' | 'file'
   hasBaseAta: boolean
   tip: bigint
@@ -46,6 +49,14 @@ export class RaydiumCpmmFastPumpCommand extends Command<BaseContext & SolanaBotC
         required: true,
         validate: (value: string) =>
           value.length === 0 ? 'Địa chỉ pool không được để trống' : true,
+      },
+      {
+        type: 'input',
+        name: 'baseMint',
+        message: 'Nhập địa chỉ token sử dụng để mua: ',
+        required: true,
+        validate: (value: string) =>
+          value.length === 0 ? 'Địa chỉ token không được để trống' : true,
       },
       {
         type: 'list',
@@ -90,13 +101,16 @@ export class RaydiumCpmmFastPumpCommand extends Command<BaseContext & SolanaBotC
     ])
 
     const answer = await wrapEscHandler<typeof question>(question)
-
+    const { data: mint } = await fetchMint(this.context.provider.rpc, answer.baseMint as Address)
     const { wallets, method } = answer
     const pumpers: Pumper[] = []
 
     if (method === 'manual') {
       for (let i = 0; i < wallets; i++) {
-        const question = prompt<Pumper>([this.createKeypairInput(i), this.createAmountInput(i)])
+        const question = prompt<Pumper>([
+          this.createKeypairInput(i),
+          this.createAmountInput(i, mint.decimals),
+        ])
         const answer = await wrapEscHandler<typeof question>(question)
         pumpers.push(answer)
       }
@@ -192,15 +206,15 @@ export class RaydiumCpmmFastPumpCommand extends Command<BaseContext & SolanaBotC
     }
   }
 
-  private createAmountInput(i: number): DistinctQuestion<{ amount: bigint }> {
+  private createAmountInput(i: number, decimals: number): DistinctQuestion<{ amount: bigint }> {
     return {
       type: 'input',
       name: 'amount',
-      message: `Nhập số lượng SOL dùng cho ví ${i + 1}: `,
+      message: `Nhập số tiền dùng để mua token cho ví ${i + 1}: `,
       required: true,
       validate: (value: string) =>
-        isNaN(parseFloat(value)) || Number(value) <= 0 ? 'Số lượng SOL phải lớn hơn 0' : true,
-      filter: (value: string) => BigInt((Number(value) * 10 ** 9).toFixed(0)),
+        isNaN(parseFloat(value)) || Number(value) <= 0 ? 'Số tiền phải lớn hơn 0' : true,
+      filter: (value: string) => BigInt((Number(value) * 10 ** decimals).toFixed(0)),
     }
   }
 }
