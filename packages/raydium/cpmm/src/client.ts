@@ -6,12 +6,13 @@ import {
   getSyncNativeInstruction,
   TOKEN_PROGRAM_ADDRESS,
 } from '@solana-program/token'
-import { address, getProgramDerivedAddress } from '@solana/addresses'
+import { address, getAddressEncoder, getProgramDerivedAddress } from '@solana/addresses'
 import { getBytesEncoder, type GetAccountInfoApi, type Instruction, type Rpc } from '@solana/kit'
 
-import { AUTHORITY_SEED } from './constants'
+import { AMM_CONFIG, AUTHORITY_SEED, NATIVE_MINT, POOL_STATE_SEED } from './constants'
 import {
   fetchMaybePoolState,
+  getInitializeInstructionAsync,
   getSwapBaseInputInstruction,
   RAYDIUM_CP_SWAP_PROGRAM_ADDRESS,
 } from './generated'
@@ -25,6 +26,7 @@ import type {
   SellOption,
   SellParams,
 } from './types'
+import type { InitPoolParams } from './types/initPool'
 
 class RaydiumCpmmClientImpl implements RaydiumCpmmClient {
   constructor(private readonly rpc: Rpc<GetAccountInfoApi>) {}
@@ -40,20 +42,95 @@ class RaydiumCpmmClientImpl implements RaydiumCpmmClient {
     return { poolId, ...poolState.data }
   }
 
+  async initializePool(params: InitPoolParams, hasQuoteAta: boolean = false) {
+    const { payer, baseMint, baseAmount, quoteMint, quoteAmount, openTime = 0n } = params
+    const instructions: Instruction[] = []
+    const encoder = getAddressEncoder()
+
+    const [[quoteTokenAccount], [baseTokenAccount], [poolState]] = await Promise.all([
+      findAssociatedTokenPda({
+        owner: payer.address,
+        tokenProgram: TOKEN_PROGRAM_ADDRESS,
+        mint: quoteMint,
+      }),
+      findAssociatedTokenPda({
+        owner: payer.address,
+        tokenProgram: TOKEN_PROGRAM_ADDRESS,
+        mint: baseMint,
+      }),
+      getProgramDerivedAddress({
+        programAddress: RAYDIUM_CP_SWAP_PROGRAM_ADDRESS,
+        seeds: [
+          getBytesEncoder().encode(POOL_STATE_SEED),
+          encoder.encode(AMM_CONFIG),
+          encoder.encode(quoteMint),
+          encoder.encode(baseMint),
+        ],
+      }),
+    ])
+
+    if (!hasQuoteAta) {
+      const createBaseAta = getCreateAssociatedTokenInstruction({
+        ata: quoteTokenAccount,
+        mint: quoteMint,
+        owner: payer.address,
+        payer: payer,
+      })
+      instructions.push(createBaseAta)
+    }
+
+    if (quoteMint === NATIVE_MINT) {
+      const transfer = getTransferSolInstruction({
+        source: payer,
+        destination: quoteTokenAccount,
+        amount: quoteAmount,
+      })
+      instructions.push(transfer, getSyncNativeInstruction({ account: quoteTokenAccount }))
+    }
+
+    const initializeInstruction = await getInitializeInstructionAsync({
+      ammConfig: AMM_CONFIG,
+      creator: payer,
+      creatorToken0: quoteTokenAccount,
+      creatorToken1: baseTokenAccount,
+      initAmount0: quoteAmount,
+      initAmount1: baseAmount,
+      openTime,
+      poolState,
+      token0Mint: quoteMint,
+      token0Program: TOKEN_PROGRAM_ADDRESS,
+      token1Mint: baseMint,
+      token1Program: TOKEN_PROGRAM_ADDRESS,
+    })
+
+    instructions.push(initializeInstruction)
+
+    if (!hasQuoteAta) {
+      const closeAccountInstruction = getCloseAccountInstruction({
+        account: quoteTokenAccount,
+        destination: payer.address,
+        owner: payer.address,
+      })
+      instructions.push(closeAccountInstruction)
+    }
+
+    return instructions
+  }
+
   async createBuyInstructions(params: BuyParams, option: BuyOption) {
     const instructions: Instruction[] = []
     const { hasSolAta = false, hasTokenAta = true } = option
     const { amountIn, buyer, minAmountOut, poolKeys } = params
-    const { token0Mint: WSolMint, token1Mint: tokenMint } = poolKeys
+    const { token0Mint: inputMint, token1Mint: outputMint } = poolKeys
 
     const [[inputTokenAccount], [outputTokenAccount], [authority]] = await Promise.all([
       findAssociatedTokenPda({
-        mint: WSolMint,
+        mint: inputMint,
         owner: buyer.address,
         tokenProgram: TOKEN_PROGRAM_ADDRESS,
       }),
       findAssociatedTokenPda({
-        mint: tokenMint,
+        mint: outputMint,
         owner: buyer.address,
         tokenProgram: TOKEN_PROGRAM_ADDRESS,
       }),
@@ -63,19 +140,30 @@ class RaydiumCpmmClientImpl implements RaydiumCpmmClient {
       }),
     ])
 
-    if (!hasSolAta) {
-      const mint = WSolMint
-      const createBaseAta = getCreateAssociatedTokenInstruction({
+    const createBaseAta =
+      !hasSolAta &&
+      inputMint === NATIVE_MINT &&
+      getCreateAssociatedTokenInstruction({
         ata: inputTokenAccount,
-        mint,
+        mint: inputMint,
         owner: buyer.address,
         payer: buyer,
       })
+    if (createBaseAta) {
       instructions.push(createBaseAta)
+      const transferInstruction = getTransferSolInstruction({
+        source: buyer,
+        destination: inputTokenAccount,
+        amount: amountIn,
+      })
+      instructions.push(
+        transferInstruction,
+        getSyncNativeInstruction({ account: inputTokenAccount })
+      )
     }
 
     if (!hasTokenAta) {
-      const mint = tokenMint
+      const mint = outputMint
       const createBaseAta = getCreateAssociatedTokenInstruction({
         ata: outputTokenAccount,
         mint,
@@ -84,13 +172,6 @@ class RaydiumCpmmClientImpl implements RaydiumCpmmClient {
       })
       instructions.push(createBaseAta)
     }
-
-    const transferInstruction = getTransferSolInstruction({
-      source: buyer,
-      destination: inputTokenAccount,
-      amount: amountIn,
-    })
-    instructions.push(transferInstruction, getSyncNativeInstruction({ account: inputTokenAccount }))
 
     const buyInstruction = getSwapBaseInputInstruction({
       ammConfig: poolKeys.ammConfig,
@@ -112,7 +193,7 @@ class RaydiumCpmmClientImpl implements RaydiumCpmmClient {
 
     instructions.push(buyInstruction)
 
-    if (!hasSolAta) {
+    if (createBaseAta) {
       const closeQuoteAta = getCloseAccountInstruction({
         account: inputTokenAccount,
         destination: buyer.address,
@@ -128,16 +209,16 @@ class RaydiumCpmmClientImpl implements RaydiumCpmmClient {
     const instructions: Instruction[] = []
     const { amountIn, seller, minAmountOut, poolKeys } = params
     const { hasSolAta = false, sellAll = false } = option
-    const { token0Mint: WSolMint, token1Mint: tokenMint } = poolKeys
+    const { token0Mint: inputMint, token1Mint: outputMint } = poolKeys
 
     const [[outputTokenAccount], [inputTokenAccount], [authority]] = await Promise.all([
       findAssociatedTokenPda({
-        mint: WSolMint,
+        mint: inputMint,
         owner: seller.address,
         tokenProgram: TOKEN_PROGRAM_ADDRESS,
       }),
       findAssociatedTokenPda({
-        mint: tokenMint,
+        mint: outputMint,
         owner: seller.address,
         tokenProgram: TOKEN_PROGRAM_ADDRESS,
       }),
@@ -148,7 +229,7 @@ class RaydiumCpmmClientImpl implements RaydiumCpmmClient {
     ])
 
     if (!hasSolAta) {
-      const mint = WSolMint
+      const mint = inputMint
       const createBaseAta = getCreateAssociatedTokenInstruction({
         ata: outputTokenAccount,
         mint,

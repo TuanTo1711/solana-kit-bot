@@ -1,15 +1,18 @@
+import { fetchMint } from '@solana-program/token'
+import type { Address } from '@solana/addresses'
 import chalk from 'chalk'
-import { Command, Option, type BaseContext } from 'clipanion'
+import { Command, type BaseContext } from 'clipanion'
 
 import {
-  createLogger,
   FixedPriceStrategy,
   RandomPriceStrategy,
+  createLogger,
   wrapEscHandler,
   type PriceStrategy,
   type SolanaBotContext,
 } from '@solana-kit-bot/core'
 import { createRaydiumCpmmClient } from '@solana-kit-bot/raydium-cpmm'
+
 import {
   DEFAULT_TIP_SOL,
   LAMPORTS_PER_SOL,
@@ -22,159 +25,122 @@ import { virtualTradingOptionsSchema, type VirtualTradingOptions } from './valid
 export class VirtualTradingCommand extends Command<BaseContext & SolanaBotContext> {
   private readonly logger = createLogger('VirtualTradingCommand')
 
-  pool = Option.String('-p,--pool', { description: 'Địa chỉ pool để chạy lệnh', required: false })
-  wallets = Option.String('-w,--wallets', {
-    description: 'Số lượng ví muốn dùng',
-    required: false,
-  })
-  tip = Option.String('-t,--tip', { description: 'Số tiền tip cho Jito', required: false })
-  loops = Option.String('-l,--loops', {
-    description: 'Số chu kỳ chạy (0 -> vô hạn, >0 -> số lần nhất định)',
-    required: false,
-  })
-  interval = Option.String('-i,--interval', {
-    description: 'Khoảng thời gian chạy lệnh (giây)',
-    required: false,
-  })
-  strategy = Option.String('-s,--strategy', {
-    description: 'Chiến lược định giá (fixed/random)',
-    required: false,
-  })
-  amount? = Option.String('-a,--amount', {
-    description: 'Số tiền sử dụng (strategy = fixed)',
-    required: false,
-  })
-  min? = Option.String('-min,--min', {
-    description: 'Số tiền tối thiểu sử dụng (strategy = random)',
-    required: false,
-  })
-  max? = Option.String('-max,--max', {
-    description: 'Số tiền tối đa sử dụng (strategy = random)',
-    required: false,
-  })
-
   override async execute(): Promise<number | void> {
-    const options = {
-      pool: this.pool,
-      wallets: this.wallets,
-      tip: this.tip,
-      loops: this.loops,
-      interval: this.interval,
-      strategy: this.strategy,
-      amount: this.amount,
-      min: this.min,
-      max: this.max,
-    }
-
     const { default: inquirer } = await import('inquirer')
     const prompt = inquirer.prompt
 
-    const questions = prompt<VirtualTradingOptions>(
-      [
-        {
-          type: 'input',
-          name: 'pool',
-          message: 'Địa chỉ pool: ',
-          required: true,
-          transformer: (value: string) => value.trim(),
-          validate: (value: string) =>
-            value.length === 0 ? 'Địa chỉ pool không được để trống' : true,
-        },
-        {
-          type: 'number',
-          name: 'wallets',
-          message: 'Số lượng ví muốn dùng: ',
-          required: true,
-          min: MIN_VIRTUAL_WALLETS,
-          max: MAX_VIRTUAL_WALLETS,
-          validate: (value: number | undefined) =>
-            !value || isNaN(value)
-              ? `Số lượng ví phải từ ${MIN_VIRTUAL_WALLETS} đến ${MAX_VIRTUAL_WALLETS}`
-              : true,
-        },
-        {
-          type: 'list',
-          name: 'strategy',
-          message: 'Chọn chiến lược định giá: ',
-          choices: [
-            { name: 'Định giá cố định', value: 'fixed' },
-            { name: 'Định giá ngẫu nhiên', value: 'random' },
-          ],
-          default: 'random',
-        },
-        {
-          type: 'input',
-          name: 'amount',
-          message: 'Nhập số tiền sử dụng: ',
-          required: false,
-          when: (answers: Partial<VirtualTradingOptions>) => answers.strategy === 'fixed',
-          validate: (value: string) =>
-            isNaN(parseFloat(value)) || parseFloat(value) <= 0
-              ? 'Số tiền sử dụng phải lớn hơn 0'
-              : true,
-        },
-        {
-          type: 'input',
-          name: 'min',
-          message: 'Nhập giá tối thiểu: ',
-          required: false,
-          when: (answers: Partial<VirtualTradingOptions>) => answers.strategy === 'random',
-          validate: (value: string) =>
-            isNaN(parseFloat(value)) || parseFloat(value) <= 0
-              ? 'Giá tối thiểu phải lớn hơn 0'
-              : true,
-        },
-        {
-          type: 'input',
-          name: 'max',
-          message: 'Nhập giá tối đa: ',
-          required: false,
-          when: (answers: Partial<VirtualTradingOptions>) => answers.strategy === 'random',
-          validate: (value: string) =>
-            isNaN(parseFloat(value)) || parseFloat(value) <= 0 ? 'Giá tối đa phải lớn hơn 0' : true,
-        },
-        {
-          type: 'input',
-          name: 'tip',
-          message: 'Số tiền tip cho Jito: ',
-          required: true,
-          default: DEFAULT_TIP_SOL.toString(),
-          transformer: (value: string) => value.trim(),
-          validate: (value: string) =>
-            value.length === 0 ? 'Số tiền tip không được để trống' : true,
-        },
-        {
-          type: 'number',
-          name: 'loops',
-          message: 'Số chu kỳ chạy: ',
-          min: 0,
-          required: true,
-          validate: (value: number | undefined) =>
-            isNaN(value!) || value! < 0 ? 'Số chu kỳ phải lớn hơn hoặc bằng 0' : true,
-        },
-        {
-          type: 'input',
-          name: 'interval',
-          message: 'Khoảng thời gian giữa các chu kỳ (giây): ',
-          required: true,
-          validate: (value: string) =>
-            isNaN(parseFloat(value)) || parseFloat(value) < 0
-              ? 'Khoảng thời gian phải lớn hơn 0'
-              : true,
-        },
-        {
-          type: 'input',
-          name: 'timeout',
-          message: 'Khoảng thời gian chờ để bán (giây): ',
-          required: true,
-          validate: (value: string) =>
-            isNaN(parseFloat(value)) || parseFloat(value) < 0
-              ? 'Khoảng thời gian phải là một số'
-              : true,
-        },
-      ],
-      options
-    )
+    const questions = prompt<VirtualTradingOptions>([
+      {
+        type: 'input',
+        name: 'pool',
+        message: 'Địa chỉ pool: ',
+        required: true,
+        transformer: (value: string) => value.trim(),
+        validate: (value: string) =>
+          value.length === 0 ? 'Địa chỉ pool không được để trống' : true,
+      },
+      {
+        type: 'input',
+        name: 'quoteMint',
+        message: 'Địa chỉ mint của token đầu ra: ',
+        required: true,
+        transformer: (value: string) => value.trim(),
+        validate: (value: string) =>
+          value.length === 0 ? 'Địa chỉ mint không được để trống' : true,
+      },
+      {
+        type: 'number',
+        name: 'wallets',
+        message: 'Số lượng ví muốn dùng: ',
+        required: true,
+        min: MIN_VIRTUAL_WALLETS,
+        max: MAX_VIRTUAL_WALLETS,
+        validate: (value: number | undefined) =>
+          !value || isNaN(value)
+            ? `Số lượng ví phải từ ${MIN_VIRTUAL_WALLETS} đến ${MAX_VIRTUAL_WALLETS}`
+            : true,
+      },
+      {
+        type: 'list',
+        name: 'strategy',
+        message: 'Chọn chiến lược định giá: ',
+        choices: [
+          { name: 'Định giá cố định', value: 'fixed' },
+          { name: 'Định giá ngẫu nhiên', value: 'random' },
+        ],
+        default: 'random',
+      },
+      {
+        type: 'input',
+        name: 'amount',
+        message: 'Nhập số tiền sử dụng: ',
+        required: false,
+        when: (answers: Partial<VirtualTradingOptions>) => answers.strategy === 'fixed',
+        validate: (value: string) =>
+          isNaN(parseFloat(value)) || parseFloat(value) <= 0
+            ? 'Số tiền sử dụng phải lớn hơn 0'
+            : true,
+      },
+      {
+        type: 'input',
+        name: 'min',
+        message: 'Nhập giá tối thiểu: ',
+        required: false,
+        when: (answers: Partial<VirtualTradingOptions>) => answers.strategy === 'random',
+        validate: (value: string) =>
+          isNaN(parseFloat(value)) || parseFloat(value) <= 0
+            ? 'Giá tối thiểu phải lớn hơn 0'
+            : true,
+      },
+      {
+        type: 'input',
+        name: 'max',
+        message: 'Nhập giá tối đa: ',
+        required: false,
+        when: (answers: Partial<VirtualTradingOptions>) => answers.strategy === 'random',
+        validate: (value: string) =>
+          isNaN(parseFloat(value)) || parseFloat(value) <= 0 ? 'Giá tối đa phải lớn hơn 0' : true,
+      },
+      {
+        type: 'input',
+        name: 'tip',
+        message: 'Số tiền tip cho Jito: ',
+        required: true,
+        default: DEFAULT_TIP_SOL.toString(),
+        transformer: (value: string) => value.trim(),
+        validate: (value: string) =>
+          value.length === 0 ? 'Số tiền tip không được để trống' : true,
+      },
+      {
+        type: 'number',
+        name: 'loops',
+        message: 'Số chu kỳ chạy: ',
+        min: 0,
+        required: true,
+        validate: (value: number | undefined) =>
+          isNaN(value!) || value! < 0 ? 'Số chu kỳ phải lớn hơn hoặc bằng 0' : true,
+      },
+      {
+        type: 'input',
+        name: 'interval',
+        message: 'Khoảng thời gian giữa các chu kỳ (giây): ',
+        required: true,
+        validate: (value: string) =>
+          isNaN(parseFloat(value)) || parseFloat(value) < 0
+            ? 'Khoảng thời gian phải lớn hơn 0'
+            : true,
+      },
+      {
+        type: 'input',
+        name: 'timeout',
+        message: 'Khoảng thời gian chờ để bán (giây): ',
+        required: true,
+        validate: (value: string) =>
+          isNaN(parseFloat(value)) || parseFloat(value) < 0
+            ? 'Khoảng thời gian phải là một số'
+            : true,
+      },
+    ])
 
     const answers = await wrapEscHandler<typeof questions>(questions)
     const { success, data, error } = virtualTradingOptionsSchema.safeParse(answers)
@@ -182,6 +148,9 @@ export class VirtualTradingCommand extends Command<BaseContext & SolanaBotContex
       this.logger.error(error)
       return
     }
+
+    const mint = await fetchMint(this.context.provider.rpc, data.quoteMint as Address)
+    data.quoteDecimals = mint.data.decimals
 
     this.printPrettyConfig(data)
 
@@ -293,7 +262,7 @@ export class VirtualTradingCommand extends Command<BaseContext & SolanaBotContex
         }
 
         const fixedStrategy = new FixedPriceStrategy({
-          fixedPrice: Number(config.amount),
+          fixedPrice: Number(config.amount * 10 ** config.quoteDecimals!),
           precision: 0,
         })
 
@@ -305,8 +274,8 @@ export class VirtualTradingCommand extends Command<BaseContext & SolanaBotContex
           return null
         }
         const randomStrategy = new RandomPriceStrategy({
-          minPrice: Number(config.min),
-          maxPrice: Number(config.max),
+          minPrice: Number(config.min * 10 ** config.quoteDecimals!),
+          maxPrice: Number(config.max * 10 ** config.quoteDecimals!),
           precision: 0,
         })
         return randomStrategy

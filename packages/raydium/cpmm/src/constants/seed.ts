@@ -2,3 +2,4 @@ export const AUTHORITY_SEED: Uint8Array = new Uint8Array([
   118, 97, 117, 108, 116, 95, 97, 110, 100, 95, 108, 112, 95, 109, 105, 110, 116, 95, 97, 117, 116,
   104, 95, 115, 101, 101, 100,
 ])
+export const POOL_STATE_SEED: Uint8Array = new Uint8Array([112, 111, 111, 108])

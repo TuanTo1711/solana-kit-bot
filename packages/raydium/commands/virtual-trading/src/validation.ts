@@ -80,28 +80,21 @@ export const virtualTradingOptionsSchema = z
     amount: z
       .union([z.string(), z.number()])
       .transform((val: string | number) => (typeof val === 'string' ? parseFloat(val) : val))
-      .transform(val => BigInt(val * LAMPORTS_PER_SOL))
-      .pipe(z.bigint().positive('Số tiền phải lớn hơn 0'))
-      .optional()
-      .describe('Số tiền cố định (SOL) - bắt buộc cho chiến lược fixed'),
+      .optional(),
 
     /** Minimum price in SOL (required for 'random' strategy) */
     min: z
       .union([z.string(), z.number()])
       .transform((val: string | number) => (typeof val === 'string' ? parseFloat(val) : val))
-      .transform(val => BigInt(val * LAMPORTS_PER_SOL))
-      .pipe(z.bigint().positive('Giá tối thiểu phải lớn hơn 0'))
-      .optional()
-      .describe('Giá tối thiểu (SOL) - bắt buộc cho chiến lược random'),
+      .optional(),
 
     /** Maximum price in SOL (required for 'random' strategy) */
     max: z
       .union([z.string(), z.number()])
       .transform((val: string | number) => (typeof val === 'string' ? parseFloat(val) : val))
-      .transform(val => BigInt(val * LAMPORTS_PER_SOL))
-      .pipe(z.bigint().positive('Giá tối đa phải lớn hơn 0'))
-      .optional()
-      .describe('Giá tối đa (SOL) - bắt buộc cho chiến lược random'),
+      .optional(),
+    quoteMint: z.string(),
+    quoteDecimals: z.number().optional(),
   })
   .refine(
     data => {

@@ -204,10 +204,7 @@ export class PoolMonitor {
         combineLatest([this.base$, this.quote$]).pipe(
           takeUntil(this.stop$),
           timeout(POOL_DATA_TIMEOUT)
-        ),
-        {
-          defaultValue: [0n, 0n],
-        }
+        )
       )
     } catch (error) {
       throw new Error('Hết thời gian chờ khởi tạo dữ liệu pool')

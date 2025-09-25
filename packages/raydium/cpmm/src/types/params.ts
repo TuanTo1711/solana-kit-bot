@@ -1,8 +1,8 @@
 import type { Address } from '@solana/addresses'
 import type { TransactionSigner } from '@solana/kit'
-import type { PoolState } from '~/generated'
+import type { PoolStateArgs } from '~/generated'
 
-export type PoolKeys = PoolState & {
+export type PoolKeys = PoolStateArgs & {
   poolId: Address
 }
 

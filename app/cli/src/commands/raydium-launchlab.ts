@@ -21,9 +21,9 @@ export class RaydiumLaunchlabCommand extends Command<BaseContext & SolanaBotCont
           verticalLayout: 'default',
         })
         this.context.stdout.write(
-          '\n' + gradient(['#FFD700', '#FFC400'])(raydiumLaunchlabBanner) + '\n'
+          '\n' + gradient(['#A78BFA', '#7C3AED'])(raydiumLaunchlabBanner) + '\n'
         )
-        this.context.stdout.write(gradient(['#FFD700', '#FFC400'])('═'.repeat(100)) + '\n')
+        this.context.stdout.write(gradient(['#A78BFA', '#7C3AED'])('═'.repeat(100)) + '\n')
 
         const now = new Date()
         const timeString = now.toLocaleTimeString('vi-VN', {
@@ -32,21 +32,21 @@ export class RaydiumLaunchlabCommand extends Command<BaseContext & SolanaBotCont
           second: '2-digit',
         })
         this.context.stdout.write(
-          chalk.hex('#FFD700')('🚀 ') +
+          chalk.hex('#A78BFA')('🚀 ') +
             chalk.white.bold('Solana Bot - Raydium Launchlab Trading Module') +
-            chalk.hex('#FFD700')(' 🚀') +
+            chalk.hex('#A78BFA')(' 🚀') +
             '\n'
         )
         this.context.stdout.write(
           chalk.gray('⏰ ') +
             chalk.white(`${timeString}`) +
             chalk.gray('  │  🟢 ') +
-            chalk.hex('#FFD700')('Active') +
+            chalk.hex('#A78BFA')('Active') +
             chalk.gray('  │  📊 ') +
-            chalk.hex('#FFC400')('Trading Ready') +
+            chalk.hex('#7C3AED')('Trading Ready') +
             '\n'
         )
-        this.context.stdout.write(gradient(['#FFD700', '#FFC400'])('═'.repeat(100)) + '\n')
+        this.context.stdout.write(gradient(['#A78BFA', '#7C3AED'])('═'.repeat(100)) + '\n')
 
         const { command } = await inquirer.prompt<{
           command: () => Promise<void> | Promise<Command> | void
@@ -56,7 +56,7 @@ export class RaydiumLaunchlabCommand extends Command<BaseContext & SolanaBotCont
           message: chalk.bold('🎯 Chọn chức năng:'),
           choices: [
             ...initChoices,
-            new inquirer.Separator(chalk.hex('#FFC400')('─'.repeat(100))),
+            new inquirer.Separator(chalk.hex('#7C3AED')('─'.repeat(100))),
             {
               name: `🔙 ${chalk.gray('Quay lại menu chính')}`,
               value: controller.abort.bind(controller),
@@ -64,14 +64,14 @@ export class RaydiumLaunchlabCommand extends Command<BaseContext & SolanaBotCont
           ],
           theme: {
             style: {
-              answer: (text: string) => chalk.hex('#FFD700')(text),
+              answer: (text: string) => chalk.hex('#A78BFA')(text),
               message: (text: string, status: string) =>
-                status === 'done' ? chalk.hex('#FFD700')(text) : chalk.hex('#FFC400')(text),
+                status === 'done' ? chalk.hex('#A78BFA')(text) : chalk.hex('#7C3AED')(text),
               error: (text: string) => chalk.red(text),
               defaultAnswer: (text: string) => chalk.dim(text),
               help: (text: string) => chalk.dim(text),
-              highlight: (text: string) => chalk.hex('#FFD700').bold(text),
-              key: (text: string) => chalk.hex('#FFC400').bold(text),
+              highlight: (text: string) => chalk.hex('#A78BFA').bold(text),
+              key: (text: string) => chalk.hex('#7C3AED').bold(text),
             },
           },
         })
@@ -83,7 +83,7 @@ export class RaydiumLaunchlabCommand extends Command<BaseContext & SolanaBotCont
             {
               type: 'confirm',
               name: 'continue',
-              message: chalk.hex('#FFD700').bold('Nhấn Enter để quay lại menu chính...'),
+              message: chalk.hex('#A78BFA').bold('Nhấn Enter để quay lại menu chính...'),
               default: true,
             },
           ])
@@ -130,8 +130,8 @@ export class RaydiumLaunchlabCommand extends Command<BaseContext & SolanaBotCont
       verticalLayout: 'default',
     })
 
-    this.context.stdout.write('\n' + gradient(['#FFD700', '#FFC400'])(banner) + '\n')
-    this.context.stdout.write(gradient(['#FFD700', '#FFC400'])('═'.repeat(100)) + '\n')
+    this.context.stdout.write('\n' + gradient(['#A78BFA', '#7C3AED'])(banner) + '\n')
+    this.context.stdout.write(gradient(['#A78BFA', '#7C3AED'])('═'.repeat(100)) + '\n')
 
     await this.cli.run([`${name}${commandArgs ? ' ' + commandArgs : ''}`], this.context)
   }

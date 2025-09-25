@@ -1,0 +1,38 @@
+{
+  "name": "@solana-kit-bot/raydium-cpmm-create-pool",
+  "version": "1.0.0",
+  "description": "Create pool command for Raydium Cpmm",
+  "main": "dist/index.js",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "update": "pnpm update",
+    "build": "pnpm clean && tsup",
+    "check-types": "npx tsc --noEmit",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "raydium",
+    "cpmm",
+    "solana",
+    "bot"
+  ],
+  "license": "ISC",
+  "packageManager": "pnpm@10.14.0",
+  "devDependencies": {
+    "tsup": "^8.5.0",
+    "rimraf": "^6.0.1"
+  },
+  "dependencies": {
+    "@solana-kit-bot/core": "workspace:*",
+    "@solana-kit-bot/token-program": "workspace:*",
+    "@solana-program/system": "^0.8.0",
+    "@solana-program/token": "^0.6.0",
+    "@solana/kit": "^3.0.3",
+    "chalk": "^5.6.2",
+    "clipanion": "4.0.0-rc.4",
+    "figlet": "^1.9.1",
+    "gradient-string": "^3.0.0",
+    "inquirer": "^12.9.4"
+  }
+}

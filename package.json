@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "description": "Solana Bot - TypeScript CLI with Turborepo",
+  "bin": {
+    "solana-kit-bot": "app/cli/dist/index.js"
+  },
   "scripts": {
     "update": "turbo run update",
     "build": "turbo run build",
